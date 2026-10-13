@@ -71,6 +71,7 @@ export const copy = {
     reviewBanner:
       'You have already solved this task. You are reviewing it — nothing here changes your progress.',
     hint: 'Hint',
+    hintCount: (hintNumber: number, hintTotal: number) => `Hint ${hintNumber} of ${hintTotal}`,
     stamp: 'CORRECT',
     nextTask: 'NEXT TASK',
     finishLevel: 'FINISH LEVEL',
@@ -135,13 +136,28 @@ export const copy = {
     highlighterHelp:
       'Drag the highlighter onto a transaction and let go to mark it. With a keyboard, use the arrow keys to move between transactions and press Enter to mark one.',
     clue: 'CLUE',
+    working: {
+      heading: 'How the balance adds up',
+      opening: 'Opening balance',
+      moneyIn: 'Money in',
+      moneyInNote: 'adds to the balance',
+      moneyOut: 'Money out',
+      moneyOutNote: 'takes away from the balance',
+      closing: 'Closing balance',
+    },
     evidenceTray: 'Evidence tray',
     evidenceTrayEmpty: 'No clues filed yet.',
   },
 
   cheque: {
     heading: 'Cheque',
+    bank: 'LOTUS VALLEY BANK',
     zone: (label: string, value: string) => `${label}: ${value}`,
+    loupeHelp:
+      'Drag the magnifying glass over the cheque for a closer look, then tap the detail that looks wrong. With a keyboard, press Tab to move between the details and Enter to inspect one.',
+    checked: 'Checked',
+    mismatchStamp: 'MISMATCH',
+    glowHint: 'Hint: take another look at the amount.',
   },
 
   phishing: {

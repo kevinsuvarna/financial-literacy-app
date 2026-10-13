@@ -23,9 +23,14 @@ export function TaskFeedback({ task, reviewing, onFinishLevel }: TaskFeedbackPro
   const feedback = game.getLastFeedback(task.id);
   const attempts = game.getAttempts(task.id);
   const hint = solved ? null : game.getCurrentHint(task.id);
-  // The highlighter task sticks its wrong-answer feedback onto the row that was marked, so
-  // repeating it down here would say everything twice.
-  const showsRetryFeedback = task.kind !== 'highlight';
+  // The highlighter and cheque tasks stick their wrong-answer feedback onto the thing that was
+  // marked or tapped, so repeating it down here would say everything twice.
+  const showsRetryFeedback = task.kind !== 'highlight' && task.kind !== 'tap';
+  // Hints escalate with each wrong answer; say how far along the player is.
+  const hintLabel =
+    task.hints.length > 1
+      ? copy.play.hintCount(Math.min(attempts, task.hints.length), task.hints.length)
+      : copy.play.hint;
 
   const nextTaskId = getNextTaskId(task.id);
   const goOnTo = solved && nextTaskId && game.isTaskReachable(nextTaskId) ? nextTaskId : null;
@@ -63,7 +68,7 @@ export function TaskFeedback({ task, reviewing, onFinishLevel }: TaskFeedbackPro
 
       {hint && hint !== feedback && (
         <Notice tone="info">
-          <strong>{copy.play.hint}:</strong> {hint}
+          <strong>{hintLabel}:</strong> {hint}
         </Notice>
       )}
 

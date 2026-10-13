@@ -22,6 +22,7 @@ function TaskView({ task, headingRef }: TaskViewProps) {
   // solved on this screen. Narrative beats have nothing to solve, so they never show the banner.
   const [openedSolved] = useState(() => game.getTaskStatus(task.id) === 'completed');
   const [showLevelComplete, setShowLevelComplete] = useState(false);
+  const solved = game.getTaskStatus(task.id) === 'completed';
   const position = getTaskPosition(task.id);
   const nextTaskId = getNextTaskId(task.id);
 
@@ -70,6 +71,7 @@ function TaskView({ task, headingRef }: TaskViewProps) {
         </div>
         <TaskReferences references={task.references} />
         <TaskRenderer task={task} />
+        {solved && <TaskReferences references={task.solvedReferences} />}
       </TaskScene>
     </FadeIn>
   );

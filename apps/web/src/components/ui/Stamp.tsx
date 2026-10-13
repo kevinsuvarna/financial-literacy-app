@@ -13,8 +13,11 @@ interface StampProps {
   children: ReactNode;
   tone?: StampTone;
   size?: 'md' | 'lg';
-  /** Slams the stamp down on mount. Leave off for something that was already stamped. */
-  animate?: boolean;
+  /**
+   * Slams the stamp down on mount; `'late'` waits for a line to finish drawing first. Leave
+   * off for something that was already stamped.
+   */
+  animate?: boolean | 'late';
   className?: string;
 }
 
@@ -36,7 +39,8 @@ export function Stamp({
         'inline-block shrink-0 -rotate-6 rounded-sm border-4 border-double font-display font-bold tracking-widest whitespace-nowrap uppercase select-none',
         size === 'lg' ? 'px-5 py-2 text-2xl' : 'px-3 py-1 text-sm',
         tones[tone],
-        animate && 'animate-stamp',
+        animate === true && 'animate-stamp',
+        animate === 'late' && 'animate-stamp-late',
         className,
       )}
     >

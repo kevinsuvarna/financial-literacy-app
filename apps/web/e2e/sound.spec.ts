@@ -11,6 +11,7 @@ const SOUNDS = [
   'wrong',
   'level-complete',
   'squeak',
+  'thud',
 ];
 
 test('every placeholder sound is served from /audio', async ({ request }) => {

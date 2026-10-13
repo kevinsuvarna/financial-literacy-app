@@ -2,7 +2,14 @@ import { z } from 'zod';
 import { sceneTypeSchema } from './schema';
 import { artefactsOfKind } from './artefacts';
 import { chequeHitZoneIds, chequeMismatchZoneIds } from './cheque';
-import { transactions, suspiciousTransactionId } from './statement';
+import { formatRupees } from './format';
+import {
+  getTotalCredits,
+  getTotalDebits,
+  openingBalance,
+  suspiciousTransactionId,
+  transactions,
+} from './statement';
 
 export const taskKindSchema = z.enum([
   'scanOne',
@@ -17,7 +24,12 @@ export const taskKindSchema = z.enum([
 export type TaskKind = z.infer<typeof taskKindSchema>;
 
 /** On-screen copies of documents a task needs the player to read (not interact with). */
-export const taskReferenceSchema = z.enum(['statement', 'cheque', 'phishing-message']);
+export const taskReferenceSchema = z.enum([
+  'statement',
+  'cheque',
+  'phishing-message',
+  'balance-working',
+]);
 export type TaskReference = z.infer<typeof taskReferenceSchema>;
 
 const taskBaseShape = {
@@ -29,6 +41,8 @@ const taskBaseShape = {
   /** Ordered instructions shown up front — unlike `hints`, which only appear after mistakes. */
   steps: z.array(z.string().min(1)).default([]),
   references: z.array(taskReferenceSchema).default([]),
+  /** Documents added once the task is solved, e.g. the working behind the answer. */
+  solvedReferences: z.array(taskReferenceSchema).default([]),
   successText: z.string().min(1),
   hints: z.array(z.string().min(1)).default([]),
 };
@@ -131,6 +145,7 @@ export const tasks: Task[] = z.array(taskSchema).parse([
     prompt: 'HOW MUCH MONEY IS LEFT IN ANANYA’S ACCOUNT?',
     detail: 'Read the statement, work out the closing balance, then scan the matching card.',
     references: ['statement'],
+    solvedReferences: ['balance-working'],
     optionIds: balanceAnswerIds,
     acceptedIds: ['balance-answer-7501'],
     feedback: {
@@ -141,8 +156,12 @@ export const tasks: Task[] = z.array(taskSchema).parse([
     },
     successText:
       'That’s right. Money coming in increases the balance, and money going out decreases it.',
+    // Each hint gives a little more away; none of them states the closing balance. The figures
+    // are computed from the ledger so they can never disagree with the statement on screen.
     hints: [
-      'Add up every credit, then subtract every debit, in order, starting from the opening balance.',
+      'Start from the opening balance. Money in is added to it; money out is taken away.',
+      'Work down the statement one row at a time, keeping a running total. Don’t skip the two cheque rows — one takes money out and the other puts it back.',
+      `Add up the two columns first: money in comes to ${formatRupees(getTotalCredits())} and money out comes to ${formatRupees(getTotalDebits())}. Now start from ${formatRupees(openingBalance)}.`,
     ],
   },
   {
@@ -150,7 +169,7 @@ export const tasks: Task[] = z.array(taskSchema).parse([
     scene: 'screen',
     kind: 'tap',
     prompt: 'WAIT — THE CHEQUE WAS RETURNED. CAN YOU FIND OUT WHY?',
-    detail: 'Tap the part of the cheque that looks wrong.',
+    detail: 'Look the cheque over, then tap the detail that explains why it was returned.',
     optionIds: chequeHitZoneIds,
     acceptedIds: [...chequeMismatchZoneIds],
     feedback: {

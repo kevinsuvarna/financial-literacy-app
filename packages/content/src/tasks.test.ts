@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { levels, tasks, isInteractiveTask, getTask } from './tasks';
 import { artefactIds } from './artefacts';
 import { chequeHitZoneIds } from './cheque';
-import { transactions } from './statement';
+import { formatRupees } from './format';
+import { getClosingBalance, getTotalCredits, getTotalDebits, transactions } from './statement';
 import { incidentReport } from './report';
 
 describe('scene rules', () => {
@@ -11,6 +12,22 @@ describe('scene rules', () => {
       if (task.kind !== 'scanOne' && task.kind !== 'scanAll') continue;
       expect(task.scene, `scan task ${task.id} is not a table scene`).toBe('table');
     }
+  });
+});
+
+describe('hints', () => {
+  it('never give away the closing balance', () => {
+    const answer = formatRupees(getClosingBalance());
+    for (const hint of getTask('l2-t1-closing-balance')?.hints ?? []) {
+      expect(hint).not.toContain(answer);
+      expect(hint).not.toContain(String(getClosingBalance()));
+    }
+  });
+
+  it('quote the same totals as the statement', () => {
+    const lastHint = getTask('l2-t1-closing-balance')?.hints.at(-1) ?? '';
+    expect(lastHint).toContain(formatRupees(getTotalCredits()));
+    expect(lastHint).toContain(formatRupees(getTotalDebits()));
   });
 });
 

@@ -24,6 +24,19 @@ export async function nextTask(page: Page) {
   await nextTaskButton(page).click();
 }
 
+/**
+ * Opens a task directly, with every task before it solved, using the debug panel's "Jump" —
+ * then turns the panel off again so it can't cover what the test is about to click or drag.
+ */
+export async function jumpToTask(page: Page, taskId: string) {
+  await page.goto('/?debug=1');
+  const panel = page.getByRole('complementary', { name: 'Debug panel' });
+  await panel.getByLabel('Jump to task').selectOption(taskId);
+  await panel.getByRole('button', { name: 'Jump' }).click();
+  await page.goto('/play?debug=0');
+  await expect(panel).toHaveCount(0);
+}
+
 /** The start screen's button, which takes the player to the ringing phone. */
 export async function startTraining(page: Page, startUrl = '/') {
   await page.goto(startUrl);

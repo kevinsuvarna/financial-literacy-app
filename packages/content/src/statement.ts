@@ -89,6 +89,14 @@ export function getTransactionAmount(id: string): number {
   return transaction.credit > 0 ? transaction.credit : transaction.debit;
 }
 
+export function getTotalCredits(): number {
+  return transactions.reduce((total, t) => total + t.credit, 0);
+}
+
+export function getTotalDebits(): number {
+  return transactions.reduce((total, t) => total + t.debit, 0);
+}
+
 /** Closing balance is always derived from the ledger, never stored as a literal. */
 export function getClosingBalance(): number {
   return transactions.reduce((balance, t) => balance + t.credit - t.debit, openingBalance);

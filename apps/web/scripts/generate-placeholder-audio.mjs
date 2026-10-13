@@ -144,6 +144,14 @@ const sounds = {
       const tone = sine(pitch, t) * (0.55 + 0.45 * sine(23, t)) * 0.16;
       return (tone + noise() * 0.07) * gate(t, 0.38, 0.03);
     }),
+
+  // A heavy rubber stamp hitting the desk: a low thump with a short knock on top.
+  thud: () =>
+    render(0.32, (t) => {
+      const thump = sine(70 - 60 * t, t) * pluck(t, 16, 0.002) * 0.85;
+      const knock = noise() * pluck(t, 70, 0.001) * 0.45;
+      return thump + knock;
+    }),
 };
 
 mkdirSync(outputDir, { recursive: true });

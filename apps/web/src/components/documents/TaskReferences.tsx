@@ -1,4 +1,5 @@
 import type { TaskReference } from '@app/content';
+import { BalanceWorking } from './BalanceWorking';
 import { ChequeView } from './ChequeView';
 import { PhishingMessageView } from './PhishingMessageView';
 import { StatementView } from './StatementView';
@@ -11,6 +12,8 @@ function Reference({ reference }: { reference: TaskReference }) {
       return <ChequeView />;
     case 'phishing-message':
       return <PhishingMessageView />;
+    case 'balance-working':
+      return <BalanceWorking />;
   }
 }
 

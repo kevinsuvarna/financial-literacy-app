@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { expectPrompt } from './helpers';
+import { expectPrompt, jumpToTask } from './helpers';
 
 const PROMPT = 'ONE TRANSACTION TELLS A DIFFERENT STORY. CAN YOU FIND IT?';
 
@@ -11,15 +11,9 @@ const atmRow = (page: Page) => row(page, /ATM Withdrawal/);
 const camsTelRow = (page: Page) => row(page, /CAMS TEL/);
 const tray = (page: Page) => page.getByRole('region', { name: 'Evidence tray' });
 
-/** Jumps to Level 2 Task 3 with the debug panel, then closes the panel so it isn't in the way. */
 async function openTask(page: Page) {
-  await page.goto('/?debug=1');
-  const panel = page.getByRole('complementary', { name: 'Debug panel' });
-  await panel.getByLabel('Jump to task').selectOption('l2-t3-suspicious-transaction');
-  await panel.getByRole('button', { name: 'Jump' }).click();
-  await page.goto('/play?debug=0');
+  await jumpToTask(page, 'l2-t3-suspicious-transaction');
   await expectPrompt(page, PROMPT);
-  await expect(panel).toHaveCount(0);
 }
 
 /**

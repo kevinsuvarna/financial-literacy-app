@@ -60,6 +60,10 @@
   --animate-buzz: buzz 1.8s linear infinite;
   --animate-wobble: wobble 0.45s ease-in-out both;
   --animate-stamp: stamp 0.38s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+  /* The same slam, held back until a line (the red string) has finished drawing. */
+  --animate-stamp-late: stamp 0.38s cubic-bezier(0.2, 0.9, 0.3, 1.2) 0.55s both;
+  --animate-string: ink-draw 0.55s ease-out both;
+  --animate-glow: glow 1.5s ease-in-out infinite alternate;
   --animate-glitch: glitch 0.9s steps(1, end) both;
   --animate-static: static-drift 0.18s steps(3) infinite;
   --animate-nudge: nudge 1.6s ease-in-out infinite;
@@ -73,6 +77,15 @@
     }
     to {
       stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes glow {
+    from {
+      box-shadow: 0 0 0 0 transparent;
+    }
+    to {
+      box-shadow: 0 0 0.9rem 0.2rem color-mix(in srgb, var(--color-gold) 75%, transparent);
     }
   }
 
