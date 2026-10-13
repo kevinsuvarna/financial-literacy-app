@@ -21,7 +21,9 @@ test('plays the whole mission from the start screen to the certificate', async (
 
   await expectPrompt(page, 'WHICH SLIP WOULD ANANYA NEED TO TAKE MONEY OUT OF HER ACCOUNT?');
   await scan(page, 'Withdrawal Slip');
-  await nextTask(page);
+  await page.getByRole('button', { name: 'FINISH LEVEL' }).click();
+  await expectPrompt(page, 'LEVEL 1 COMPLETE');
+  await page.getByRole('button', { name: 'START LEVEL 2: Follow the Money' }).click();
 
   // Level 2 — Follow the Money
   await expectPrompt(page, 'HOW MUCH MONEY IS LEFT IN ANANYA’S ACCOUNT?');
@@ -36,7 +38,9 @@ test('plays the whole mission from the start screen to the certificate', async (
 
   await expectPrompt(page, 'ONE TRANSACTION TELLS A DIFFERENT STORY. CAN YOU FIND IT?');
   await page.getByRole('button', { name: 'Highlight Mobile Recharge — CAMS TEL' }).click();
-  await nextTask(page);
+  await page.getByRole('button', { name: 'FINISH LEVEL' }).click();
+  await expectPrompt(page, 'LEVEL 2 COMPLETE');
+  await page.getByRole('button', { name: 'START LEVEL 3: Secure & Report' }).click();
 
   // Level 3 — Secure & Report
   await expectPrompt(page, 'SHOULD ANANYA CLICK THE LINK?');

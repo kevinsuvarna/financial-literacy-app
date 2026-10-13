@@ -1,22 +1,33 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { copy } from '@app/content';
-import { SceneFrame } from '../components/SceneFrame';
-import { Button, ButtonLink, FadeIn, Heading, Notice, Text } from '../components/ui';
+import { playSound, unlockAudio } from '../audio/sounds';
+import { Button, ButtonLink, FadeIn, Heading, Text } from '../components/ui';
 import { useGame } from '../game';
+import { CallDialogue } from '../intro/CallDialogue';
+import { CaseAssigned } from '../intro/CaseAssigned';
+import { IncomingCall } from '../intro/IncomingCall';
 
-type IntroStep = 'title' | 'call' | 'assigned';
+type IntroStep = 'title' | 'ringing' | 'call' | 'assigned';
 
 /**
- * Title → opening call → case assigned. The intro steps are presentation only; the game itself
- * starts (START) when the player opens the case file.
+ * Title → incoming call → Ananya's call → case assigned. The intro is presentation only: the
+ * game itself starts (START) when the player opens the case file.
  */
 export function StartScreen() {
   const game = useGame();
   const navigate = useNavigate();
   const [step, setStep] = useState<IntroStep>('title');
 
+  function startTraining() {
+    // This click is the player's first interaction, which is what lets the browser play audio.
+    unlockAudio();
+    playSound('click');
+    setStep('ringing');
+  }
+
   function openCaseFile() {
+    playSound('click');
     game.start();
     navigate('/play');
   }
@@ -29,7 +40,7 @@ export function StartScreen() {
         </Heading>
         <Text className="max-w-prose">{copy.start.intro}</Text>
         {game.state === 'notStarted' ? (
-          <Button onClick={() => setStep('call')}>{copy.start.cta}</Button>
+          <Button onClick={startTraining}>{copy.start.cta}</Button>
         ) : (
           <div className="flex flex-wrap justify-center gap-3">
             <ButtonLink to="/play">{copy.start.resume}</ButtonLink>
@@ -44,32 +55,25 @@ export function StartScreen() {
     );
   }
 
+  if (step === 'ringing') {
+    return (
+      <FadeIn key="ringing">
+        <IncomingCall onAnswer={() => setStep('call')} />
+      </FadeIn>
+    );
+  }
+
   if (step === 'call') {
     return (
       <FadeIn key="call">
-        <SceneFrame scene="call">
-          <Heading level={1}>{copy.openingCall.caller}</Heading>
-          {copy.openingCall.lines.map((line) => (
-            <Text key={line}>“{line}”</Text>
-          ))}
-          <Notice tone="info">{copy.openingCall.disconnected}</Notice>
-          <Button className="self-start" onClick={() => setStep('assigned')}>
-            {copy.openingCall.cta}
-          </Button>
-        </SceneFrame>
+        <CallDialogue onContinue={() => setStep('assigned')} />
       </FadeIn>
     );
   }
 
   return (
     <FadeIn key="assigned">
-      <SceneFrame scene="screen">
-        <Heading level={1}>{copy.caseAssigned.heading}</Heading>
-        <Text>{copy.caseAssigned.body}</Text>
-        <Button className="self-start" onClick={openCaseFile}>
-          {copy.caseAssigned.cta}
-        </Button>
-      </SceneFrame>
+      <CaseAssigned onOpen={openCaseFile} />
     </FadeIn>
   );
 }

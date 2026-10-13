@@ -1,4 +1,5 @@
 import { artefactIds } from '@app/content';
+import { playSound } from '../audio/sounds';
 import { isDebugEnabled } from '../debug/debugFlag';
 import { gameActor } from '../game/actor';
 import { createScanGate, gateSource } from './ScanGate';
@@ -8,7 +9,6 @@ import {
   storeFacingMode,
   subscribeToCameraPreference,
 } from './cameraPreference';
-import { playScanChime } from './chime';
 import { createScanHub } from './scanHub';
 import { createScannerController } from './scannerController';
 import { createCameraSource } from './sources/CameraSource';
@@ -44,7 +44,7 @@ scanHub.connect(gateSource(hidScannerSource, hidGate));
 scanHub.connect(gateSource(cameraSource, cameraGate));
 
 scanHub.onScan((record) => {
-  if (record.kind === 'artefact') playScanChime();
+  if (record.kind === 'artefact') playSound('scan');
 });
 
 export const scannerController = createScannerController({

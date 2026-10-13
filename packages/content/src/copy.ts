@@ -14,8 +14,18 @@ export const copy = {
     resume: 'RESUME CASE',
   },
 
+  incomingCall: {
+    heading: 'Incoming call',
+    caller: 'Ananya',
+    callerDetail: 'Savings account customer',
+    swipe: 'Swipe to answer',
+    answer: 'Answer the call',
+  },
+
   openingCall: {
     caller: 'Ananya',
+    connected: 'On the line',
+    skip: 'SKIP',
     lines: [
       'Hello? Is this the bank? Please, I need help!',
       'I think my pocket money has been stolen from my bank account. There is a payment I never made, and then I got this message, and —',
@@ -25,6 +35,7 @@ export const copy = {
   },
 
   caseAssigned: {
+    stamp: 'NEW CASE',
     heading: 'NEW CASE ASSIGNED',
     body: 'Ananya needs your help. Her physical case file holds the clues you need to investigate what happened to her savings account.',
     cta: 'OPEN CASE FILE',
@@ -60,8 +71,22 @@ export const copy = {
     reviewBanner:
       'You have already solved this task. You are reviewing it — nothing here changes your progress.',
     hint: 'Hint',
+    stamp: 'CORRECT',
     nextTask: 'NEXT TASK',
+    finishLevel: 'FINISH LEVEL',
     viewCertificate: 'VIEW CERTIFICATE',
+  },
+
+  levelComplete: {
+    heading: (levelNumber: number) => `LEVEL ${levelNumber} COMPLETE`,
+    stamp: 'LEVEL CLEARED',
+    next: (levelNumber: number, label: string) => `START LEVEL ${levelNumber}: ${label}`,
+  },
+
+  sound: {
+    mute: 'Mute sound',
+    on: 'Sound on',
+    off: 'Sound off',
   },
 
   scanner: {
@@ -69,7 +94,10 @@ export const copy = {
     picker: 'Simulated scanner',
     cameraUnavailable:
       'Camera scanning isn’t available here. Choose the card you would scan from your case file.',
+    slot: (slotNumber: number) => `Document ${slotNumber}`,
     slotEmpty: 'Waiting for a scan',
+    verified: 'VERIFIED',
+    answer: 'Your answer',
     progress: (scanned: number, required: number) => `${scanned} of ${required} verified`,
 
     permissionHeading: 'Switch on the evidence scanner?',

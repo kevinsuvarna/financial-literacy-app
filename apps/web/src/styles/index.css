@@ -54,6 +54,138 @@
       opacity: 0;
     }
   }
+
+  /* One cycle matches public/audio/ring.wav: two bursts of shaking, then stillness. */
+  --animate-buzz: buzz 1.8s linear infinite;
+  --animate-wobble: wobble 0.45s ease-in-out both;
+  --animate-stamp: stamp 0.38s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+  --animate-glitch: glitch 0.9s steps(1, end) both;
+  --animate-static: static-drift 0.18s steps(3) infinite;
+  --animate-nudge: nudge 1.6s ease-in-out infinite;
+
+  @keyframes buzz {
+    0%,
+    23%,
+    30%,
+    54%,
+    100% {
+      transform: translate(0, 0) rotate(0deg);
+    }
+    2%,
+    10%,
+    18%,
+    32%,
+    40%,
+    48% {
+      transform: translate(-3px, 1px) rotate(-7deg);
+    }
+    6%,
+    14%,
+    22%,
+    36%,
+    44%,
+    52% {
+      transform: translate(3px, -1px) rotate(7deg);
+    }
+  }
+
+  @keyframes wobble {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    15% {
+      transform: translateX(-9px) rotate(-1deg);
+    }
+    35% {
+      transform: translateX(8px) rotate(1deg);
+    }
+    55% {
+      transform: translateX(-5px);
+    }
+    75% {
+      transform: translateX(3px);
+    }
+  }
+
+  @keyframes stamp {
+    0% {
+      opacity: 0;
+      transform: scale(2.6);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(0.9);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes glitch {
+    0% {
+      transform: translate(0, 0);
+      filter: none;
+    }
+    10% {
+      transform: translate(-6px, 2px) skewX(-6deg);
+      filter: hue-rotate(60deg) contrast(1.6);
+    }
+    22% {
+      transform: translate(5px, -3px) skewX(4deg);
+      filter: invert(0.25);
+    }
+    34% {
+      transform: translate(-3px, 4px);
+      filter: hue-rotate(-40deg) brightness(1.5);
+    }
+    48% {
+      transform: translate(7px, 0) skewX(-3deg);
+      filter: contrast(2);
+    }
+    62% {
+      transform: translate(-2px, -2px);
+      filter: invert(0.15);
+    }
+    78% {
+      transform: translate(3px, 1px) skewX(2deg);
+      filter: brightness(0.6);
+    }
+    100% {
+      transform: translate(0, 0);
+      filter: none;
+    }
+  }
+
+  @keyframes static-drift {
+    from {
+      background-position: 0 0;
+    }
+    to {
+      background-position: 0 9px;
+    }
+  }
+
+  @keyframes nudge {
+    0%,
+    60%,
+    100% {
+      transform: translateX(0);
+    }
+    30% {
+      transform: translateX(10px);
+    }
+  }
+}
+
+/* TV-static scanlines, laid over a scene while the call breaks up. */
+@utility bg-static {
+  background-image: repeating-linear-gradient(
+    0deg,
+    color-mix(in srgb, var(--color-on-canvas) 28%, transparent) 0 1px,
+    transparent 1px 3px
+  );
 }
 
 @layer base {

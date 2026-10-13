@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import { Navigate } from 'react-router-dom';
 import { copy, type Task } from '@app/content';
+import { LevelComplete } from '../components/LevelComplete';
 import { TaskScene } from '../components/TaskScene';
 import { TaskReferences } from '../components/documents/TaskReferences';
 import { FadeIn, Heading, Notice, Text } from '../components/ui';
 import { useGame } from '../game';
-import { getTaskPosition } from '../game/selectors';
+import { getNextTaskId, getTaskPosition } from '../game/selectors';
 import { TaskFeedback } from '../tasks/TaskFeedback';
 import { TaskRenderer } from '../tasks/TaskRenderer';
 
@@ -20,7 +21,19 @@ function TaskView({ task, headingRef }: TaskViewProps) {
   // "Reviewing" means the task was already solved when it was opened — not that it was just
   // solved on this screen. Narrative beats have nothing to solve, so they never show the banner.
   const [openedSolved] = useState(() => game.getTaskStatus(task.id) === 'completed');
+  const [showLevelComplete, setShowLevelComplete] = useState(false);
   const position = getTaskPosition(task.id);
+  const nextTaskId = getNextTaskId(task.id);
+
+  if (showLevelComplete && position && nextTaskId) {
+    return (
+      <LevelComplete
+        level={position.level}
+        levelNumber={position.levelNumber}
+        nextTaskId={nextTaskId}
+      />
+    );
+  }
 
   return (
     <FadeIn className="flex flex-col gap-4">
@@ -32,7 +45,16 @@ function TaskView({ task, headingRef }: TaskViewProps) {
       {openedSolved && task.kind !== 'narrative' && (
         <Notice tone="info">{copy.play.reviewBanner}</Notice>
       )}
-      <TaskScene task={task} footer={<TaskFeedback task={task} />}>
+      <TaskScene
+        task={task}
+        footer={
+          <TaskFeedback
+            task={task}
+            reviewing={openedSolved}
+            onFinishLevel={() => setShowLevelComplete(true)}
+          />
+        }
+      >
         <div className="flex flex-col gap-2">
           <Heading level={1} ref={headingRef} tabIndex={-1}>
             {task.prompt}

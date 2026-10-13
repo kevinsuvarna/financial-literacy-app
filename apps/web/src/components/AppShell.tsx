@@ -5,6 +5,7 @@ import { DebugPanel } from '../debug/DebugPanel';
 import { isDebugEnabled } from '../debug/debugFlag';
 import { useGame } from '../game';
 import { ScannerLifecycle } from '../scanner/ui/ScannerLifecycle';
+import { SoundToggle } from './SoundToggle';
 import { TopTracker } from './TopTracker';
 import { ButtonLink } from './ui';
 
@@ -21,11 +22,14 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Link to="/" className="font-display font-bold tracking-wide">
             {copy.appTitle}
           </Link>
-          {started && (
-            <ButtonLink to="/board" variant="secondary" size="sm">
-              {copy.nav.caseBoard}
-            </ButtonLink>
-          )}
+          <div className="flex flex-wrap items-center gap-2">
+            <SoundToggle />
+            {started && (
+              <ButtonLink to="/board" variant="secondary" size="sm">
+                {copy.nav.caseBoard}
+              </ButtonLink>
+            )}
+          </div>
         </div>
         {started && <TopTracker />}
       </header>

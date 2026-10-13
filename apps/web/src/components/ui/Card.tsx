@@ -1,13 +1,14 @@
 import type { HTMLAttributes } from 'react';
 import { cx } from './cx';
 
-export type CardTone = 'paper' | 'sunken' | 'raised' | 'story';
+export type CardTone = 'paper' | 'sunken' | 'raised' | 'story' | 'success';
 
 const tones: Record<CardTone, string> = {
   paper: 'border-line bg-surface text-ink',
   sunken: 'border-line bg-surface-sunken text-ink',
   raised: 'border-on-canvas-muted/40 bg-canvas-raised text-on-canvas',
   story: 'border-gold bg-canvas text-on-canvas',
+  success: 'border-success bg-success-soft text-ink',
 };
 
 interface CardProps extends HTMLAttributes<HTMLElement> {

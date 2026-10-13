@@ -1,5 +1,6 @@
 import { MotionConfig } from 'motion/react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import './audio/gameSounds';
 import { AppShell } from './components/AppShell';
 import { CaseBoardScreen } from './routes/CaseBoardScreen';
 import { CertificateScreen } from './routes/CertificateScreen';

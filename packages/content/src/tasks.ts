@@ -270,6 +270,8 @@ export const levelSchema = z.object({
   id: levelIdSchema,
   label: z.string().min(1),
   taskIds: z.array(z.string().min(1)).min(1),
+  /** What the player achieved, shown on the level-complete screen. */
+  completion: z.string().min(1),
 });
 export type Level = z.infer<typeof levelSchema>;
 
@@ -278,11 +280,15 @@ export const levels: Level[] = z.array(levelSchema).parse([
     id: 'understand-the-account',
     label: 'Understand the Account',
     taskIds: ['l1-t1-account-type', 'l1-t2-verify-identity', 'l1-t3-withdrawal-slip'],
+    completion:
+      'You worked out that Ananya has a savings account, verified her identity with her PAN card and Aadhaar card, and found the slip she needs to take money out.',
   },
   {
     id: 'follow-the-money',
     label: 'Follow the Money',
     taskIds: ['l2-t1-closing-balance', 'l2-t2-returned-cheque', 'l2-t3-suspicious-transaction'],
+    completion:
+      'You calculated Ananya’s closing balance, found out why her cheque was returned, and spotted a transaction she does not remember making.',
   },
   {
     id: 'secure-and-report',
@@ -294,6 +300,8 @@ export const levels: Level[] = z.array(levelSchema).parse([
       'l3-t4-scan-evidence',
       'l3-t5-review-submit',
     ],
+    completion:
+      'You spotted the phishing message, connected the clues, and submitted an incident report with the evidence attached.',
   },
 ]);
 

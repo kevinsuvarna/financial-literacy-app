@@ -24,12 +24,29 @@ export async function nextTask(page: Page) {
   await nextTaskButton(page).click();
 }
 
-/** Title screen → opening call → case assigned → first task, with the scanner question open. */
-export async function openFirstTask(page: Page, startUrl = '/') {
+/** The start screen's button, which takes the player to the ringing phone. */
+export async function startTraining(page: Page, startUrl = '/') {
   await page.goto(startUrl);
   await expectPrompt(page, 'SAVE THE SAVINGS ACCOUNT');
   await page.getByRole('button', { name: 'START TRAINING' }).click();
-  await expectPrompt(page, 'Ananya');
+  await expect(page.getByText('Incoming call')).toBeVisible();
+}
+
+/** Answers the ringing phone the keyboard way: focus the answer button and press Enter. */
+export async function answerCall(page: Page) {
+  await page.getByRole('button', { name: 'Answer the call' }).focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByText('On the line')).toBeVisible();
+}
+
+/**
+ * Title screen → call (answered and skipped) → case assigned → first task, with the scanner
+ * question open. The intro itself is covered in intro.spec.ts; this is the short way through.
+ */
+export async function openFirstTask(page: Page, startUrl = '/') {
+  await startTraining(page, startUrl);
+  await answerCall(page);
+  await page.getByRole('button', { name: 'SKIP' }).click();
   await page.getByRole('button', { name: 'SEE YOUR ASSIGNMENT' }).click();
   await expectPrompt(page, 'NEW CASE ASSIGNED');
   await page.getByRole('button', { name: 'OPEN CASE FILE' }).click();
