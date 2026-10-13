@@ -37,7 +37,9 @@ test('plays the whole mission from the start screen to the certificate', async (
   await nextTask(page);
 
   await expectPrompt(page, 'ONE TRANSACTION TELLS A DIFFERENT STORY. CAN YOU FIND IT?');
-  await page.getByRole('button', { name: 'Highlight Mobile Recharge — CAMS TEL' }).click();
+  await page.getByRole('row', { name: /CAMS TEL/ }).focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('region', { name: 'Evidence tray' })).toContainText('₹5,999');
   await page.getByRole('button', { name: 'FINISH LEVEL' }).click();
   await expectPrompt(page, 'LEVEL 2 COMPLETE');
   await page.getByRole('button', { name: 'START LEVEL 3: Secure & Report' }).click();

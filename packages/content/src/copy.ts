@@ -131,10 +131,12 @@ export const copy = {
     credit: 'Money in',
     debit: 'Money out',
     openingBalance: 'Opening balance',
-    highlighter: 'Highlighter',
-    highlightShort: 'Highlight',
-    highlight: (description: string) => `Highlight ${description}`,
-    clue: 'Clue',
+    highlighter: 'HIGHLIGHTER',
+    highlighterHelp:
+      'Drag the highlighter onto a transaction and let go to mark it. With a keyboard, use the arrow keys to move between transactions and press Enter to mark one.',
+    clue: 'CLUE',
+    evidenceTray: 'Evidence tray',
+    evidenceTrayEmpty: 'No clues filed yet.',
   },
 
   cheque: {

@@ -168,7 +168,7 @@ export const tasks: Task[] = z.array(taskSchema).parse([
     scene: 'screen',
     kind: 'highlight',
     prompt: 'ONE TRANSACTION TELLS A DIFFERENT STORY. CAN YOU FIND IT?',
-    detail: 'Use the highlighter on the transaction that doesn’t fit.',
+    detail: 'Mark the transaction that doesn’t fit with the highlighter.',
     optionIds: transactionIds,
     acceptedIds: [suspiciousTransactionId],
     feedback: {
@@ -180,7 +180,7 @@ export const tasks: Task[] = z.array(taskSchema).parse([
       'txn-07': 'A routine grocery payment. Keep investigating.',
     },
     successText:
-      'That’s the one. Ananya doesn’t remember making this Mobile Recharge payment — worth investigating further, not proof of fraud yet.',
+      'Marked as a clue. Ananya doesn’t recognise this ₹5,999 Mobile Recharge to CAMS TEL — she doesn’t remember making it. That makes it worth investigating further. It is not proof of fraud yet.',
     hints: [],
   },
 

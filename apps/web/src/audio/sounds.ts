@@ -14,6 +14,7 @@ const SOUNDS = {
   correct: { file: 'correct.wav', volume: 0.7 },
   wrong: { file: 'wrong.wav', volume: 0.55 },
   'level-complete': { file: 'level-complete.wav', volume: 0.7 },
+  squeak: { file: 'squeak.wav', volume: 0.45 },
 } as const;
 
 export type SoundName = keyof typeof SOUNDS;

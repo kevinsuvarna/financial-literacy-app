@@ -23,6 +23,9 @@ export function TaskFeedback({ task, reviewing, onFinishLevel }: TaskFeedbackPro
   const feedback = game.getLastFeedback(task.id);
   const attempts = game.getAttempts(task.id);
   const hint = solved ? null : game.getCurrentHint(task.id);
+  // The highlighter task sticks its wrong-answer feedback onto the row that was marked, so
+  // repeating it down here would say everything twice.
+  const showsRetryFeedback = task.kind !== 'highlight';
 
   const nextTaskId = getNextTaskId(task.id);
   const goOnTo = solved && nextTaskId && game.isTaskReachable(nextTaskId) ? nextTaskId : null;
@@ -48,7 +51,7 @@ export function TaskFeedback({ task, reviewing, onFinishLevel }: TaskFeedbackPro
       )}
 
       {/* Keyed by attempt count so each new wrong answer replays the wobble. */}
-      {!solved && feedback && (
+      {!solved && feedback && showsRetryFeedback && (
         <Notice
           key={attempts}
           tone={attempts > 0 ? 'retry' : 'info'}

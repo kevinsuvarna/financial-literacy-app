@@ -136,6 +136,14 @@ const sounds = {
       { at: 0.33, duration: 0.95, voice: (t) => bell(659.25, 3.5)(t) * 0.6 },
       { at: 0.33, duration: 0.95, voice: (t) => bell(783.99, 3.5)(t) * 0.6 },
     ]),
+
+  // A felt-tip marker dragged across paper: a wavering high squeak over soft friction noise.
+  squeak: () =>
+    render(0.38, (t) => {
+      const pitch = 1900 + 500 * (t / 0.38) + 90 * sine(31, t);
+      const tone = sine(pitch, t) * (0.55 + 0.45 * sine(23, t)) * 0.16;
+      return (tone + noise() * 0.07) * gate(t, 0.38, 0.03);
+    }),
 };
 
 mkdirSync(outputDir, { recursive: true });

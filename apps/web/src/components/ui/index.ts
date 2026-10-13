@@ -3,6 +3,8 @@ export { Button, ButtonLink } from './Button';
 export { Card, type CardTone } from './Card';
 export { FadeIn } from './FadeIn';
 export { SelectField, TextField } from './Fields';
+export { HighlighterPen } from './HighlighterPen';
+export { InkStroke, PinTag, StickyNote } from './Marks';
 export { Notice, type NoticeTone } from './Notice';
 export { ScanReticle } from './ScanReticle';
 export { Stamp, type StampTone } from './Stamp';
