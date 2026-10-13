@@ -1,0 +1,10 @@
+pnpm-lock.yaml
+docs
+**/dist
+**/dev-dist
+**/.wrangler
+**/coverage
+**/playwright-report
+**/test-results
+**/drizzle
+**/*.db

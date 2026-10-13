@@ -1,0 +1,15 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "financial-literacy-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2024-09-23",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "financial-literacy-db",
+      // Replace with the id from `wrangler d1 create financial-literacy-db` before deploying.
+      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+    },
+  ],
+}
