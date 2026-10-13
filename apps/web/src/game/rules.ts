@@ -191,7 +191,7 @@ export function handlePasskeySubmission(context: GameContext, code: string): Gam
   return updateTaskProgress(started, taskId, { attempts, lastFeedback: hint ?? null });
 }
 
-function getAttachedEvidence(context: GameContext): Set<string> {
+export function getAttachedEvidence(context: GameContext): Set<string> {
   const attached = new Set<string>();
   for (const task of tasks) {
     if (task.kind !== 'scanAll') continue;

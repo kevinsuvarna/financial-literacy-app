@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { formatRupees } from './format';
 
 export const chequeHitZoneIdSchema = z.enum([
   'payee-name',
@@ -60,3 +61,13 @@ export const chequeAmount = chequeAmountSchema.parse({
   amountWords: 'Three Thousand Five Hundred Eighty Rupees Only',
   amountWordsValue: 3580,
 });
+
+/** What is written in each field of the cheque. The two amounts come from `chequeAmount`. */
+export const chequeFieldValues: Record<ChequeHitZoneId, string> = {
+  'payee-name': 'Greenfield Public School',
+  date: '08 Jan 2025',
+  'amount-figures': formatRupees(chequeAmount.amountFigures),
+  'amount-words': chequeAmount.amountWords,
+  signature: 'Ananya Sharma',
+  'cheque-number': '000123',
+};

@@ -1,1 +1,59 @@
 @import 'tailwindcss';
+
+/*
+ * Theme tokens. Placeholder values until the Figma phase — swap the values here and every
+ * components/ui primitive follows. Feature components must not introduce colours of their own.
+ */
+@theme {
+  --color-canvas: #0b1440;
+  --color-canvas-raised: #16215a;
+  --color-on-canvas: #f7f0df;
+  --color-on-canvas-muted: #b9c0e0;
+
+  --color-surface: #f7f0df;
+  --color-surface-sunken: #ebe1c8;
+  --color-ink: #1c2238;
+  --color-ink-muted: #565b73;
+  --color-line: #cdbf9c;
+
+  --color-accent: #1aa7a1;
+  --color-accent-strong: #12807b;
+  --color-on-accent: #04201f;
+
+  --color-gold: #c9a24b;
+  --color-clue: #a82b25;
+  --color-clue-soft: #f6dcd9;
+  --color-success: #256b42;
+  --color-success-soft: #dcefe2;
+  --color-notice-soft: #fbe9c6;
+
+  --font-display: 'Courier New', ui-monospace, monospace;
+  --font-body: ui-sans-serif, system-ui, sans-serif;
+
+  --radius-card: 0.75rem;
+  --radius-control: 999px;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-on-canvas);
+    font-family: var(--font-body);
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-accent-strong);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

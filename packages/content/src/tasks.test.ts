@@ -3,6 +3,30 @@ import { levels, tasks, isInteractiveTask, getTask } from './tasks';
 import { artefactIds } from './artefacts';
 import { chequeHitZoneIds } from './cheque';
 import { transactions } from './statement';
+import { incidentReport } from './report';
+
+describe('scene rules', () => {
+  it('puts every scan task in a table scene, the only scene where scanning runs', () => {
+    for (const task of tasks) {
+      if (task.kind !== 'scanOne' && task.kind !== 'scanAll') continue;
+      expect(task.scene, `scan task ${task.id} is not a table scene`).toBe('table');
+    }
+  });
+});
+
+describe('incident report', () => {
+  it('describes every piece of evidence a report task requires', () => {
+    for (const task of tasks) {
+      if (task.kind !== 'report') continue;
+      for (const evidenceId of task.requiredEvidenceIds) {
+        expect(
+          incidentReport.evidenceDescriptions[evidenceId],
+          `no report description for evidence ${evidenceId}`,
+        ).toBeTruthy();
+      }
+    }
+  });
+});
 
 const transactionIds = new Set(transactions.map((t) => t.id));
 

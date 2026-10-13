@@ -16,10 +16,19 @@ export const taskKindSchema = z.enum([
 ]);
 export type TaskKind = z.infer<typeof taskKindSchema>;
 
+/** On-screen copies of documents a task needs the player to read (not interact with). */
+export const taskReferenceSchema = z.enum(['statement', 'cheque', 'phishing-message']);
+export type TaskReference = z.infer<typeof taskReferenceSchema>;
+
 const taskBaseShape = {
   id: z.string().min(1),
   scene: sceneTypeSchema,
   prompt: z.string().min(1),
+  /** A supporting line shown under the prompt. */
+  detail: z.string().min(1).optional(),
+  /** Ordered instructions shown up front — unlike `hints`, which only appear after mistakes. */
+  steps: z.array(z.string().min(1)).default([]),
+  references: z.array(taskReferenceSchema).default([]),
   successText: z.string().min(1),
   hints: z.array(z.string().min(1)).default([]),
 };
@@ -120,6 +129,8 @@ export const tasks: Task[] = z.array(taskSchema).parse([
     scene: 'table',
     kind: 'scanOne',
     prompt: 'HOW MUCH MONEY IS LEFT IN ANANYA’S ACCOUNT?',
+    detail: 'Read the statement, work out the closing balance, then scan the matching card.',
+    references: ['statement'],
     optionIds: balanceAnswerIds,
     acceptedIds: ['balance-answer-7501'],
     feedback: {
@@ -139,6 +150,7 @@ export const tasks: Task[] = z.array(taskSchema).parse([
     scene: 'screen',
     kind: 'tap',
     prompt: 'WAIT — THE CHEQUE WAS RETURNED. CAN YOU FIND OUT WHY?',
+    detail: 'Tap the part of the cheque that looks wrong.',
     optionIds: chequeHitZoneIds,
     acceptedIds: [...chequeMismatchZoneIds],
     feedback: {
@@ -156,6 +168,7 @@ export const tasks: Task[] = z.array(taskSchema).parse([
     scene: 'screen',
     kind: 'highlight',
     prompt: 'ONE TRANSACTION TELLS A DIFFERENT STORY. CAN YOU FIND IT?',
+    detail: 'Use the highlighter on the transaction that doesn’t fit.',
     optionIds: transactionIds,
     acceptedIds: [suspiciousTransactionId],
     feedback: {
@@ -177,6 +190,9 @@ export const tasks: Task[] = z.array(taskSchema).parse([
     scene: 'screen',
     kind: 'choice',
     prompt: 'SHOULD ANANYA CLICK THE LINK?',
+    detail:
+      'Ananya calls again. Her debit card has been blocked, and she has received a message offering to unblock it immediately through a link.',
+    references: ['phishing-message'],
     optionIds: ['no-dont-click', 'yes-click'],
     optionLabels: {
       'no-dont-click': 'NO — DON’T CLICK THE LINK',
@@ -205,11 +221,14 @@ export const tasks: Task[] = z.array(taskSchema).parse([
     scene: 'screen',
     kind: 'passkey',
     prompt: 'THREE CLUES HOLD THE PASSKEY',
+    detail: 'Enter the last digit of each value, in this order:',
+    steps: ['The closing balance.', 'The amount on the cheque.', 'The suspicious transaction.'],
+    references: ['statement', 'cheque'],
     successText: 'Unlocked! You’ve connected the key clues in this case.',
     hints: [
-      'Enter the last digit of the closing balance first.',
-      'Then the last digit of the amount on the cheque.',
-      'Finally, the last digit of the suspicious transaction.',
+      'Start with the closing balance you worked out in Level 2 — use only its last digit.',
+      'The second digit is the last digit of the amount on the cheque.',
+      'The third digit is the last digit of the suspicious transaction — the Mobile Recharge to CAMS TEL.',
     ],
   },
   {
@@ -217,6 +236,7 @@ export const tasks: Task[] = z.array(taskSchema).parse([
     scene: 'table',
     kind: 'scanAll',
     prompt: 'SCAN EVIDENCE',
+    detail: 'Scan the two artefacts that support this incident report.',
     optionIds: ['bank-statement', 'phishing-message', 'cheque'],
     acceptedIds: ['bank-statement', 'phishing-message'],
     feedback: {
@@ -231,6 +251,7 @@ export const tasks: Task[] = z.array(taskSchema).parse([
     scene: 'screen',
     kind: 'report',
     prompt: 'REVIEW INCIDENT REPORT',
+    detail: 'Check that both pieces of evidence are attached before submitting.',
     requiredEvidenceIds: ['bank-statement', 'phishing-message'],
     successText:
       'Report submitted for investigation. Ananya has been notified — well done, Officer.',
