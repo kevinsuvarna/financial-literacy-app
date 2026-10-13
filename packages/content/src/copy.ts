@@ -71,6 +71,28 @@ export const copy = {
       'Camera scanning isn’t available here. Choose the card you would scan from your case file.',
     slotEmpty: 'Waiting for a scan',
     progress: (scanned: number, required: number) => `${scanned} of ${required} verified`,
+
+    permissionHeading: 'Switch on the evidence scanner?',
+    permissionBody:
+      'The scanner uses this device’s camera to read the codes on the cards in your case file. Nothing is recorded or saved. Your browser will ask you to allow the camera.',
+    enable: 'TURN ON SCANNER',
+    decline: 'CHOOSE CARDS FROM A LIST',
+    starting: 'Starting the scanner…',
+    active: 'Scanner active',
+    hint: 'Hold a card up to the scanner',
+    switchCamera: 'Switch camera',
+    useList: 'Can’t scan? Choose from a list',
+    tryScanner: 'Try the scanner',
+    unknownCode: 'That code is not part of the case file. Try a card from Ananya’s file.',
+    offTask: 'That card is not one of the choices for this question.',
+    errors: {
+      denied:
+        'The scanner was not allowed to use the camera. Choose your card from the list instead.',
+      'no-camera': 'No camera was found on this device. Choose your card from the list instead.',
+      'in-use': 'The camera is busy in another app or tab. Choose your card from the list instead.',
+      decoder: 'The scanner could not start. Choose your card from the list instead.',
+      unknown: 'The scanner could not start. Choose your card from the list instead.',
+    },
   },
 
   statement: {

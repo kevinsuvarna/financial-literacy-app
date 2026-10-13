@@ -4,6 +4,7 @@ import { copy } from '@app/content';
 import { DebugPanel } from '../debug/DebugPanel';
 import { isDebugEnabled } from '../debug/debugFlag';
 import { useGame } from '../game';
+import { ScannerLifecycle } from '../scanner/ui/ScannerLifecycle';
 import { TopTracker } from './TopTracker';
 import { ButtonLink } from './ui';
 
@@ -29,6 +30,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         {started && <TopTracker />}
       </header>
       <main className="flex flex-1 flex-col gap-6">{children}</main>
+      <ScannerLifecycle />
       {debug && <DebugPanel />}
     </div>
   );

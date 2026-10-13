@@ -35,8 +35,16 @@ export const artefactSchema = z.discriminatedUnion('kind', [
 ]);
 export type Artefact = z.infer<typeof artefactSchema>;
 
+/** The one definition of what is printed in an artefact's QR code: `<origin><path><id>`. */
+export const QR_PAYLOAD_HOST = 'ssa.game';
+export const QR_PAYLOAD_PATH = '/a/';
+
+export function qrPayloadFor(artefactId: string): string {
+  return `https://${QR_PAYLOAD_HOST}${QR_PAYLOAD_PATH}${artefactId}`;
+}
+
 function withQrPayload<T extends { id: string }>(artefact: T): T & { qrPayload: string } {
-  return { ...artefact, qrPayload: `https://ssa.game/a/${artefact.id}` };
+  return { ...artefact, qrPayload: qrPayloadFor(artefact.id) };
 }
 
 export const artefacts: Artefact[] = z.array(artefactSchema).parse(

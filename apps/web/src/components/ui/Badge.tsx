@@ -11,19 +11,35 @@ const tones: Record<BadgeTone, string> = {
   gold: 'border-gold bg-gold text-ink',
 };
 
+interface BadgeProps extends ComponentPropsWithoutRef<'span'> {
+  tone?: BadgeTone;
+  /** Adds a pulsing "live" dot — for something that is on right now, like the scanner. */
+  pulse?: boolean;
+}
+
 export function Badge({
   tone = 'neutral',
+  pulse = false,
   className,
+  children,
   ...rest
-}: ComponentPropsWithoutRef<'span'> & { tone?: BadgeTone }) {
+}: BadgeProps) {
   return (
     <span
       className={cx(
-        'inline-flex items-center rounded-control border px-2.5 py-0.5 text-xs font-semibold',
+        'inline-flex items-center gap-1.5 rounded-control border px-2.5 py-0.5 text-xs font-semibold',
         tones[tone],
         className,
       )}
       {...rest}
-    />
+    >
+      {pulse && (
+        <span aria-hidden="true" className="relative flex size-2">
+          <span className="absolute inline-flex size-full animate-ping rounded-control bg-current opacity-75 motion-reduce:animate-none" />
+          <span className="relative inline-flex size-2 rounded-control bg-current" />
+        </span>
+      )}
+      {children}
+    </span>
   );
 }

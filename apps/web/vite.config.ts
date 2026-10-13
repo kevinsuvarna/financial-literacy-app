@@ -23,9 +23,18 @@ export default defineConfig({
         background_color: '#0b1440',
         display: 'standalone',
       },
+      workbox: {
+        // Precache the QR decoder's WASM too, so the scanner works offline once installed.
+        globPatterns: ['**/*.{js,css,html,wasm}'],
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
+      },
     }),
     ...(useLanHttps ? [basicSsl()] : []),
   ],
+  // The decode worker lazy-loads the zxing ponyfill with a dynamic import, which needs ES output.
+  worker: {
+    format: 'es',
+  },
   server: {
     host: true,
   },

@@ -32,6 +32,28 @@
 
   --radius-card: 0.75rem;
   --radius-control: 999px;
+
+  --animate-scan-sweep: scan-sweep 2.4s ease-in-out infinite;
+  --animate-scan-flash: scan-flash 0.6s ease-out forwards;
+
+  @keyframes scan-sweep {
+    0%,
+    100% {
+      top: 14%;
+    }
+    50% {
+      top: 86%;
+    }
+  }
+
+  @keyframes scan-flash {
+    from {
+      opacity: 0.5;
+    }
+    to {
+      opacity: 0;
+    }
+  }
 }
 
 @layer base {

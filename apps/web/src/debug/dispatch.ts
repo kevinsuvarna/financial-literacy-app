@@ -1,6 +1,6 @@
 import { gameActor } from '../game/actor';
 import type { GameEvent } from '../game';
-import { debugScanSource } from '../scan/sources';
+import { keyboardDebugSource } from '../scanner/runtime';
 
 /**
  * Sends a debug-originated event to the game. Scans still go out through a ScanSource, so even
@@ -8,7 +8,7 @@ import { debugScanSource } from '../scan/sources';
  */
 export function dispatchDebugEvent(event: GameEvent): void {
   if (event.type === 'ARTEFACT_SCANNED') {
-    debugScanSource.scan(event.id);
+    keyboardDebugSource.scan(event.id);
     return;
   }
   gameActor.send(event);

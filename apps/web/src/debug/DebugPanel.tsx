@@ -1,10 +1,11 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { artefacts } from '@app/content';
 import { Button, Card, Heading, SelectField, Text } from '../components/ui';
 import { jumpEvents, useGame } from '../game';
-import { getCameraSupport, isCameraScanningActive } from '../scan/camera';
-import { useScannerStats } from '../scan/useScannerStats';
+import { useCameraPreference, useCameraState, useScannerStats } from '../scanner/hooks';
+import { cameraGate, cameraSource, scannerController } from '../scanner/runtime';
+import { getCameraSupport } from '../scanner/sources/cameraSupport';
 import { dispatchDebugEvent } from './dispatch';
 
 // Developer tooling, not game content — its labels are deliberately not in packages/content.
@@ -24,6 +25,21 @@ export function DebugPanel() {
   const navigate = useNavigate();
   const [jumpTarget, setJumpTarget] = useState(game.viewedTaskId);
   const [scanId, setScanId] = useState(artefacts[0]?.id ?? '');
+
+  const camera = useCameraState();
+  const preference = useCameraPreference();
+  // Frame counters change several times a second and aren't React state; sample them instead.
+  const [diagnostics, setDiagnostics] = useState(() => ({
+    ...cameraSource.getDiagnostics(),
+    gate: cameraGate.getStats(),
+  }));
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setDiagnostics({ ...cameraSource.getDiagnostics(), gate: cameraGate.getStats() });
+    }, 500);
+    return () => clearInterval(timer);
+  }, []);
+  const gate = diagnostics.gate;
 
   const viewed = game.context.tasks[game.viewedTaskId];
   const sources = Object.entries(stats.bySource);
@@ -116,13 +132,33 @@ export function DebugPanel() {
                   ? sources.map(([name, count]) => `${name} ${count}`).join(', ')
                   : '—'}
               </Row>
-              <Row term="Unknown ids">{stats.unknown}</Row>
+              <Row term="Unknown codes">{stats.unknown}</Row>
               <Row term="Last">
-                {stats.last ? `${stats.last.id} via ${stats.last.source}` : '—'}
+                {stats.last
+                  ? `${stats.last.kind === 'artefact' ? stats.last.id : `unknown "${stats.last.raw}"`} via ${stats.last.source}`
+                  : '—'}
               </Row>
+              <Row term="Mode">{scannerController.getMode()}</Row>
               <Row term="Camera API">{getCameraSupport()}</Row>
-              <Row term="Camera scan">{isCameraScanningActive() ? 'active' : 'not running'}</Row>
+              <Row term="Camera pref">{preference}</Row>
+              <Row term="Camera">
+                {camera.status}
+                {camera.error ? ` (${camera.error})` : ''} · {camera.facingMode}
+              </Row>
+              <Row term="Decoder">{camera.decoder ?? '—'}</Row>
+              <Row term="Frames">
+                {diagnostics.framesDecoded}
+                {diagnostics.lastDecodeMs === null
+                  ? ''
+                  : ` · last ${diagnostics.lastDecodeMs.toFixed(0)}ms`}
+              </Row>
+              <Row term="Codes read">
+                {diagnostics.codesRead} · {gate.admitted} passed, {gate.suppressed} held back
+              </Row>
             </dl>
+            <Text size="sm" tone="muted">
+              In a scan task, Alt+1…9 scans the Nth card on offer.
+            </Text>
           </section>
 
           <Button

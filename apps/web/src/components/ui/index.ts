@@ -4,6 +4,7 @@ export { Card, type CardTone } from './Card';
 export { FadeIn } from './FadeIn';
 export { SelectField, TextField } from './Fields';
 export { Notice, type NoticeTone } from './Notice';
+export { ScanReticle } from './ScanReticle';
 export { StepDot, type StepDotState } from './StepDot';
 export { Heading, Text } from './Typography';
 export { cx } from './cx';

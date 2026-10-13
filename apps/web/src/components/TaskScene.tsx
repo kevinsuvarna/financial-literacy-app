@@ -1,7 +1,9 @@
 import type { ReactNode } from 'react';
 import type { Task } from '@app/content';
 import { useGame } from '../game';
-import { ScanStation } from '../scan/ScanStation';
+import { getScanOptionIds } from '../scanner/scanTask';
+import { ScanFlash } from '../scanner/ui/ScanFlash';
+import { ScanStation } from '../scanner/ui/ScanStation';
 import { SceneFrame } from './SceneFrame';
 
 interface TaskSceneProps {
@@ -12,19 +14,15 @@ interface TaskSceneProps {
 }
 
 /**
- * Wraps a task in the scene named by `task.scene`. Scanning is offered only here, and only for
- * an unsolved scan task in a `table` scene — the single place rule 4 is enforced in the UI.
+ * Wraps a task in the scene named by `task.scene`. The scan station appears only for an
+ * unsolved scan task in a `table` scene — the same rule that decides whether the scanner runs.
  */
 export function TaskScene({ task, children, footer }: TaskSceneProps) {
   const game = useGame();
-  const solved = game.getTaskStatus(task.id) === 'completed';
-  const scanOptionIds =
-    task.scene === 'table' && (task.kind === 'scanOne' || task.kind === 'scanAll') && !solved
-      ? task.optionIds
-      : null;
+  const scanOptionIds = getScanOptionIds(task, game.getTaskStatus(task.id) === 'completed');
 
   return (
-    <SceneFrame scene={task.scene}>
+    <SceneFrame scene={task.scene} overlay={task.scene === 'table' ? <ScanFlash /> : null}>
       {children}
       {scanOptionIds && <ScanStation artefactIds={scanOptionIds} />}
       {footer}

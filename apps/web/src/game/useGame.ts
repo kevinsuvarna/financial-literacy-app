@@ -22,7 +22,7 @@ export type GameStateValue = 'notStarted' | 'inGame' | 'missionComplete';
  * send events back through it; they never touch progress state directly.
  *
  * There is deliberately no "scan" action here: artefact input reaches the machine only through
- * a ScanSource (CLAUDE.md rule 3, see src/scan).
+ * a ScanSource (CLAUDE.md rule 3, see src/scanner).
  */
 export function useGame() {
   const snapshot = useSelector(gameActor, (s) => s);
