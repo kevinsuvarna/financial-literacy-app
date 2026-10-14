@@ -22,6 +22,11 @@ export const gameMachine = setup({
   guards: {
     isReportSubmitted: ({ context }) => context.reportSubmitted,
   },
+  actions: {
+    adoptSave: assign(({ context, event }) =>
+      event.type === 'HYDRATE' ? event.save.context : context,
+    ),
+  },
 }).createMachine({
   id: 'game',
   context: createInitialContext,
@@ -31,6 +36,21 @@ export const gameMachine = setup({
       target: '.notStarted',
       actions: assign(() => createInitialContext()),
     },
+    // A save from elsewhere takes over: the machine moves to that save's state, with its
+    // context. The save has been checked (`parseGameSave`) before it gets this far.
+    HYDRATE: [
+      {
+        guard: ({ event }) => event.save.value === 'notStarted',
+        target: '.notStarted',
+        actions: 'adoptSave',
+      },
+      {
+        guard: ({ event }) => event.save.value === 'inGame',
+        target: '.inGame',
+        actions: 'adoptSave',
+      },
+      { target: '.missionComplete', actions: 'adoptSave' },
+    ],
   },
   states: {
     notStarted: {

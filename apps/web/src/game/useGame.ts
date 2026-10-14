@@ -2,6 +2,7 @@ import { useSelector } from '@xstate/react';
 import { useCallback } from 'react';
 import { getTask, levels, tasks, type LevelId } from '@app/content';
 import { gameActor } from './actor';
+import type { GameStateValue } from './types';
 import {
   getAttachedEvidenceIds,
   getAttempts,
@@ -15,8 +16,6 @@ import {
   isReviewing,
   isTaskReachable,
 } from './selectors';
-
-export type GameStateValue = 'notStarted' | 'inGame' | 'missionComplete';
 
 /**
  * The single source of game progress (CLAUDE.md rule 2) — components read from this hook and

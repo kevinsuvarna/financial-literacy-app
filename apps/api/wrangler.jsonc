@@ -1,15 +1,24 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
+  "$schema": "../../node_modules/wrangler/config-schema.json",
   "name": "financial-literacy-api",
   "main": "src/index.ts",
   "compatibility_date": "2024-09-23",
   "compatibility_flags": ["nodejs_compat"],
+  "vars": {
+    // The origin(s) of the deployed web app, comma-separated — the only origins whose pages
+    // may call this API. Replace before deploying. For `wrangler dev`, override it in
+    // .dev.vars (see .dev.vars.example).
+    "WEB_ORIGIN": "https://REPLACE_WITH_WEB_ORIGIN",
+  },
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "financial-literacy-db",
       // Replace with the id from `wrangler d1 create financial-literacy-db` before deploying.
       "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      // The SQL that `pnpm run db:generate` writes. Apply it with `pnpm run db:migrate:prod`
+      // (or `db:migrate:local` for `wrangler dev`).
+      "migrations_dir": "drizzle",
     },
   ],
 }

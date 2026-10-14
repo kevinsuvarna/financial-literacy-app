@@ -2,6 +2,7 @@ import { useEffect, useEffectEvent, useId, useState } from 'react';
 import { animate, motion, useMotionValue, useReducedMotion, useTransform } from 'motion/react';
 import { copy, fakeBankPage, formatRupees, getClosingBalance } from '@app/content';
 import { playSound } from '../../audio/sounds';
+import { holdSync } from '../../sync/runtime';
 import { Badge, Button, Heading, Text, Typewriter } from '../../components/ui';
 
 /** `form` (tap the fields, then submit) → `draining` (the balance runs down) → `done`. */
@@ -21,7 +22,8 @@ function typingTick(character: string, index: number) {
  * validation: there is no <input>, <textarea> or <form> here at all. Each "field" is a button
  * that, when tapped, has the game type a made-up value from packages/content (which only
  * allows X, 0 and dashes). Nothing is submitted and nothing leaves the page; the "loss" is an
- * animation of a number, shown only after the player presses the pretend submit button.
+ * animation of a number, shown only after the player presses the pretend submit button. Even
+ * the game's own background sync is held off for as long as this is on screen.
  */
 export function FakeBankPage({ onFinished }: { onFinished: () => void }) {
   const reduceMotion = useReducedMotion();
@@ -36,6 +38,10 @@ export function FakeBankPage({ onFinished }: { onFinished: () => void }) {
   const balanceText = useTransform(balance, (value) => formatRupees(Math.round(value)));
   const allFilled = fakeBankPage.fields.every((field) => filled.includes(field.id));
   const notifyFinished = useEffectEvent(onFinished);
+
+  // "Nothing here is sent anywhere" has to be true of the whole app while this page is open,
+  // so background sync of the game's own progress waits until it has closed.
+  useEffect(() => holdSync(), []);
 
   useEffect(() => {
     if (phase !== 'draining') return;

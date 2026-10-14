@@ -14,7 +14,9 @@
     "e2e": "playwright test"
   },
   "dependencies": {
+    "@app/api-contract": "workspace:*",
     "@app/content": "workspace:*",
+    "@app/sync-client": "workspace:*",
     "@statelyai/inspect": "^0.7.2",
     "@xstate/react": "^6.1.0",
     "barcode-detector": "3.2.2",
@@ -24,6 +26,7 @@
     "react-dom": "^19.3.0",
     "react-router-dom": "^7.18.4",
     "xstate": "^5.33.2",
+    "zod": "^4.6.7",
     "zxing-wasm": "3.1.3"
   },
   "devDependencies": {

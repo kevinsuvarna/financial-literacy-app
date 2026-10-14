@@ -8,8 +8,11 @@
   "include": [
     "src/node.ts",
     "src/app.ts",
+    "src/http.ts",
     "src/db/schema.ts",
+    "src/db/types.ts",
     "src/db/client.ts",
+    "src/testing/**/*.ts",
     "src/**/*.test.ts",
     "drizzle.config.ts"
   ]

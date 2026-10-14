@@ -7,7 +7,7 @@
  */
 
 const STORAGE_KEY = 'ssa-game';
-const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 1;
 
 interface PersistedEnvelope {
   version: number;

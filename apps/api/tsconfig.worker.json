@@ -5,5 +5,12 @@
     "types": ["@cloudflare/workers-types"],
     "noEmit": true
   },
-  "include": ["src/index.ts", "src/app.ts", "src/db/schema.ts", "src/db/client.d1.ts"]
+  "include": [
+    "src/index.ts",
+    "src/app.ts",
+    "src/http.ts",
+    "src/db/schema.ts",
+    "src/db/types.ts",
+    "src/db/client.d1.ts"
+  ]
 }

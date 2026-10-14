@@ -1,0 +1,2 @@
+# Copy to .dev.vars for `pnpm run dev:worker` (wrangler dev). Not needed for `pnpm run dev`.
+WEB_ORIGIN=http://localhost:5173,http://localhost:4173

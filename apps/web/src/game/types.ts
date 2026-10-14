@@ -16,6 +16,9 @@ export interface TaskProgress {
   lastSubmission: string | null;
 }
 
+/** The machine's top-level states. */
+export type GameStateValue = 'notStarted' | 'inGame' | 'missionComplete';
+
 export interface GameContext {
   /** The task currently on screen — what GOTO_TASK and START move. */
   viewedTaskId: string;
@@ -32,4 +35,15 @@ export type GameEvent =
   | { type: 'SUBMIT_PASSKEY'; code: string }
   | { type: 'SUBMIT_REPORT' }
   | { type: 'GOTO_TASK'; taskId: string }
-  | { type: 'RESET' };
+  | { type: 'RESET' }
+  /**
+   * Replaces the whole game with a save made elsewhere (see `restoreGame`). Not something a
+   * screen sends: it is how a newer save from the server takes over.
+   */
+  | { type: 'HYDRATE'; save: GameSave };
+
+/** A whole game: which state the machine is in, and its context. */
+export interface GameSave {
+  value: GameStateValue;
+  context: GameContext;
+}
