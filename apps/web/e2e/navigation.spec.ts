@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { expectPrompt, nextTaskButton, scan, startGame } from './helpers';
+import { expectPrompt, jumpToTask, nextTaskButton, scan, startGame } from './helpers';
 
 test('sends a player who has not started back to the start screen', async ({ page }) => {
   for (const path of ['/play', '/board', '/certificate', '/nowhere']) {
@@ -43,6 +43,48 @@ test('resumes from the Case Board and reviews a solved task without changing pro
   await expect(
     tracker.getByRole('button', { name: 'Understand the Account, task 2 of 3 — In progress' }),
   ).toBeVisible();
+});
+
+test('leaving a level part-way and resuming it from the Case Board — even after closing the tab', async ({
+  page,
+  context,
+}) => {
+  // Into Level 2, with its first task solved and a wrong try on the second.
+  await jumpToTask(page, 'l2-t2-returned-cheque');
+  await expectPrompt(page, 'WAIT — THE CHEQUE WAS RETURNED. CAN YOU FIND OUT WHY?');
+  for (const detail of ['Date', 'Signature', 'Cheque Number']) {
+    await page.getByRole('button', { name: new RegExp(`^${detail}:`) }).click();
+  }
+  await expect(page.getByText('Hint: take another look at the amount.')).toBeVisible();
+
+  // Leave the level for the Case Board: it shows where things stand.
+  await page.getByRole('link', { name: 'Case Board' }).click();
+  await expectPrompt(page, 'CASE BOARD');
+  await expect(page.getByRole('button', { name: 'REPLAY: Understand the Account' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'RESUME: Follow the Money' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'LOCKED: Secure & Report' })).toBeDisabled();
+  await expect(page.getByText('1 of 3 tasks solved')).toBeVisible();
+
+  // Close the tab. Come back later, in a new one.
+  await page.close();
+  const later = await context.newPage();
+  await later.goto('/');
+  await expect(later.getByRole('link', { name: 'RESUME CASE' })).toBeVisible();
+  await later.goto('/board');
+  await later.getByRole('button', { name: 'RESUME: Follow the Money' }).click();
+
+  // Back at the task that was left unsolved, exactly as it was left: three tries in, hinted.
+  await expectPrompt(later, 'WAIT — THE CHEQUE WAS RETURNED. CAN YOU FIND OUT WHY?');
+  await expect(later.getByText('You have already solved this task.')).toHaveCount(0);
+  await expect(later.getByText('Hint: take another look at the amount.')).toBeVisible();
+  await expect(
+    later.getByTestId('cheque-face').locator('[data-zone="amount-figures"]'),
+  ).toHaveClass(/animate-glow/);
+
+  // And it carries on from there.
+  await later.getByRole('button', { name: /^Amount in Figures:/ }).click();
+  await expect(later.getByText('MISMATCH', { exact: true })).toBeVisible();
+  await expect(nextTaskButton(later)).toBeVisible();
 });
 
 test('debug panel jumps to a task, injects a scan and resets', async ({ page }) => {

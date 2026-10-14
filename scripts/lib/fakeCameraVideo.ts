@@ -5,13 +5,21 @@ export const VIDEO_WIDTH = 640;
 export const VIDEO_HEIGHT = 480;
 const FRAMES = 2;
 const FRAMES_PER_SECOND = 10;
+/**
+ * A sequence only has to show each card for a few seconds, and every frame is the same still
+ * picture — so it is written at a low frame rate to keep the file small.
+ */
+const SEQUENCE_FRAMES_PER_SECOND = 2;
+export const SEQUENCE_SECONDS_PER_CARD = 3;
 
 // "Video range" luma, as a camera would deliver it: 16 is black and 235 is white.
 const BLACK = 16;
 const WHITE = 235;
 const NEUTRAL_CHROMA = 128;
 
-export const Y4M_HEADER = `YUV4MPEG2 W${VIDEO_WIDTH} H${VIDEO_HEIGHT} F${FRAMES_PER_SECOND}:1 Ip A1:1 C420jpeg\n`;
+const y4mHeader = (framesPerSecond: number) =>
+  `YUV4MPEG2 W${VIDEO_WIDTH} H${VIDEO_HEIGHT} F${framesPerSecond}:1 Ip A1:1 C420jpeg\n`;
+export const Y4M_HEADER = y4mHeader(FRAMES_PER_SECOND);
 const FRAME_MARKER = 'FRAME\n';
 
 /** Where the code sits in the frame, and how big its modules are, in pixels. */
@@ -54,10 +62,29 @@ export function renderLuma(payload: string): Buffer {
  * doesn't shell out to ffmpeg.
  */
 export function renderFakeCameraVideo(payload: string): Buffer {
-  const luma = renderLuma(payload);
-  const chroma = Buffer.alloc((VIDEO_WIDTH / 2) * (VIDEO_HEIGHT / 2) * 2, NEUTRAL_CHROMA);
-  const frame = Buffer.concat([Buffer.from(FRAME_MARKER), luma, chroma]);
+  const frame = renderFrame(payload);
   return Buffer.concat([Buffer.from(Y4M_HEADER), ...Array.from({ length: FRAMES }, () => frame)]);
+}
+
+function renderFrame(payload: string): Buffer {
+  const chroma = Buffer.alloc((VIDEO_WIDTH / 2) * (VIDEO_HEIGHT / 2) * 2, NEUTRAL_CHROMA);
+  return Buffer.concat([Buffer.from(FRAME_MARKER), renderLuma(payload), chroma]);
+}
+
+/**
+ * Several cards held up one after another, each for `SEQUENCE_SECONDS_PER_CARD`, then round
+ * again (the fake camera loops the file) — a player scanning one document and then the next,
+ * for tasks that need more than one card. Between cards the picture changes at once, the way
+ * it does when one card is swapped for another in front of a camera.
+ */
+export function renderFakeCameraSequence(payloads: readonly string[]): Buffer {
+  if (payloads.length === 0) throw new Error('a sequence needs at least one card');
+  const framesPerCard = SEQUENCE_FRAMES_PER_SECOND * SEQUENCE_SECONDS_PER_CARD;
+  const frames = payloads.flatMap((payload) => {
+    const frame = renderFrame(payload);
+    return Array.from({ length: framesPerCard }, () => frame);
+  });
+  return Buffer.concat([Buffer.from(y4mHeader(SEQUENCE_FRAMES_PER_SECOND)), ...frames]);
 }
 
 /** The size in bytes every video made here has, whatever its code. */

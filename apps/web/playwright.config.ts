@@ -1,8 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
-import { fakeCameraFile } from './e2e/fakeCamera';
+import { cameraLaunchOptions, cardVideo } from './e2e/fakeCamera';
 
 const PORT = 4173;
-const CAMERA_SPEC = /camera-scan\.spec\.ts/;
+/** Specs that need the fake camera are named *.camera.spec.ts. */
+const CAMERA_SPEC = /\.camera\.spec\.ts$/;
 
 // E2E runs against a fresh production build, not the dev server: it stays independent of
 // whatever `pnpm dev` is doing on 5173, and it excludes the dev-only XState inspector (which
@@ -27,24 +28,16 @@ export default defineConfig({
   projects: [
     // No camera at all: every scan goes through the simulated picker.
     { name: 'chromium', testIgnore: CAMERA_SPEC, use: { ...devices['Desktop Chrome'] } },
-    // A fake webcam that plays a video of one QR code (written by globalSetup), with the
-    // browser's permission prompt auto-accepted.
+    // A real camera path: Chromium's fake webcam plays a video of QR codes, and the browser
+    // grants the camera without asking. Each spec picks its video (see e2e/fakeCamera.ts);
+    // this one, the Savings Account card, is the default.
     {
-      name: 'chromium-fake-camera',
+      name: 'camera',
       testMatch: CAMERA_SPEC,
       use: {
         ...devices['Desktop Chrome'],
         permissions: ['camera'],
-        launchOptions: {
-          args: [
-            '--use-fake-device-for-media-stream',
-            '--use-fake-ui-for-media-stream',
-            `--use-file-for-fake-video-capture=${fakeCameraFile}`,
-            // No internet: if the decoder tried to fetch its WASM from a CDN instead of the
-            // bundled copy, nothing would decode and the test would fail.
-            '--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE localhost',
-          ],
-        },
+        launchOptions: cameraLaunchOptions(cardVideo('account-savings')),
       },
     },
   ],

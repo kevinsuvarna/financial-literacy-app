@@ -2,7 +2,7 @@ import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { renderQrSvg } from './artefactQr';
-import { renderFakeCameraVideo } from './fakeCameraVideo';
+import { renderFakeCameraSequence, renderFakeCameraVideo } from './fakeCameraVideo';
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
@@ -13,6 +13,10 @@ export const FIXTURES_DIR = join(repoRoot, 'apps', 'web', 'e2e', 'fixtures');
 
 export const qrSvgPath = (artefactId: string) => join(QR_DIR, `${artefactId}.svg`);
 export const fakeCameraVideoPath = (artefactId: string) => join(FIXTURES_DIR, `${artefactId}.y4m`);
+/** Sequences live in a folder of their own, so they are never mistaken for stale artefacts. */
+export const SEQUENCES_DIR = join(FIXTURES_DIR, 'sequences');
+export const fakeCameraSequencePath = (artefactIds: readonly string[]) =>
+  join(SEQUENCES_DIR, `${artefactIds.join('--')}.y4m`);
 
 /** All this needs to know about an artefact: what it is called and what its code says. */
 export interface QrArtefact {
@@ -89,6 +93,23 @@ export async function generateFakeCameraVideos(
   }
   const removed = await removeStale(FIXTURES_DIR, '.y4m', new Set(artefacts.map((a) => a.id)));
   return { written, removed, total: artefacts.length };
+}
+
+/**
+ * Writes a fake-camera video for each sequence of artefacts — cards held up in turn — into
+ * e2e/fixtures/sequences. Only the sequences tests ask for are made, one file each.
+ */
+export async function generateFakeCameraSequences(
+  sequences: readonly (readonly QrArtefact[])[],
+): Promise<GeneratedAssets> {
+  await mkdir(SEQUENCES_DIR, { recursive: true });
+  const written: string[] = [];
+  for (const sequence of sequences) {
+    const ids = sequence.map((artefact) => artefact.id);
+    const video = renderFakeCameraSequence(sequence.map((artefact) => artefact.qrPayload));
+    if (await writeIfChanged(fakeCameraSequencePath(ids), video)) written.push(ids.join('--'));
+  }
+  return { written, removed: [], total: sequences.length };
 }
 
 /**

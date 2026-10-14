@@ -176,3 +176,56 @@ test('a solved cheque reopens with the mismatch already marked', async ({ page }
   await expect(redString(page)).toBeVisible();
   await expect(zone(page, 'Signature')).toBeDisabled();
 });
+
+test.describe('on a touchscreen', () => {
+  // A classroom tablet: touch only, no mouse.
+  test.use({ viewport: { width: 1024, height: 768 }, hasTouch: true });
+
+  /**
+   * Drags with one finger, as real touch events (Playwright's own touchscreen can only tap).
+   * The loupe is a pointer-event drag, so this is the path a tablet takes.
+   */
+  async function touchDrag(page: Page, from: Locator, to: Locator) {
+    await to.scrollIntoViewIfNeeded();
+    const start = await centreOf(from);
+    const end = await centreOf(to);
+    const cdp = await page.context().newCDPSession(page);
+    const touch = (type: 'touchStart' | 'touchMove' | 'touchEnd', x: number, y: number) =>
+      cdp.send('Input.dispatchTouchEvent', {
+        type,
+        touchPoints: type === 'touchEnd' ? [] : [{ x, y }],
+      });
+
+    await touch('touchStart', start.x, start.y);
+    for (let step = 1; step <= 12; step += 1) {
+      await touch(
+        'touchMove',
+        start.x + ((end.x - start.x) * step) / 12,
+        start.y + ((end.y - start.y) * step) / 12,
+      );
+    }
+    await touch('touchEnd', end.x, end.y);
+    await cdp.detach();
+  }
+
+  test('tapping details and dragging the loupe with a finger', async ({ page }) => {
+    await openTask(page);
+
+    // A tap on a detail that is fine: the sticky note, as with a click.
+    await zone(page, 'Payee Name').tap();
+    await expect(note(page)).toContainText('Payee Name');
+    await expect(stamp(page)).toHaveCount(0);
+
+    // The loupe follows a finger across the cheque — and a drag is not a tap.
+    await touchDrag(page, loupe(page), printed(page, 'amount-figures'));
+    expect(await distanceBetween(loupe(page), printed(page, 'amount-figures'))).toBeLessThan(4);
+    await expect(stamp(page)).toHaveCount(0);
+
+    // Tapping the glass inspects what is under it: the amount, and the mismatch is found.
+    await loupe(page).tap();
+    await expect(stamp(page)).toBeVisible();
+    await expect(redString(page)).toBeVisible();
+    await expect(page.getByRole('status')).toContainText('Found it!');
+    await expect(nextTaskButton(page)).toBeVisible();
+  });
+});

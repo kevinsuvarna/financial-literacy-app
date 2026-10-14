@@ -1,9 +1,10 @@
 import { expect, test } from '@playwright/test';
 import { expectPrompt, nextTask, openFirstTask, picker } from './helpers';
 
-// Runs only in the `chromium-fake-camera` project, whose webcam plays a video of the Savings
-// Account card's QR code. Nothing here clicks a card: every scan comes from decoded frames.
+// The `camera` project: a scanOne task (Level 1 Task 1, the account type) played through the
+// real CameraSource. Nothing here clicks a card — every scan comes from decoded video frames.
 
+// The project's default video: the Savings Account card, the right answer.
 test('reads a QR code from the camera, end to end', async ({ page }) => {
   await openFirstTask(page, '/?debug=1');
   const panel = page.getByRole('complementary', { name: 'Debug panel' });
