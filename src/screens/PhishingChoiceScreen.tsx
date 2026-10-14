@@ -22,12 +22,12 @@ function PhishingChoices() {
     <div className="phishing">
       <article className="phish-message paper" aria-label={phishingMessage.sender}>
         <p className="phish-from">
-          {GAME.ui.phishingFrom}: <strong>{phishingMessage.sender}</strong>
+          <strong>{phishingMessage.sender}</strong> <span className="phish-time">{phishingMessage.time}</span>
         </p>
         <p>{phishingMessage.text}</p>
+        <p>{phishingMessage.detail}</p>
         {/* Shown as text only: never a working link. */}
         <p className="phish-link">{phishingMessage.link}</p>
-        <p className="phish-signoff">{phishingMessage.signOff}</p>
       </article>
       <div className="button-row">
         {GAME.tasks.L3T1.choices.map((choice) => (

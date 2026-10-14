@@ -89,6 +89,7 @@ export interface GameState extends GameProgress {
   choosePhishingOption: (choice: PhishingChoice) => ActionResult
   /** Returns the fictional value the tapped field fills with, or null if the fake page isn't open. */
   fillFakeField: (fieldId: FakeFieldId) => string | null
+  /** YES path: shows the simulated loss and sends the player back to the choice. Only NO completes the task. */
   submitFakeForm: () => ActionResult
   completeScamReveal: () => ActionResult
   enterPasskey: (code: string) => ActionResult
@@ -368,8 +369,9 @@ export function createGameStore({
               return respond(task, 'neutral', 'neutral', task.fakeSite.incomplete)
             }
             // The simulated loss happens now, after details were entered, never on the click itself.
-            // The fake page stays on screen under the explanation; it closes when the player leaves the task.
-            return succeed(task, task.consequence, {}, 'incorrect')
+            // It doesn't complete the task: the player goes back to the choice and must pick NO.
+            set({ fakeSite: CLOSED_FAKE_SITE })
+            return fail(task, task.consequence)
           },
 
           completeScamReveal: () => {

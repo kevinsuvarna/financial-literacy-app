@@ -582,17 +582,43 @@ Export each Figma frame with the file name below. The friendly name is what prom
 | 09e | `09e-L2T2-cheque-amount-mismatch-found.png` | Cheque: amount row tapped (mismatch found, BANK STATEMENT) | 5, Task 2 | screen | same route, feedback | Mockup received |
 | 09f | `09f-L2T2-cheque-signature.png` | Cheque: signature tapped ("looks right", TRY AGAIN) | 5, Task 2 | screen | same route, feedback | Mockup received |
 | 10 | `10-L2T3-highlighter.png` | Highlight the suspicious transaction | 5, Task 3 | screen | `/level-2/highlighter` | Placeholder (Stage 0) |
+| 10b | `10b-L2T3-highlighter-cafe-express.png` | Highlighter: Cafe Express (NOT SUSPICIOUS). Outlier header "Step 2: Bank Statment" and tracker Call/Case/Solve | 5, Task 3 | screen | same route, feedback | Mockup received |
+| 10c | `10c-L2T3-highlighter-playzone.png` | Highlighter: PlayZone (NOT SUSPICIOUS) | 5, Task 3 | screen | same route, feedback | Mockup received |
+| 10d | `10d-L2T3-highlighter-stylehub.png` | Highlighter: StyleHub (NOT SUSPICIOUS). Heading says ₹499, should be ₹1,200 | 5, Task 3 | screen | same route, feedback | Mockup received |
+| 10e | `10e-L2T3-highlighter-cinemax.png` | Highlighter: CineMax (NOT SUSPICIOUS) | 5, Task 3 | screen | same route, feedback | Mockup received |
+| 10f | `10f-L2T3-highlighter-quickbite.png` | Highlighter: QuickBite (NOT SUSPICIOUS). Heading says "Quick Bites" | 5, Task 3 | screen | same route, feedback | Mockup received |
+| 10g | `10g-L2T3-highlighter-interest-credit.png` | Highlighter: Interest credit (NOT SUSPICIOUS, "Ananya's weekly log accounts for this") | 5, Task 3 | screen | same route, feedback | Mockup received |
+| 10h | `10h-L2T3-highlighter-cams-tel-suspicious-found.png` | Highlighter: CAMS TEL row (SUSPICIOUS, INVESTIGATE). Heading says "FastTel", should be CAMS TEL | 5, Task 3 | screen | same route, feedback | Mockup received |
+| 10i | `10i-L2T3-highlighter-cheque-music-fees.png` | Highlighter: cheque returned row (NOT SUSPICIOUS, "Music Class") | 5, Task 3 | screen | same route, feedback | Mockup received |
+| 10j | `10j-L2T3-highlighter-grandparents-gift.png` | Highlighter: Gift from Grandparents (NOT SUSPICIOUS) | 5, Task 3 | screen | same route, feedback | Mockup received |
 | 11 | `11-L2-complete.png` | Level 2 complete | 5 | cinematic | `/level-2/complete` | Placeholder (Stage 0) |
 | 12 | `12-call-ananya-2.png` | Ananya's second phone call | 6, Task 1 | call | `/level-3/call-ananya` | Placeholder (Stage 0) |
+| 12a | `11-call-ananya-2.png` | Second call: "Hello! It's me, Ananya! My debit card has been blocked" | 6, Task 1 | call | same route, call step 1 | Mockup received |
+| 12b | `11b-call-ananya-2-talking.png` | Second call: "I just got a message saying I can unblock it immediately by clicking a link." | 6, Task 1 | call | same route, call step 2 | Mockup received |
 | 13 | `13-L3T1-phishing-choice.png` | Should Ananya click the link? | 6, Task 1 | screen | `/level-3/phishing` | Placeholder (Stage 0) |
+| 13a | `11c-call-ananya-2-card-blocked-choice.png` | Phishing choice: CAMS TEL notification + YES / NO ("Should Ananya tap the link in the notification?") | 6, Task 1 | screen | `/level-3/phishing` | Mockup received |
+| 13b | `11f-L3T1-phishing-choice-yes-chosen.png` | Phishing: **NO** outcome (GOOD CALL, SECURE). File name says "yes-chosen", which is swapped | 6, Task 1 | screen | same route, feedback | Mockup received |
 | 14 | `14-L3T1-fake-website.png` | Fake bank website (YES path) | 6, Task 1 | screen | `/level-3/fake-website` | Placeholder (Stage 0) |
+| 14a | `11d-L3T1-phishing-choice-no-correct.png` | Phishing: **YES** outcome ("Uh Huh", simulated ₹3,000 loss, TRY AGAIN). File name says "no-correct", which is swapped. Replaces the fake website: see 13.3 | 6, Task 1 | screen | see 13.3 | Mockup received |
 | 15 | `15-L3T2-scam-reveal.png` | CAMS TEL scam reveal | 6, Task 2 | cinematic | `/level-3/scam-reveal` | Placeholder (Stage 0) |
+| 15a | `15-L3T2-scam-reveal-statement-clue.png` | Scam reveal 1: "WAIT… LOOK AT THE NAME!" notification + statement row, "CAM Service Tel could this be?" | 6, Task 2 | cinematic | same route, step 1 | Mockup received |
+| 15b | `15b-L3T2-scam-reveal-connection.png` | Scam reveal 2: "CAMS TEL" appears | 6, Task 2 | cinematic | same route, step 2 | Mockup received |
+| 15c | `12c-L3T2-scam-reveal-scam-exposed.png` | Scam reveal 3: CAMS TEL rearranges to "SCAM TEL", plus the Daily Chronicle article | 6, Task 2 | cinematic | same route, step 3 | Mockup received |
 | 16 | `16-L3T3-passkey-computer.png` | Passkey on the on-screen computer | 6, Task 3 | screen | `/level-3/passkey` | Placeholder (Stage 0) |
+| 16a | `13-L3T3-passkey-computer.png` | Passkey: ENTER PASSKEY on the bank computer, newspaper on the desk | 6, Task 3 | screen | `/level-3/passkey` | Mockup received |
+| 16b | `13b-L3T3-passkey-computer-typing.png` | Passkey: 2-0-9 typed (matches the derived passkey) | 6, Task 3 | screen | same route | Mockup received |
+| 16c | `16e-L3T3-passkey-computer-unlocked.png` | Passkey: unlocked (zoomed computer) | 6, Task 3 | screen | same route | Mockup received |
 | 17 | `17-L3T4-scan-evidence.png` | Scan evidence (statement + phishing card) | 6, Task 4 | table | `/level-3/scan-evidence` | Placeholder (Stage 0) |
+| 17a | `14-L3T4-scan-evidence.png` | Scan evidence: two empty slots (statement, CAMS TEL message) on the bank computer | 6, Task 4 | table | `/level-3/scan-evidence` | Mockup received |
+| 17b | `14-L3T4-scan-evidence-statement-attached.png` | Scan evidence: statement attached (file shares the "14" number with 17a) | 6, Task 4 | table | same route | Mockup received |
+| 17c | `14c-L3T4-scan-evidence-message-attached.png` | Scan evidence: both attached (EVIDENCE ATTACHED, labels, REVIEW INCIDENT REPORT) | 6, Task 4 | table | same route | Mockup received |
 | 18 | `18-L3T5-review-report.png` | Review incident report | 6, Task 5 | screen | `/level-3/review-report` | Placeholder (Stage 0) |
+| 18a | `15-L3T5-review-report.png` | Incident report: customer, account, date, ₹5,999 — CAMS TEL, concern, SUBMIT REPORT | 6, Task 5 | screen | `/level-3/review-report` | Mockup received |
 | 19 | `19-report-submitted.png` | Report submitted | 6, Task 5 | cinematic | `/report-submitted` | Placeholder (Stage 0) |
 | 20 | `20-certificate.png` | Mission complete certificate | 7 | cinematic | `/certificate` | Placeholder (Stage 0) |
+| 20a | `16-certificate.png` | Certificate: MISSION COMPLETE!, badge on the desk. No Case Board / replay buttons | 7 | cinematic | `/certificate` | Mockup received |
 | 21 | `21-case-board.png` | Case Board (level select) | 8 | screen | `/case-board` | Placeholder (Stage 0) |
+| 21a | `21-case-board.png` | Case Board: cork board, three pinned level cards with 3-dot progress, red thread | 8 | screen | `/case-board` | Mockup received |
 | 22 | `22-feedback-popups.png` | Correct / incorrect feedback pop-ups | 2 | overlay | overlay (no route) | Placeholder (Stage 0) |
 
 Routes are defined in `src/app/screens.ts`. A phone camera opening a printed QR code lands on `/a/<artefact-id>`, a friendly page outside the game canvas (10.3).
@@ -740,3 +766,44 @@ Cheque: National Bank, Hitech City Branch, IFSC NBIN0001234, dated 25-08-2026, p
   - The 09c–09f cheque lines. "This looks right." replaces the spec's "This detail looks correct. Keep investigating."
 - A test pins the statement, the cards and the passkey to the mockup values.
 
+**Second mockup review (2026-10-14): 10b–10j, the second call, phishing, scam reveal, passkey, evidence, report, certificate, Case Board.** The owner's file numbers don't follow 13.1. The rows above map each file to its 13.1 screen.
+
+Matches the game:
+- Passkey 2-0-9 (16b).
+- Both pieces of evidence, with the same labels as 6, Task 4 (17c).
+- CAMS TEL in the phishing message, the scam reveal and the report.
+- Certificate copy is Section 7 word for word.
+- Highlighter feedback on every row except pocket money and the cheque payment.
+
+**Owner decisions (2026-10-14):**
+- **YES path:** YES → fake website (needs a new mockup for 14) → submitting it shows the 14a "Uh Huh" money-withdrawn screen → TRY AGAIN returns to the choice. Only NO completes Level 3, Task 1. This replaces guess 5.
+- **Simulated loss:** ₹2,000, computed from the balance, so the SMS reads "₹2,000 was withdrawn… available balance is ₹452".
+
+Needs a decision or a mockup fix (item 1 decided above):
+1. **Phishing YES path (14a) leaves out the fake website** that spec 6, Task 1 requires, where fields auto-fill fictional values and the loss happens only after details are entered. It jumps straight to a bank SMS ("Rs 3000 was withdrawn… available balance is Rs 502") with TRY AGAIN, so choosing YES never completes the task. "Rs 502" assumes a ₹3,502 balance, which contradicts the decided ₹2,452. The sender is "FIRST BANK".
+2. **The YES and NO outcome files are swapped:** `11d-…-no-correct` shows the YES outcome and `11f-…-yes-chosen` shows the NO outcome.
+3. **Dates and accounts disagree:**
+   - The report (18a) says transaction date 12 Oct 2026 and account XXXX 7812, and the evidence thumbnail (17a) says 12 Oct 26. The statement says 30 Aug 2026.
+   - There are now three account numbers: statement XXXX 3210, cheque 1234567890, report XXXX 7812.
+   - The game will show the statement's values unless told otherwise.
+4. **Bank name:** "First National Bank" on the L2T1 statement, "National Bank" on the cheque, highlighter, computer and report, "FIRST BANK" in the SMS.
+5. **Level 3 tracker** has 3 steps (Phishing / Uncover / Report) for 5 tasks. Mapping assumed: Phishing = T1, Uncover = T2, Report = T3–T5. The passkey screen is mid-way: 16a shows step 3 open, 16b shows it filled.
+6. **Case Board (21a)** shows progress dots but not the spec 8 statuses (locked / available / in progress / completed), and has no resume control.
+7. **Certificate (20a)** has no CTA back to the Case Board or to replay, which Section 7 requires.
+8. **The newspaper's phishing link is "http://cams-tel.in"**, a real-looking domain that may exist and that children could type. The 13a message uses "https://cams-tel-debit/unblock-card", which has no domain ending and can't resolve. Use one safe address everywhere.
+9. **Missing screens:**
+   - 06 (withdrawal slip), 07 (Level 1 complete), 10 base and the 10 pocket-money / cheque-payment variants, 11 (Level 2 complete), 19 (report submitted);
+   - wrong passkey, the cheque scanned as evidence, and the incoming-call screen for the second call (if wanted).
+10. **"Ananya's weekly log" (10g)** and "Ananya said/recorded…" notes suggest a weekly log in the case file. Spec 2 mentions one, but it isn't an artefact. Is it a printed document?
+11. **Typos:** "Bank Statment" (10b), "Quick Bites" (10f), "Unocover" (tracker on 13b, file `11f`), "CLOSING BALANCE ; CHEQUE AMOUNT:" (16a hint).
+
+
+**YES path applied (2026-10-14):**
+- Store: `submitFakeForm()` shows the simulated loss as a wrong answer and closes the fake page. The player is back at the choice, and only NO completes Level 3, Task 1. This replaces guess 5.
+- The loss is `CASE_FIGURES.simulatedLoss` (₹2,000). The bank alert, "₹2,000 was withdrawn from a/c no. XXXX3210. Available balance is ₹452.", is worked out from the closing balance and account number. The data refuses a loss the balance can't cover.
+- Level 3, Task 1 copy taken from mockups 12a/12b, 13a, 13b and 14a:
+  - the second call's lines;
+  - the CAMS TEL notification and the "Should Ananya tap the link in the notification?" YES / NO choice;
+  - GOOD CALL (NO), keeping the spec's "check through official bank channels" advice;
+  - "Uh Huh" (YES), plus a line making clear the money went only after details were typed in.
+- The message link is `https://cams-tel-debit/unblock-card`, which has no domain ending and can't open a real site. CAMS TEL is kept everywhere.

@@ -84,7 +84,7 @@ test('plays the whole mission with simulated scans', async ({ page }) => {
   // Level 3, Task 1: Ananya's call, then the YES path through the fake page.
   await expect(page).toHaveURL(/\/level-3\/call-ananya$/)
   await page.getByRole('button', { name: GAME.ui.continue }).click()
-  await page.getByRole('button', { name: tasks.L3T1.choices.find((c) => c.id === 'yes')!.label }).click()
+  await page.getByRole('button', { name: tasks.L3T1.choices.find((c) => c.id === 'yes')!.label, exact: true }).click()
   await expect(page).toHaveURL(/\/level-3\/fake-website$/)
   await page.getByRole('button', { name: tasks.L3T1.fakeSite.submit }).click()
   await closeToast(page, tasks.L3T1.fakeSite.incomplete.message)
@@ -94,7 +94,12 @@ test('plays the whole mission with simulated scans', async ({ page }) => {
     await expect(box).toHaveText(field.autofill)
   }
   await page.getByRole('button', { name: tasks.L3T1.fakeSite.submit }).click()
+  await expect(dialog(page)).toContainText(tasks.L3T1.consequence.alert!.text)
   await closeDialog(page, tasks.L3T1.consequence.title)
+  // YES never completes the task: back at the choice, only NO continues.
+  await expect(page).toHaveURL(/\/level-3\/phishing$/)
+  await page.getByRole('button', { name: tasks.L3T1.choices.find((c) => c.id === 'no')!.label, exact: true }).click()
+  await closeDialog(page, tasks.L3T1.safe.title)
 
   // Task 2
   await expect(page).toHaveURL(/\/level-3\/scam-reveal$/)
@@ -191,7 +196,7 @@ test('phishing NO path continues the investigation', async ({ page }) => {
   })
   await page.goto('/level-3/fake-website')
   await expect(page).toHaveURL(/\/level-3\/phishing$/)
-  await page.getByRole('button', { name: GAME.tasks.L3T1.choices.find((c) => c.id === 'no')!.label }).click()
+  await page.getByRole('button', { name: GAME.tasks.L3T1.choices.find((c) => c.id === 'no')!.label, exact: true }).click()
   await closeDialog(page, GAME.tasks.L3T1.safe.title)
   await expect(page).toHaveURL(/\/level-3\/scam-reveal$/)
 })

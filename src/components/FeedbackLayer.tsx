@@ -68,6 +68,12 @@ export function FeedbackLayer({ onClose }: { onClose?: () => void }) {
             <h2 id="feedback-title" className="modal-title">
               {feedback.title ?? GAME.ui.ok}
             </h2>
+            {feedback.alert && (
+              <div className="feedback-alert" role="note">
+                <strong>{feedback.alert.sender}</strong>
+                <p>{feedback.alert.text}</p>
+              </div>
+            )}
             <p className="modal-message">{feedback.message}</p>
             {feedback.detail && <p className="modal-detail">{feedback.detail}</p>}
             {feedback.hint && (

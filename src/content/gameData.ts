@@ -298,6 +298,8 @@ export interface CaseFigures {
   cheque: ChequeFigures
   /** 3–4 cards, exactly one correct (spec 2). */
   balanceCards: BalanceCardFigure[]
+  /** Phishing YES path: what the scammer takes in the simulation. Must be less than the closing balance. */
+  simulatedLoss: number
 }
 
 export const CASE_FIGURES: CaseFigures = {
@@ -451,6 +453,7 @@ export const CASE_FIGURES: CaseFigures = {
       },
     },
   ],
+  simulatedLoss: 2000, // owner decision: leaves ₹452 of ₹2,452
 }
 
 // ─── Content types ───────────────────────────────────────────────────────────
@@ -460,6 +463,8 @@ export interface Copy {
   message: string
   /** Extra explanation shown under the message. */
   detail?: string
+  /** A phone notification shown with the message, e.g. the bank's "money withdrawn" alert. */
+  alert?: { sender: string; text: string }
 }
 
 export interface CallLine {
@@ -712,11 +717,17 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
 
   const phishingMessage = {
     sender: 'CAMS TEL',
-    text: 'URGENT: Your debit card has been BLOCKED. Tap the link within 10 minutes to unblock it, or your account will be closed.',
-    signOff: 'CAMS TEL Card Services',
-    // Reserved .example domain: it can never resolve to a real site.
-    link: 'http://camstel-unblock.example/verify',
+    time: 'Today · 9:14 AM',
+    text: 'Your debit card has been blocked due to suspicious activity.',
+    detail: 'To restore access immediately, click the link below to verify your account and unblock your debit card.',
+    // No domain ending, so it can never open a real site (owner decision: one safe link everywhere).
+    link: 'https://cams-tel-debit/unblock-card',
   }
+
+  if (figures.simulatedLoss <= 0 || figures.simulatedLoss >= ledger.closingBalance) {
+    throw new Error('The simulated phishing loss must be more than zero and less than the closing balance')
+  }
+  const balanceAfterLoss = ledger.closingBalance - figures.simulatedLoss
 
   const tasks: GameTasks = {
     L1T1: {
@@ -886,29 +897,25 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       level: 3,
       kind: 'phishing',
       label: 'Spot the phish',
-      prompt: 'SHOULD ANANYA CLICK THE LINK?',
+      prompt: 'Should Ananya tap the link in the notification?',
       instruction: 'Decide what Ananya should do.',
       hints: [],
       call: {
         caller: 'Ananya',
         lines: [
-          { speaker: 'Ananya', text: "Officer, it's Ananya again! My debit card has been blocked." },
-          {
-            speaker: 'Ananya',
-            text: 'I just got a message saying I can unblock it straight away if I click a link. Should I click it?',
-          },
+          { speaker: 'Ananya', text: "Hello! It's me, Ananya! My debit card has been blocked." },
+          { speaker: 'Ananya', text: 'I just got a message saying I can unblock it immediately by clicking a link.' },
         ],
       },
       choices: [
-        { id: 'no', label: "NO — DON'T CLICK THE LINK" },
-        { id: 'yes', label: 'YES — CLICK THE LINK' },
+        { id: 'yes', label: 'YES' },
+        { id: 'no', label: 'NO' },
       ],
       safe: {
-        title: 'GOOD CALL, OFFICER!',
-        message:
-          'You checked before acting. Unexpected, urgent messages like this can be phishing: tricks to steal your details.',
+        title: 'GOOD CALL',
+        message: 'You did the right thing by refusing to click the suspicious link!',
         detail:
-          "Ananya should check her card status through official bank channels, like the bank's own app, the helpline number on the back of her card, or her branch.",
+          "Good job contacting the bank to help. Unexpected, urgent messages like this can be phishing: tricks to steal your details. Ananya should check her card status through official bank channels, like the bank's own app, the helpline number on the back of her card, or her branch.",
       },
       fakeSite: {
         title: 'UNBLOCK YOUR CARD NOW',
@@ -924,11 +931,15 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
         incomplete: { message: 'The fake page wants every box filled in. Tap each one to see what scammers try to collect.' },
       },
       consequence: {
-        title: 'IT WAS A FAKE PAGE',
+        title: 'UH HUH',
         message:
-          "In this simulation, Ananya's card details and OTP were typed into a fake page, so the scammers could now use them to take money from her account. Clicking the link opened the trap; typing in the details is what let the scammers in.",
+          "By clicking the link and sharing the OTP, you may have given the scammer access. Ananya's account has been compromised! Report immediately.",
         detail:
-          "Scammers build fake pages that look like a bank's to collect information like this. The safer choice: don't click links in unexpected messages. Check your card through official bank channels, and never share your card number, PIN, password or OTP with anyone.",
+          "In this simulation, the money went only after her card details and OTP were typed into the fake page. Scammers build fake pages that look like a bank's to collect information like this. The safer choice: don't tap links in unexpected messages, check your card through official bank channels, and never share your card number, PIN, password or OTP. Try again.",
+        alert: {
+          sender: account.bankName,
+          text: `Dear Customer, ${formatRupees(figures.simulatedLoss)} was withdrawn from a/c no. XXXX${account.maskedNumber.slice(-4)}. Available balance is ${formatRupees(balanceAfterLoss)}.`,
+        },
       },
     },
 
@@ -1218,7 +1229,6 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       cheque: { chequeNumber: 'Cheque No.', accountNumber: 'A/c No.' },
       highlighter: { label: 'HIGHLIGHTER', hint: 'Drag the highlighter onto a transaction' },
       clue: 'CLUE',
-      phishingFrom: 'From',
       passkey: { enter: 'ENTER', clear: 'CLEAR', unlocked: 'UNLOCKED' },
       certificateAwarded: 'AWARDED THE RANK OF',
     },

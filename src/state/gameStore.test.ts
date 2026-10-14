@@ -279,7 +279,7 @@ describe('Level 3', () => {
     expect(state().phishingChoice).toBe('no')
   })
 
-  it('phishing YES: the loss is shown only after the details are entered', () => {
+  it('phishing YES: the loss is shown only after the details are entered, and the player must try again', () => {
     playUntil(store, 'L3T1')
     state().viewTask('L3T1')
     expect(state().fillFakeField('otp')).toBeNull()
@@ -293,9 +293,23 @@ describe('Level 3', () => {
     for (const field of GAME.tasks.L3T1.fakeSite.fields) {
       expect(state().fillFakeField(field.id)).toBe(field.autofill)
     }
-    expect(state().submitFakeForm()).toMatchObject({ outcome: 'correct', completedTask: 'L3T1' })
-    expect(state().feedback).toMatchObject({ tone: 'incorrect', title: GAME.tasks.L3T1.consequence.title })
+    const result = state().submitFakeForm()
+    expect(result.outcome).toBe('incorrect')
+    expect(result.completedTask).toBeUndefined()
+    expect(state().feedback).toMatchObject({
+      tone: 'incorrect',
+      title: GAME.tasks.L3T1.consequence.title,
+      alert: GAME.tasks.L3T1.consequence.alert,
+    })
     expect(state().phishingChoice).toBe('yes')
+    expect(state().fakeSite.open).toBe(false)
+    expect(state().completedTasks).not.toContain('L3T1')
+    expect(state().viewTask('L3T2')).toBe(false)
+
+    // Back at the choice, only NO moves the investigation on.
+    state().dismissFeedback()
+    expect(state().choosePhishingOption('no')).toMatchObject({ outcome: 'correct', completedTask: 'L3T1' })
+    expect(state().phishingChoice).toBe('no')
   })
 
   it('phishing YES: the fake page stays open between screens of the same task, and closes on leaving', () => {

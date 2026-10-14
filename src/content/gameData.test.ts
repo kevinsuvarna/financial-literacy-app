@@ -11,6 +11,7 @@ import {
   buildGameContent,
   computeLedger,
   derivePasskey,
+  formatRupees,
   lastDigit,
   type CaseFigures,
 } from './gameData'
@@ -233,6 +234,28 @@ describe('passkey (Level 3, Task 3)', () => {
 
   it('never reveals the full passkey in a hint', () => {
     for (const hint of GAME.tasks.L3T3.hints) expect(hint).not.toContain(GAME.passkey)
+  })
+})
+
+describe('phishing YES path (owner decision: ₹2,000 simulated loss)', () => {
+  const { alert } = GAME.tasks.L3T1.consequence
+
+  it('works the bank alert out from the real balance', () => {
+    const left = GAME.statement.closingBalance - CASE_FIGURES.simulatedLoss
+    expect(left).toBe(452)
+    expect(alert?.text).toContain(formatRupees(CASE_FIGURES.simulatedLoss))
+    expect(alert?.text).toContain(`Available balance is ${formatRupees(left)}`)
+    expect(alert?.text).toContain(GAME.statement.maskedAccountNumber.slice(-4))
+  })
+
+  it('refuses a loss that the balance cannot cover', () => {
+    expect(() => buildGameContent({ ...CASE_FIGURES, simulatedLoss: GAME.statement.closingBalance })).toThrow()
+    expect(() => buildGameContent({ ...CASE_FIGURES, simulatedLoss: 0 })).toThrow()
+  })
+
+  it('keeps the CAMS TEL message link unopenable', () => {
+    expect(GAME.phishingMessage.sender).toBe('CAMS TEL')
+    expect(new URL(GAME.phishingMessage.link).hostname).not.toContain('.')
   })
 })
 
