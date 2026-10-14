@@ -152,6 +152,31 @@ const sounds = {
       const knock = noise() * pluck(t, 70, 0.001) * 0.45;
       return thump + knock;
     }),
+
+  // A message arriving on a phone: two quick, bright notes.
+  ping: () =>
+    mix(0.4, [
+      { at: 0, duration: 0.16, voice: bell(1568, 18) },
+      { at: 0.1, duration: 0.3, voice: bell(2093, 11) },
+    ]),
+
+  // Money draining away: a tone sliding steadily downwards, with a flutter of coins leaving.
+  drain: () =>
+    render(1.7, (t) => {
+      const progress = t / 1.7;
+      const slide = sine(620 - 430 * progress, t) * 0.26;
+      const flutter = sine(1900 - 900 * progress, t) * (sine(17, t) > 0.3 ? 0.1 : 0);
+      return (slide + flutter) * gate(t, 1.7, 0.05) * (1 - progress * 0.5);
+    }),
+
+  // The pieces falling into place: a low, held chord that swells, with a strike on top.
+  reveal: () =>
+    render(1.6, (t) => {
+      const swell = Math.min(1, t / 0.25) * Math.exp(-Math.max(0, t - 0.25) * 1.9);
+      const chord = (sine(110, t) + sine(164.81, t) * 0.7 + sine(220, t) * 0.5) * 0.24 * swell;
+      const strike = sine(880, t) * pluck(t, 7) * 0.2;
+      return chord + strike;
+    }),
 };
 
 mkdirSync(outputDir, { recursive: true });

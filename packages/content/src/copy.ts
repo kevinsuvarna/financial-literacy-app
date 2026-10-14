@@ -163,6 +163,26 @@ export const copy = {
   phishing: {
     heading: 'Message on Ananya’s phone',
     from: 'From',
+    app: 'Messages',
+    now: 'now',
+    youChose: 'You chose',
+    fieldName: (label: string, value: string) => `${label}: ${value}`,
+    lossTaken: (amount: string) => `− ${amount}`,
+    lossAnnouncement: (amount: string) =>
+      `Simulation: ${amount} was taken from Ananya’s savings after the details were entered.`,
+  },
+
+  corkboard: {
+    board: 'Case corkboard',
+    help: 'Drag the red string from the pin on the statement clue and drop it on the pin where the same name appears. With a keyboard, press Tab to move between the pins and Enter to tie the string to one.',
+    clueCard: 'Statement clue',
+    messageCard: 'Message on Ananya’s phone',
+    chequeCard: 'Returned cheque',
+    chequeNote: 'Returned: the amounts did not match.',
+    payee: 'Pay',
+    tieTo: (target: string) => `Tie the string to ${target}`,
+    revealStamp: 'CONNECTED',
+    revealHeading: 'ONE NAME BEHIND BOTH',
   },
 
   passkey: {

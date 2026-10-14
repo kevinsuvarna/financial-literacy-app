@@ -17,9 +17,8 @@ import {
 import { playSound } from '../audio/sounds';
 import { ChequeFace } from '../components/documents/ChequeFace';
 import { zoneStyle } from '../components/documents/chequeLayout';
-import { Card, Heading, Stamp, StickyNote, Text } from '../components/ui';
+import { Card, Heading, RedString, Stamp, StickyNote, Text } from '../components/ui';
 import { useGame } from '../game';
-import { RedString } from './cheque/RedString';
 import {
   lensPositionFor,
   magnifiedOffset,

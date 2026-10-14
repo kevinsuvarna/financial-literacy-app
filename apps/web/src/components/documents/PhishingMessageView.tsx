@@ -1,18 +1,30 @@
 import { copy, phishingMessage } from '@app/content';
-import { Card, Heading, Text } from '../ui';
+import { Text } from '../ui';
 
-/** The link is display text only — it is never an anchor and never navigates anywhere. */
+/**
+ * The suspicious message, as a notification on Ananya's phone. The "link" is plain text — it
+ * is never an anchor and never navigates anywhere.
+ */
 export function PhishingMessageView() {
   return (
-    <Card as="section" tone="sunken" className="flex flex-col gap-2">
-      <Heading level={2} size="section">
-        {copy.phishing.heading}
-      </Heading>
-      <Text size="sm" tone="muted">
-        {copy.phishing.from}: {phishingMessage.sender}
+    <section
+      aria-label={copy.phishing.heading}
+      className="flex max-w-md flex-col gap-1.5 rounded-card border border-on-canvas-muted/40 bg-canvas p-4 text-on-canvas shadow-xl"
+    >
+      <div className="flex items-center gap-2 text-xs text-on-canvas-muted">
+        <span aria-hidden="true" className="size-4 rounded-sm bg-accent" />
+        <span className="font-semibold tracking-wide uppercase">{copy.phishing.app}</span>
+        <span aria-hidden="true">·</span>
+        <span>{copy.phishing.now}</span>
+      </div>
+      <Text className="font-bold">
+        <span className="sr-only">{copy.phishing.from}: </span>
+        {phishingMessage.sender}
       </Text>
-      <Text>{phishingMessage.body}</Text>
-      <Text className="font-semibold break-all underline">{phishingMessage.linkLabel}</Text>
-    </Card>
+      <Text size="sm">{phishingMessage.body}</Text>
+      <Text size="sm" className="font-semibold break-all underline">
+        {phishingMessage.linkLabel}
+      </Text>
+    </section>
   );
 }

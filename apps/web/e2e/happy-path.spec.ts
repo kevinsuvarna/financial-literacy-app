@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { expectPrompt, nextTask, nextTaskButton, scan, startGame } from './helpers';
+import { answerCall, expectPrompt, nextTask, nextTaskButton, scan, startGame } from './helpers';
 
 test('plays the whole mission from the start screen to the certificate', async ({ page }) => {
   await startGame(page);
@@ -46,10 +46,13 @@ test('plays the whole mission from the start screen to the certificate', async (
 
   // Level 3 — Secure & Report
   await expectPrompt(page, 'SHOULD ANANYA CLICK THE LINK?');
+  await answerCall(page);
+  await page.getByRole('button', { name: 'SKIP' }).click();
   await page.getByRole('button', { name: /^NO —/ }).click();
   await nextTask(page);
 
-  await expectPrompt(page, /CAMS TEL keeps coming up/);
+  await expectPrompt(page, 'SOMETHING LINKS THESE CLUES. CAN YOU CONNECT THEM?');
+  await page.getByRole('button', { name: 'Tie the string to the sender of the message' }).click();
   await nextTask(page);
 
   await expectPrompt(page, 'THREE CLUES HOLD THE PASSKEY');

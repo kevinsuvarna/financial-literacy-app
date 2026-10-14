@@ -2,52 +2,24 @@ import { useEffect, useRef, useState } from 'react';
 import { copy } from '@app/content';
 import { playSound } from '../audio/sounds';
 import { SceneFrame } from '../components/SceneFrame';
-import { Badge, Button, Heading, Notice, Typewriter, cx } from '../components/ui';
+import { TypedDialogue } from '../components/TypedDialogue';
+import { Badge, Button, Heading, Notice, cx } from '../components/ui';
 
 /** `talking` → `breaking-up` (static and glitch) → `disconnected` (the player moves on). */
 type Phase = 'talking' | 'breaking-up' | 'disconnected';
 
-const PAUSE_BETWEEN_LINES_MS = 650;
-/** Ananya is cut off mid-sentence, so the line dies almost as soon as she stops. */
-const PAUSE_BEFORE_CUT_OFF_MS = 250;
 const BREAK_UP_MS = 900;
 
-const lines = copy.openingCall.lines;
-const lastLine = lines.length - 1;
-
-function typingTick(character: string, index: number) {
-  if (character.trim() !== '' && index % 3 === 0) playSound('type');
-}
-
 /**
- * Ananya's call: her lines type out one after another, the line breaks up, and the call drops.
- * Nothing here advances the game — leaving this screen is always the player's choice, and SKIP
- * jumps straight to the disconnect for anyone who has seen it or doesn't want to wait.
+ * Ananya's first call: her lines type out, the line breaks up, and the call drops. She is cut
+ * off mid-sentence, so the line dies almost as soon as she stops. Nothing here advances the
+ * game — leaving this screen is always the player's choice, and SKIP jumps straight to the
+ * disconnect for anyone who has seen it or doesn't want to wait.
  */
 export function CallDialogue({ onContinue }: { onContinue: () => void }) {
   const [phase, setPhase] = useState<Phase>('talking');
-  const [lineIndex, setLineIndex] = useState(0);
-  const [finishedLine, setFinishedLine] = useState(-1);
   const [skipped, setSkipped] = useState(false);
   const continueRef = useRef<HTMLButtonElement>(null);
-
-  // A finished line leads to the next one — or, after the last, to the call breaking up.
-  useEffect(() => {
-    if (phase !== 'talking' || finishedLine !== lineIndex) return;
-    const isLast = lineIndex === lastLine;
-    const timer = setTimeout(
-      () => {
-        if (isLast) {
-          playSound('static');
-          setPhase('breaking-up');
-        } else {
-          setLineIndex(lineIndex + 1);
-        }
-      },
-      isLast ? PAUSE_BEFORE_CUT_OFF_MS : PAUSE_BETWEEN_LINES_MS,
-    );
-    return () => clearTimeout(timer);
-  }, [phase, finishedLine, lineIndex]);
 
   useEffect(() => {
     if (phase !== 'breaking-up') return;
@@ -60,11 +32,15 @@ export function CallDialogue({ onContinue }: { onContinue: () => void }) {
     if (phase === 'disconnected') continueRef.current?.focus();
   }, [phase]);
 
-  function skip() {
-    setSkipped(true);
-    setLineIndex(lastLine);
+  function breakUp() {
+    if (phase !== 'talking') return;
     playSound('static');
     setPhase('breaking-up');
+  }
+
+  function skip() {
+    setSkipped(true);
+    breakUp();
   }
 
   return (
@@ -89,18 +65,12 @@ export function CallDialogue({ onContinue }: { onContinue: () => void }) {
           )}
         </div>
 
-        <div aria-live="polite" className="flex min-h-40 flex-col gap-3">
-          {lines.slice(0, lineIndex + 1).map((line, index) => (
-            <Typewriter
-              key={line}
-              text={`“${line}”`}
-              instant={skipped || index < lineIndex}
-              onCharacter={typingTick}
-              onDone={() => setFinishedLine(index)}
-              className="text-lg"
-            />
-          ))}
-        </div>
+        <TypedDialogue
+          lines={copy.openingCall.lines}
+          instant={skipped}
+          onFinished={breakUp}
+          className="min-h-40"
+        />
 
         {phase === 'disconnected' ? (
           <>

@@ -1,5 +1,9 @@
-import { cx } from '../../components/ui';
-import type { Point } from './geometry';
+import { cx } from './cx';
+
+interface Point {
+  x: number;
+  y: number;
+}
 
 interface RedStringProps {
   /** The size of the surface the string is pinned to, in pixels. */

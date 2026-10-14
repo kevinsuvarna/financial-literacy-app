@@ -36,6 +36,8 @@ const taskBaseShape = {
   id: z.string().min(1),
   scene: sceneTypeSchema,
   prompt: z.string().min(1),
+  /** Lines Ananya says on a call before the task begins, typed out one after another. */
+  dialogue: z.array(z.string().min(1)).default([]),
   /** A supporting line shown under the prompt. */
   detail: z.string().min(1).optional(),
   /** Ordered instructions shown up front — unlike `hints`, which only appear after mistakes. */
@@ -70,6 +72,20 @@ export const taskSchema = z.discriminatedUnion('kind', [
     kind: z.literal('choice'),
     /** Choice options aren't physical artefacts, so they carry their own display labels. */
     optionLabels: z.record(z.string(), z.string().min(1)),
+    /** How the options are offered: as buttons, or as pins on a corkboard to tie a string to. */
+    presentation: z.enum(['buttons', 'corkboard']).default('buttons'),
+    /** A message that arrives on Ananya's phone before the player chooses. */
+    notification: z.enum(['phishing-message']).optional(),
+    /**
+     * The accepted options that are the *right* call. An accepted option outside this list
+     * still moves the story on — as a lesson rather than a win, so with no praise, stamp or
+     * fanfare. When omitted, every accepted option is recommended.
+     */
+    recommendedIds: z.array(z.string().min(1)).optional(),
+    /** What the player is told after an accepted option, where that differs from successText. */
+    outcomes: z.record(z.string(), z.string().min(1)).default({}),
+    /** A simulated consequence the player is walked through after choosing an option. */
+    simulations: z.record(z.string(), z.enum(['fake-bank-page'])).default({}),
   }),
   z.object({ ...taskBaseShape, kind: z.literal('passkey') }),
   z.object({ ...taskBaseShape, kind: z.literal('narrative') }),
@@ -206,33 +222,53 @@ export const tasks: Task[] = z.array(taskSchema).parse([
   // ------------------------------------------------------------------- Level 3: Secure and Report
   {
     id: 'l3-t1-spot-the-phish',
-    scene: 'screen',
+    scene: 'call',
     kind: 'choice',
     prompt: 'SHOULD ANANYA CLICK THE LINK?',
-    detail:
-      'Ananya calls again. Her debit card has been blocked, and she has received a message offering to unblock it immediately through a link.',
-    references: ['phishing-message'],
+    dialogue: [
+      'It’s Ananya again — my debit card has just been blocked!',
+      'And I’ve got a message saying I can unblock it straight away if I tap a link. Should I tap it?',
+    ],
+    notification: 'phishing-message',
     optionIds: ['no-dont-click', 'yes-click'],
     optionLabels: {
       'no-dont-click': 'NO — DON’T CLICK THE LINK',
       'yes-click': 'YES — CLICK THE LINK',
     },
-    acceptedIds: ['no-dont-click'],
-    feedback: {
+    // Both answers carry the investigation forward (SPEC §6): NO is the right call; YES is
+    // walked through what would have happened, then debriefed.
+    acceptedIds: ['no-dont-click', 'yes-click'],
+    recommendedIds: ['no-dont-click'],
+    feedback: {},
+    simulations: { 'yes-click': 'fake-bank-page' },
+    outcomes: {
       'yes-click':
-        'That link leads to a fake page asking for banking details — scammers use pages like this to steal information. Nothing is lost just from clicking; the risk is in entering information there.',
+        'That page was a fake, made to look like a bank. Tapping the link did not take any money — the money went only after card details were typed into the page. Messages that are unexpected and urgent are a common trick called phishing. Next time, don’t tap the link: check the card through the bank’s own app, website or phone number instead. Nothing real was lost here — this was a simulation.',
     },
     successText:
-      'Good instinct — checking before acting is exactly right. Unexpected, urgent messages like this are a common phishing trick. Check card status through official bank channels instead.',
+      'Good instinct — checking before acting is exactly right. Unexpected, urgent messages like this are a common trick called phishing. Ananya should check her card through the bank’s official channels instead: its own app, its website, or the phone number printed on her card.',
     hints: [],
   },
   {
     id: 'l3-t2-uncover-the-scam',
     scene: 'cinematic',
-    kind: 'narrative',
-    prompt: 'CAMS TEL keeps coming up — in the statement, and in the phishing message.',
+    kind: 'choice',
+    presentation: 'corkboard',
+    prompt: 'SOMETHING LINKS THESE CLUES. CAN YOU CONNECT THEM?',
+    detail:
+      'A name on the statement clue turns up somewhere else on the board. Tie the red string between the two.',
+    optionIds: ['message-sender', 'cheque-payee'],
+    optionLabels: {
+      'message-sender': 'the sender of the message',
+      'cheque-payee': 'the name on the returned cheque',
+    },
+    acceptedIds: ['message-sender'],
+    feedback: {
+      'cheque-payee':
+        'The cheque was made out to a different name, and it was returned because its amounts didn’t match. It isn’t linked to this payment.',
+    },
     successText:
-      'The Mobile Recharge transaction and the phishing message both point to the same name: CAMS TEL. That’s the thread tying this case together.',
+      'It’s the same name. The payment Ananya doesn’t recognise went to CAMS TEL — and the message telling her to “unblock” her card came from CAMS TEL too. That points to one suspected scam operation: take a payment, then send a fake message to get her card details as well. It is a strong lead for the bank to investigate, not proof yet.',
     hints: [],
   },
   {
@@ -338,6 +374,13 @@ export function getTasksForLevel(levelId: LevelId): Task[] {
     if (!task) throw new Error(`Level ${levelId} references unknown task id: ${id}`);
     return task;
   });
+}
+
+export type ChoiceTask = Extract<Task, { kind: 'choice' }>;
+
+/** Whether choosing `optionId` in a choice task is the right call, rather than a lesson. */
+export function isRecommendedChoice(task: ChoiceTask, optionId: string | undefined): boolean {
+  return optionId !== undefined && (task.recommendedIds ?? task.acceptedIds).includes(optionId);
 }
 
 /** Tasks that accept/reject a set of option ids (as opposed to passkey/narrative/report). */

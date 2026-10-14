@@ -61,9 +61,8 @@ describe('progressSounds', () => {
     expect(soundsFor([start, scan('account-savings')], { type: 'RESET' })).toEqual([]);
   });
 
-  it('stays silent when a narrative beat completes itself on view', () => {
-    const actor = createActor(gameMachine).start();
-    const setup: GameEvent[] = [
+  describe('at the phishing choice', () => {
+    const toPhishingChoice: GameEvent[] = [
       start,
       scan('account-savings'),
       goto('l1-t2-verify-identity'),
@@ -78,15 +77,16 @@ describe('progressSounds', () => {
       goto('l2-t3-suspicious-transaction'),
       { type: 'HIGHLIGHT_ROW', id: 'txn-05' },
       goto('l3-t1-spot-the-phish'),
-      { type: 'CHOOSE', id: 'no-dont-click' },
     ];
-    for (const step of setup) actor.send(step);
-    const before = actor.getSnapshot().context;
 
-    actor.send(goto('l3-t2-uncover-the-scam'));
-    const after = actor.getSnapshot().context;
+    it('plays "correct" for the right call', () => {
+      expect(soundsFor(toPhishingChoice, { type: 'CHOOSE', id: 'no-dont-click' })).toEqual([
+        'correct',
+      ]);
+    });
 
-    expect(after.tasks['l3-t2-uncover-the-scam']?.status).toBe('completed');
-    expect(progressSounds(before, after)).toEqual([]);
+    it('stays silent for the choice that is a lesson: no fanfare, and no "wrong" buzz either', () => {
+      expect(soundsFor(toPhishingChoice, { type: 'CHOOSE', id: 'yes-click' })).toEqual([]);
+    });
   });
 });

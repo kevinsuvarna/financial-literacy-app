@@ -16,6 +16,9 @@ const SOUNDS = {
   'level-complete': { file: 'level-complete.wav', volume: 0.7 },
   squeak: { file: 'squeak.wav', volume: 0.45 },
   thud: { file: 'thud.wav', volume: 0.8 },
+  ping: { file: 'ping.wav', volume: 0.6 },
+  drain: { file: 'drain.wav', volume: 0.6 },
+  reveal: { file: 'reveal.wav', volume: 0.75 },
 } as const;
 
 export type SoundName = keyof typeof SOUNDS;

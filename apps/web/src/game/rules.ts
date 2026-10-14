@@ -143,10 +143,16 @@ function applyAnyMatch(context: GameContext, taskId: string, submittedId: string
   const task = getTask(taskId);
   if (!task || !isInteractiveTask(task)) return context;
 
-  if (task.acceptedIds.includes(submittedId)) {
-    return completeTask(context, taskId, task.successText);
+  if (!task.acceptedIds.includes(submittedId)) {
+    return recordWrongAttempt(context, taskId, task.feedback[submittedId] ?? null);
   }
-  return recordWrongAttempt(context, taskId, task.feedback[submittedId] ?? null);
+  if (task.kind !== 'choice') return completeTask(context, taskId, task.successText);
+
+  // A choice can have more than one accepted answer, each with its own outcome (clicking the
+  // phishing link moves the story on too — as a lesson). Remember which one was taken, so the
+  // UI and the sounds can tell the right call from the lesson.
+  const chosen = updateTaskProgress(context, taskId, { scannedIds: [submittedId] });
+  return completeTask(chosen, taskId, task.outcomes[submittedId] ?? task.successText);
 }
 
 /**

@@ -261,38 +261,81 @@ describe('highlight task (l2-t3-suspicious-transaction)', () => {
   });
 });
 
-describe('choice task (l3-t1-spot-the-phish)', () => {
-  it('treats clicking the link as a wrong option with explanatory feedback', () => {
-    const actor = createGame();
-    fastForwardToLevel3(actor);
-    actor.send({ type: 'CHOOSE', id: 'yes-click' });
-
-    const { context } = actor.getSnapshot();
-    expect(getTaskStatus(context, 'l3-t1-spot-the-phish')).toBe('inProgress');
-    expect(getAttempts(context, 'l3-t1-spot-the-phish')).toBe(1);
-    expect(getLastFeedback(context, 'l3-t1-spot-the-phish')).toMatch(/phishing|fake page/i);
-  });
-
-  it('completes on the safe choice and unlocks the narrative beat', () => {
+describe('choice task with two ways forward (l3-t1-spot-the-phish)', () => {
+  it('completes on NO with the praise and official-channels advice', () => {
     const actor = createGame();
     fastForwardToLevel3(actor);
     actor.send({ type: 'CHOOSE', id: 'no-dont-click' });
 
     const { context } = actor.getSnapshot();
     expect(getTaskStatus(context, 'l3-t1-spot-the-phish')).toBe('completed');
+    expect(context.tasks['l3-t1-spot-the-phish']?.scannedIds).toEqual(['no-dont-click']);
+    expect(getLastFeedback(context, 'l3-t1-spot-the-phish')).toMatch(/Good instinct/);
+    expect(getLastFeedback(context, 'l3-t1-spot-the-phish')).toMatch(/official channels/);
     expect(getTaskStatus(context, 'l3-t2-uncover-the-scam')).toBe('available');
+  });
+
+  it('also completes on YES — with the debrief, and not counted as a wrong attempt', () => {
+    const actor = createGame();
+    fastForwardToLevel3(actor);
+    actor.send({ type: 'CHOOSE', id: 'yes-click' });
+
+    const { context } = actor.getSnapshot();
+    expect(getTaskStatus(context, 'l3-t1-spot-the-phish')).toBe('completed');
+    expect(getAttempts(context, 'l3-t1-spot-the-phish')).toBe(0);
+    expect(context.tasks['l3-t1-spot-the-phish']?.scannedIds).toEqual(['yes-click']);
+    // SPEC §6: the loss comes from entering details, not from the click itself.
+    expect(getLastFeedback(context, 'l3-t1-spot-the-phish')).toMatch(
+      /Tapping the link did not take any money/,
+    );
+    expect(getLastFeedback(context, 'l3-t1-spot-the-phish')).not.toMatch(/Good instinct/);
+    expect(getTaskStatus(context, 'l3-t2-uncover-the-scam')).toBe('available');
+  });
+
+  it('keeps the first answer: a solved choice cannot be changed', () => {
+    const actor = createGame();
+    fastForwardToLevel3(actor);
+    actor.send({ type: 'CHOOSE', id: 'yes-click' });
+    actor.send({ type: 'CHOOSE', id: 'no-dont-click' });
+
+    const { context } = actor.getSnapshot();
+    expect(context.tasks['l3-t1-spot-the-phish']?.scannedIds).toEqual(['yes-click']);
   });
 });
 
-describe('narrative task (l3-t2-uncover-the-scam)', () => {
-  it('completes immediately once viewed, unlocking the passkey task', () => {
+describe('corkboard choice (l3-t2-uncover-the-scam)', () => {
+  function toCorkboard(): GameActor {
     const actor = createGame();
     fastForwardToLevel3(actor);
     actor.send({ type: 'CHOOSE', id: 'no-dont-click' });
     actor.send({ type: 'GOTO_TASK', taskId: 'l3-t2-uncover-the-scam' });
+    return actor;
+  }
+
+  it('is not solved just by being opened', () => {
+    const { context } = toCorkboard().getSnapshot();
+
+    expect(getTaskStatus(context, 'l3-t2-uncover-the-scam')).toBe('inProgress');
+    expect(getTaskStatus(context, 'l3-t3-evidence-passkey')).toBe('locked');
+  });
+
+  it('explains a wrong connection and stays open', () => {
+    const actor = toCorkboard();
+    actor.send({ type: 'CHOOSE', id: 'cheque-payee' });
+
+    const { context } = actor.getSnapshot();
+    expect(getTaskStatus(context, 'l3-t2-uncover-the-scam')).toBe('inProgress');
+    expect(getAttempts(context, 'l3-t2-uncover-the-scam')).toBe(1);
+    expect(getLastFeedback(context, 'l3-t2-uncover-the-scam')).toMatch(/different name/);
+  });
+
+  it('completes when the string is tied to the message’s sender', () => {
+    const actor = toCorkboard();
+    actor.send({ type: 'CHOOSE', id: 'message-sender' });
 
     const { context } = actor.getSnapshot();
     expect(getTaskStatus(context, 'l3-t2-uncover-the-scam')).toBe('completed');
+    expect(getLastFeedback(context, 'l3-t2-uncover-the-scam')).toMatch(/suspected scam operation/);
     expect(getTaskStatus(context, 'l3-t3-evidence-passkey')).toBe('available');
   });
 });
@@ -303,6 +346,7 @@ describe('passkey task (l3-t3-evidence-passkey)', () => {
     fastForwardToLevel3(actor);
     actor.send({ type: 'CHOOSE', id: 'no-dont-click' });
     actor.send({ type: 'GOTO_TASK', taskId: 'l3-t2-uncover-the-scam' });
+    actor.send({ type: 'CHOOSE', id: 'message-sender' });
     actor.send({ type: 'GOTO_TASK', taskId: 'l3-t3-evidence-passkey' });
     return actor;
   }
@@ -348,6 +392,7 @@ describe('scanAll evidence task (l3-t4-scan-evidence)', () => {
     fastForwardToLevel3(actor);
     actor.send({ type: 'CHOOSE', id: 'no-dont-click' });
     actor.send({ type: 'GOTO_TASK', taskId: 'l3-t2-uncover-the-scam' });
+    actor.send({ type: 'CHOOSE', id: 'message-sender' });
     actor.send({ type: 'GOTO_TASK', taskId: 'l3-t3-evidence-passkey' });
     actor.send({ type: 'SUBMIT_PASSKEY', code: '109' });
     actor.send({ type: 'GOTO_TASK', taskId: 'l3-t4-scan-evidence' });
@@ -382,6 +427,7 @@ describe('report submission and mission complete', () => {
     fastForwardToLevel3(actor);
     actor.send({ type: 'CHOOSE', id: 'no-dont-click' });
     actor.send({ type: 'GOTO_TASK', taskId: 'l3-t2-uncover-the-scam' });
+    actor.send({ type: 'CHOOSE', id: 'message-sender' });
     actor.send({ type: 'GOTO_TASK', taskId: 'l3-t3-evidence-passkey' });
     actor.send({ type: 'SUBMIT_PASSKEY', code: '109' });
     actor.send({ type: 'GOTO_TASK', taskId: 'l3-t4-scan-evidence' });
@@ -455,6 +501,7 @@ describe('full happy path', () => {
     actor.send({ type: 'CHOOSE', id: 'no-dont-click' });
 
     actor.send({ type: 'GOTO_TASK', taskId: 'l3-t2-uncover-the-scam' });
+    actor.send({ type: 'CHOOSE', id: 'message-sender' });
 
     actor.send({ type: 'GOTO_TASK', taskId: 'l3-t3-evidence-passkey' });
     actor.send({ type: 'SUBMIT_PASSKEY', code: '109' });

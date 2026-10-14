@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { levels, tasks, isInteractiveTask, getTask } from './tasks';
+import { levels, tasks, isInteractiveTask, isRecommendedChoice, getTask } from './tasks';
 import { artefactIds } from './artefacts';
+import { fakeBankPage, fakeBankPageSchema, phishingMessage } from './phishing';
 import { chequeHitZoneIds } from './cheque';
 import { formatRupees } from './format';
 import { getClosingBalance, getTotalCredits, getTotalDebits, transactions } from './statement';
@@ -28,6 +29,70 @@ describe('hints', () => {
     const lastHint = getTask('l2-t1-closing-balance')?.hints.at(-1) ?? '';
     expect(lastHint).toContain(formatRupees(getTotalCredits()));
     expect(lastHint).toContain(formatRupees(getTotalDebits()));
+  });
+});
+
+describe('choice tasks', () => {
+  const choiceTasks = tasks.flatMap((task) => (task.kind === 'choice' ? [task] : []));
+
+  it('only recommend options that are accepted', () => {
+    for (const task of choiceTasks) {
+      for (const id of task.recommendedIds ?? []) {
+        expect(task.acceptedIds, `${task.id} recommends an option it rejects`).toContain(id);
+      }
+    }
+  });
+
+  it('give outcomes and simulations only to accepted options', () => {
+    for (const task of choiceTasks) {
+      for (const id of [...Object.keys(task.outcomes), ...Object.keys(task.simulations)]) {
+        expect(task.acceptedIds, `${task.id} has an outcome for rejected option ${id}`).toContain(
+          id,
+        );
+      }
+    }
+  });
+
+  it('explain every accepted option that is a lesson rather than the right call', () => {
+    for (const task of choiceTasks) {
+      for (const id of task.acceptedIds) {
+        if (isRecommendedChoice(task, id)) continue;
+        expect(task.outcomes[id], `${task.id} has no debrief for ${id}`).toBeTruthy();
+      }
+    }
+  });
+
+  it('treat every accepted option as recommended unless told otherwise', () => {
+    const corkboard = getTask('l3-t2-uncover-the-scam');
+    const phish = getTask('l3-t1-spot-the-phish');
+    if (corkboard?.kind !== 'choice' || phish?.kind !== 'choice') throw new Error('wrong kinds');
+
+    expect(isRecommendedChoice(corkboard, 'message-sender')).toBe(true);
+    expect(isRecommendedChoice(phish, 'no-dont-click')).toBe(true);
+    expect(isRecommendedChoice(phish, 'yes-click')).toBe(false);
+    expect(isRecommendedChoice(phish, undefined)).toBe(false);
+  });
+});
+
+describe('fake bank page', () => {
+  it('fills its fields with nothing but X, 0 and dashes', () => {
+    for (const field of fakeBankPage.fields) {
+      expect(field.fakeValue, field.label).toMatch(/^[X0-]+$/);
+      expect(field.fakeValue, field.label).not.toMatch(/[1-9]/);
+    }
+  });
+
+  it('rejects a field whose made-up value could pass for a real one', () => {
+    const withRealLookingPin = {
+      ...fakeBankPage,
+      fields: [{ id: 'card-pin', label: 'Card PIN', fakeValue: '4821' }],
+    };
+    expect(fakeBankPageSchema.safeParse(withRealLookingPin).success).toBe(false);
+  });
+
+  it('shows the same address as the phishing message, on a reserved test domain', () => {
+    expect(fakeBankPage.address).toBe(phishingMessage.linkLabel);
+    expect(fakeBankPage.address).toMatch(/\.example(\/|$)/);
   });
 });
 

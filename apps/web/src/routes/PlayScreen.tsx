@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type RefObject } from 'react';
+import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { Navigate } from 'react-router-dom';
 import { copy, type Task } from '@app/content';
 import { LevelComplete } from '../components/LevelComplete';
@@ -9,6 +9,7 @@ import { useGame } from '../game';
 import { getNextTaskId, getTaskPosition } from '../game/selectors';
 import { TaskFeedback } from '../tasks/TaskFeedback';
 import { TaskRenderer } from '../tasks/TaskRenderer';
+import { TaskStageContext, type TaskStage } from '../tasks/taskStage';
 
 interface TaskViewProps {
   task: Task;
@@ -22,6 +23,9 @@ function TaskView({ task, headingRef }: TaskViewProps) {
   // solved on this screen. Narrative beats have nothing to solve, so they never show the banner.
   const [openedSolved] = useState(() => game.getTaskStatus(task.id) === 'completed');
   const [showLevelComplete, setShowLevelComplete] = useState(false);
+  // A task can hold its feedback back while it is still showing the player something.
+  const [feedbackHeld, setFeedbackHeld] = useState(false);
+  const stage = useMemo<TaskStage>(() => ({ holdFeedback: setFeedbackHeld }), []);
   const solved = game.getTaskStatus(task.id) === 'completed';
   const position = getTaskPosition(task.id);
   const nextTaskId = getNextTaskId(task.id);
@@ -49,11 +53,13 @@ function TaskView({ task, headingRef }: TaskViewProps) {
       <TaskScene
         task={task}
         footer={
-          <TaskFeedback
-            task={task}
-            reviewing={openedSolved}
-            onFinishLevel={() => setShowLevelComplete(true)}
-          />
+          feedbackHeld ? null : (
+            <TaskFeedback
+              task={task}
+              reviewing={openedSolved}
+              onFinishLevel={() => setShowLevelComplete(true)}
+            />
+          )
         }
       >
         <div className="flex flex-col gap-2">
@@ -70,7 +76,9 @@ function TaskView({ task, headingRef }: TaskViewProps) {
           )}
         </div>
         <TaskReferences references={task.references} />
-        <TaskRenderer task={task} />
+        <TaskStageContext value={stage}>
+          <TaskRenderer task={task} />
+        </TaskStageContext>
         {solved && <TaskReferences references={task.solvedReferences} />}
       </TaskScene>
     </FadeIn>

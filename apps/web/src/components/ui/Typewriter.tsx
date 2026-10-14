@@ -11,6 +11,8 @@ interface TypewriterProps {
   onCharacter?: (character: string, index: number) => void;
   /** Called once, when the whole text is showing. */
   onDone?: () => void;
+  /** `span` when the text sits inside something that can't hold a paragraph, like a button. */
+  as?: 'p' | 'span';
   className?: string;
 }
 
@@ -27,6 +29,7 @@ export function Typewriter({
   instant = false,
   onCharacter,
   onDone,
+  as: Tag = 'p',
   className,
 }: TypewriterProps) {
   const reduceMotion = useReducedMotion();
@@ -55,12 +58,12 @@ export function Typewriter({
   }, [finished]);
 
   return (
-    <p className={className}>
+    <Tag className={className}>
       <span aria-hidden="true">
         {text.slice(0, shown)}
         <span className="invisible">{text.slice(shown)}</span>
       </span>
       <span className="sr-only">{text}</span>
-    </p>
+    </Tag>
   );
 }

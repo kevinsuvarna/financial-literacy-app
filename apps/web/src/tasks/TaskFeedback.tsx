@@ -1,4 +1,4 @@
-import { copy, type Task } from '@app/content';
+import { copy, isRecommendedChoice, type Task } from '@app/content';
 import { Button, ButtonLink, Card, Notice, Stamp } from '../components/ui';
 import { useGame } from '../game';
 import { getNextTaskId, getTaskPosition } from '../game/selectors';
@@ -26,6 +26,10 @@ export function TaskFeedback({ task, reviewing, onFinishLevel }: TaskFeedbackPro
   // The highlighter and cheque tasks stick their wrong-answer feedback onto the thing that was
   // marked or tapped, so repeating it down here would say everything twice.
   const showsRetryFeedback = task.kind !== 'highlight' && task.kind !== 'tap';
+  // A choice that moved the story on as a lesson (clicking the phishing link) gets its debrief
+  // on a plain card — no CORRECT stamp, no green — because it wasn't the right call.
+  const lesson =
+    task.kind === 'choice' && !isRecommendedChoice(task, game.getScannedIds(task.id)[0]);
   // Hints escalate with each wrong answer; say how far along the player is.
   const hintLabel =
     task.hints.length > 1
@@ -43,8 +47,11 @@ export function TaskFeedback({ task, reviewing, onFinishLevel }: TaskFeedbackPro
   return (
     <div className="flex flex-col gap-3">
       {solved && feedback && (
-        <Card tone="success" className="flex flex-wrap items-center gap-x-5 gap-y-3 border-2">
-          {task.kind !== 'narrative' && (
+        <Card
+          tone={lesson ? 'sunken' : 'success'}
+          className="flex flex-wrap items-center gap-x-5 gap-y-3 border-2"
+        >
+          {task.kind !== 'narrative' && !lesson && (
             <Stamp tone="success" animate={!reviewing}>
               {copy.play.stamp}
             </Stamp>

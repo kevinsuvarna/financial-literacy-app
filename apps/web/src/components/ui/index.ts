@@ -6,6 +6,7 @@ export { SelectField, TextField } from './Fields';
 export { HighlighterPen } from './HighlighterPen';
 export { InkStroke, PinTag, StickyNote } from './Marks';
 export { Notice, type NoticeTone } from './Notice';
+export { RedString } from './RedString';
 export { ScanReticle } from './ScanReticle';
 export { Stamp, type StampTone } from './Stamp';
 export { StepDot, type StepDotState } from './StepDot';
