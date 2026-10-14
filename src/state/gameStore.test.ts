@@ -296,6 +296,16 @@ describe('Level 3', () => {
     expect(state().submitFakeForm()).toMatchObject({ outcome: 'correct', completedTask: 'L3T1' })
     expect(state().feedback).toMatchObject({ tone: 'incorrect', title: GAME.tasks.L3T1.consequence.title })
     expect(state().phishingChoice).toBe('yes')
+  })
+
+  it('phishing YES: the fake page stays open between screens of the same task, and closes on leaving', () => {
+    playUntil(store, 'L3T1')
+    state().viewTask('L3T1')
+    state().choosePhishingOption('yes')
+    state().fillFakeField('cvv')
+    expect(state().viewTask('L3T1')).toBe(true)
+    expect(state().fakeSite).toEqual({ open: true, filled: ['cvv'] })
+    state().leaveTask()
     expect(state().fakeSite.open).toBe(false)
   })
 

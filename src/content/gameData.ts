@@ -102,6 +102,20 @@ export function amountInWords(amount: number): string {
   return words.join(' ')
 }
 
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+/** ISO date → "03 Sep 2026" (statement style). */
+export function formatStatementDate(iso: string): string {
+  const [year, month, day] = iso.split('-')
+  return `${day} ${MONTHS[Number(month) - 1]} ${year}`
+}
+
+/** ISO date → "08-09-2026" (cheque style). */
+export function formatChequeDate(iso: string): string {
+  const [year, month, day] = iso.split('-')
+  return `${day}-${month}-${year}`
+}
+
 // ─── Statement arithmetic ────────────────────────────────────────────────────
 
 export type Direction = 'credit' | 'debit'
@@ -1039,6 +1053,7 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       title: 'SAVE THE SAVINGS ACCOUNT',
       intro: 'Welcome, Junior Bank Officer. Your first case is waiting.',
       cta: 'START TRAINING',
+      resumeCta: 'RESUME CASE',
     },
 
     openingCall: {
@@ -1089,6 +1104,53 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
     phoneLanding: {
       title: 'SAVE THE SAVINGS ACCOUNT',
       message: 'This card is part of a financial literacy game. Scan it from inside the game to use it in your investigation.',
+      cardLabel: 'This card',
+    },
+
+    /** Labels shared across screens. */
+    ui: {
+      continue: 'CONTINUE',
+      tryAgain: 'TRY AGAIN',
+      ok: 'OK',
+      next: 'NEXT TASK',
+      back: 'BACK',
+      caseBoard: 'CASE BOARD',
+      resume: 'RESUME CASE',
+      viewCertificate: 'VIEW CERTIFICATE',
+      hint: 'HINT',
+      level: 'LEVEL',
+      revisiting: "You've solved this one. Look around as much as you like; your progress is saved.",
+      taskStatus: { completed: 'Completed', current: 'Current task', locked: 'Locked' },
+      slotWaiting: 'Waiting for scan',
+      slotDone: 'Scanned',
+      simulatedScan: {
+        title: 'SIMULATED SCAN',
+        note: 'For testing without a camera. Choose the card you would hold up to the scanner.',
+        onTable: 'Cards for this task',
+        other: 'Another case-file card',
+        scanOther: 'SCAN',
+        unrelated: 'An unrelated QR code',
+        /** What the "unrelated QR code" button pretends to read. */
+        unrelatedQrText: 'https://example.com/lunch-menu',
+      },
+      statement: {
+        title: 'BANK STATEMENT',
+        period: 'Statement period',
+        date: 'Date',
+        description: 'Description',
+        credit: 'Credit',
+        debit: 'Debit',
+        balance: 'Balance',
+        openingBalance: 'Opening balance',
+        closingBalance: 'Closing balance',
+        unknown: '?',
+      },
+      cheque: { chequeNumber: 'Cheque No.', accountNumber: 'A/c No.' },
+      highlighter: { label: 'HIGHLIGHTER', hint: 'Drag the highlighter onto a transaction' },
+      clue: 'CLUE',
+      phishingFrom: 'From',
+      passkey: { enter: 'ENTER', clear: 'CLEAR', unlocked: 'UNLOCKED' },
+      certificateAwarded: 'AWARDED THE RANK OF',
     },
   }
 }

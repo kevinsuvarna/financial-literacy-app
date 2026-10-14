@@ -76,7 +76,7 @@ export interface GameState extends GameProgress {
   fakeSite: { open: boolean; filled: FakeFieldId[] }
 
   completeIntro: () => void
-  /** Opens a task screen. Returns false (and changes nothing) for a locked task. */
+  /** Opens a task screen. Returns false (and changes nothing) for a locked task. Re-opening the same task keeps its state. */
   viewTask: (taskId: TaskId) => boolean
   leaveTask: () => void
   dismissFeedback: () => void
@@ -313,7 +313,8 @@ export function createGameStore({
 
           viewTask: (taskId) => {
             if (!isTaskUnlocked(get(), taskId)) return false
-            set({ activeTaskId: taskId, feedback: null, fakeSite: CLOSED_FAKE_SITE })
+            // Moving between two screens of the same task (phishing choice → fake page) keeps its state.
+            if (get().activeTaskId !== taskId) set({ activeTaskId: taskId, feedback: null, fakeSite: CLOSED_FAKE_SITE })
             return true
           },
 
@@ -367,7 +368,7 @@ export function createGameStore({
               return respond(task, 'neutral', 'neutral', task.fakeSite.incomplete)
             }
             // The simulated loss happens now, after details were entered, never on the click itself.
-            set({ fakeSite: CLOSED_FAKE_SITE })
+            // The fake page stays on screen under the explanation; it closes when the player leaves the task.
             return succeed(task, task.consequence, {}, 'incorrect')
           },
 

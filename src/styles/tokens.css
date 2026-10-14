@@ -1,0 +1,52 @@
+/*
+ * Design tokens (spec 9.2, 9.3). Components use these only: never raw hex values or font names.
+ * Every value is [GUESSED] per spec 12.5: colours sampled from flat areas of 01-start.png,
+ * fonts are the closest free matches. Owner values replace these here and nowhere else.
+ */
+:root {
+  /* Colour (9.2) */
+  --bg-navy: #052039; /* sampled: background */
+  --bg-grid: #112c46; /* sampled: background grid lines */
+  --paper-cream: #beb292; /* sampled: start panel, flat upper area */
+  --paper-aged: #a6987d; /* sampled: start panel, darker band */
+  --gold: #daa158; /* sampled: Junior Bank Officer badge */
+  --thread-red: #ef3345; /* sampled: alert icon */
+  --cta-turquoise: #7cf1ef; /* sampled: START TRAINING face */
+  --cta-turquoise-hover: #53a6a4; /* sampled: START TRAINING edge */
+  --ink: #090d17; /* sampled: panel outline and heading */
+  --text-on-dark: #c0b39b; /* sampled: badge lettering */
+  --success: #2f7d4f; /* not in mockup: guessed */
+  --error: #b3202f; /* not in mockup: guessed, darker than --thread-red to read on paper */
+
+  /* Extra tokens (not in 9.2) */
+  --desk-wood: #8e644f; /* sampled: desk */
+  --desk-edge: #472117; /* sampled: desk top edge */
+  --highlighter: #f5e663; /* not in mockup: guessed */
+
+  /* Typography (9.3) */
+  --font-display: 'Special Elite', 'Courier New', monospace;
+  --font-body: 'Nunito', system-ui, sans-serif;
+  --font-ui: 'Special Elite', 'Courier New', monospace;
+  --font-mono: 'Courier Prime', 'Courier New', monospace;
+
+  --size-display: 64px;
+  --size-heading: 30px;
+  --size-ui: 20px;
+  --size-body: 19px;
+  --size-small: 15px;
+  --size-mono: 15px;
+
+  --weight-display: 400;
+  --weight-ui: 400;
+  --weight-body: 500;
+  --weight-body-strong: 800;
+  --weight-mono: 400;
+  --weight-mono-strong: 700;
+
+  /* Measured from 01-start.png at canvas scale */
+  --grid-size: 37px;
+  --outline: 4px;
+  --radius-panel: 18px;
+  --radius-cta: 24px;
+  --shadow-panel: 0 8px 0 color-mix(in srgb, var(--ink) 45%, transparent);
+}

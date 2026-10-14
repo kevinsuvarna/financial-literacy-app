@@ -361,7 +361,7 @@ Do not allow the player to skip required tasks or access locked future levels.
 
 The mockups in `/design/screens/` are the source of truth for all visuals and override any previously built screens. Section 13 maps each mockup to its route and game state.
 
-- **Target viewport (design canvas):** 1280 × 831 `[FILL: confirm this matches the Figma frame size]`
+- **Target viewport (design canvas):** 1280 × 831 `[GUESSED: confirmed by 01-start.png, exported at 6048 × 3928 = 4.725 × this canvas]`
 - **Scaling:** every screen is built on a fixed 1280 × 831 canvas, scaled proportionally to fit the device (letterboxed with the background colour if the aspect ratio differs). This keeps layouts identical to the mockups on every iPad and laptop.
 - **Filled-in typography and colour tokens are exact and locked.** Never substitute or approximate them. A token still marked `[FILL]` is guessed following Section 12.5.
 - Components use tokens only, never raw hex values or font names, so replacing a guessed value updates every screen at once.
@@ -370,27 +370,34 @@ The mockups in `/design/screens/` are the source of truth for all visuals and ov
 
 | Token | Use | Hex |
 |---|---|---|
-| `--bg-navy` | Main background | `[FILL]` |
-| `--bg-grid` | Background grid lines | `[FILL]` |
-| `--paper-cream` | Panels, cards | `[FILL]` |
-| `--paper-aged` | Aged-paper documents | `[FILL]` |
-| `--gold` | Antique gold details, borders | `[FILL]` |
-| `--thread-red` | Investigation thread, clue accents | `[FILL]` |
-| `--cta-turquoise` | Primary buttons | `[FILL]` |
-| `--cta-turquoise-hover` | Button hover/pressed | `[FILL]` |
-| `--ink` | Body text on paper | `[FILL]` |
-| `--text-on-dark` | Text on navy | `[FILL]` |
-| `--success` | Correct feedback | `[FILL]` |
-| `--error` | Incorrect feedback | `[FILL]` |
+| `--bg-navy` | Main background | `[GUESSED: #052039]` |
+| `--bg-grid` | Background grid lines | `[GUESSED: #112C46]` |
+| `--paper-cream` | Panels, cards | `[GUESSED: #BEB292]` |
+| `--paper-aged` | Aged-paper documents | `[GUESSED: #A6987D]` |
+| `--gold` | Antique gold details, borders | `[GUESSED: #DAA158]` |
+| `--thread-red` | Investigation thread, clue accents | `[GUESSED: #EF3345]` |
+| `--cta-turquoise` | Primary buttons | `[GUESSED: #7CF1EF]` |
+| `--cta-turquoise-hover` | Button hover/pressed | `[GUESSED: #53A6A4]` |
+| `--ink` | Body text on paper | `[GUESSED: #090D17]` |
+| `--text-on-dark` | Text on navy | `[GUESSED: #C0B39B]` |
+| `--success` | Correct feedback | `[GUESSED: #2F7D4F]` |
+| `--error` | Incorrect feedback | `[GUESSED: #B3202F]` |
+| `--desk-wood` | Desk surface in table scenes (added) | `[GUESSED: #8E644F]` |
+| `--desk-edge` | Desk top edge (added) | `[GUESSED: #472117]` |
+| `--highlighter` | Highlighter pen, clue marks (added) | `[GUESSED: #F5E663]` |
+
+Colour guesses (Stage 0): sampled from flat areas of `01-start.png` at canvas scale. `--paper-cream` is the panel's flat upper area and `--paper-aged` its darker band. `--cta-turquoise` is the button face and `--cta-turquoise-hover` its edge. `--text-on-dark` is the badge lettering. `--success`, `--error` and `--highlighter` don't appear in the mockup and are pure guesses. Tokens live in `src/styles/tokens.css`.
 
 ### 9.3 Typography tokens
 
 | Token | Use | Font family | Weights | Sizes |
 |---|---|---|---|---|
-| `--font-display` | Distressed typewriter headings | `[FILL]` | `[FILL]` | `[FILL]` |
-| `--font-body` | Body text, instructions | `[FILL]` | `[FILL]` | `[FILL]` |
-| `--font-ui` | Buttons, tracker labels | `[FILL]` | `[FILL]` | `[FILL]` |
-| `--font-mono` | Statement figures, terminal | `[FILL]` | `[FILL]` | `[FILL]` |
+| `--font-display` | Distressed typewriter headings | `[GUESSED: Special Elite]` | `[GUESSED: 400]` | `[GUESSED: 64px title, 30px task headings]` |
+| `--font-body` | Body text, instructions | `[GUESSED: Nunito]` | `[GUESSED: 500, 800 strong]` | `[GUESSED: 19px, 15px small]` |
+| `--font-ui` | Buttons, tracker labels | `[GUESSED: Special Elite]` | `[GUESSED: 400]` | `[GUESSED: 20px]` |
+| `--font-mono` | Statement figures, terminal | `[GUESSED: Courier Prime]` | `[GUESSED: 400, 700]` | `[GUESSED: 15px]` |
+
+Font guesses (Stage 0): the closest free matches to `01-start.png`, whose heading and button use the same distressed typewriter face. Nunito is a readable body face for 12–14-year-olds; the mockup shows no body text. All three are self-hosted from `/design/fonts/` (Special Elite: Apache 2.0; Nunito, Courier Prime: OFL), latin and latin-ext subsets.
 
 Font files are stored in `/design/fonts/` and self-hosted (no runtime font CDN, so offline play works).
 
@@ -413,8 +420,10 @@ Do not replace the design with a generic financial dashboard or conventional edu
 When a screen is built, record its measured values here (or in its Section 13 row) so later screens stay consistent: layout grid, spacing scale, border radii, shadows.
 
 - Spacing scale: `[to be recorded from first mockup]`
-- Border radii: `[to be recorded]`
-- Shadows: `[to be recorded]`
+- Border radii: `[GUESSED from 01-start.png: panels 18px, CTAs 24px]`
+- Outlines: `[GUESSED from 01-start.png: 4px --ink on panels and CTAs]`
+- Shadows: `[GUESSED: panels 0 8px 0 --ink at 45%; CTAs 0 5px 0 --ink]`
+- Background grid: `[GUESSED from 01-start.png: 1px --bg-grid lines every 37px]`
 
 ## 10. Functional and Technical Requirements
 
@@ -537,30 +546,32 @@ When a `[FILL]` value is needed and still empty:
 
 Export each Figma frame with the file name below. The friendly name is what prompts and conversations use.
 
-| # | Image file (in `/design/screens/`) | Friendly name | Spec section | Scene type | Status |
-|---|---|---|---|---|---|
-| 01 | `01-start.png` | Start screen ("Save the Savings Account") | 3 | screen | Not started |
-| 02 | `02-call-ananya-1.png` | Ananya's first phone call | 3 | call | Not started |
-| 03 | `03-case-assigned.png` | Case assigned ("Open Case File") | 3 | cinematic | Not started |
-| 04 | `04-L1T1-account-type.png` | Account type cards on table | 4, Task 1 | table | Not started |
-| 05 | `05-L1T2-verify-identity.png` | Verify Identity (KYC cards on table) | 4, Task 2 | table | Not started |
-| 06 | `06-L1T3-withdrawal-slip.png` | Deposit vs withdrawal slips on table | 4, Task 3 | table | Not started |
-| 07 | `07-L1-complete.png` | Level 1 complete | 4 | cinematic | Not started |
-| 08 | `08-L2T1-closing-balance.png` | Closing balance (statement + answer cards) | 5, Task 1 | table | Not started |
-| 09 | `09-L2T2-cheque.png` | Cheque investigation | 5, Task 2 | screen | Not started |
-| 10 | `10-L2T3-highlighter.png` | Highlight the suspicious transaction | 5, Task 3 | screen | Not started |
-| 11 | `11-L2-complete.png` | Level 2 complete | 5 | cinematic | Not started |
-| 12 | `12-call-ananya-2.png` | Ananya's second phone call | 6, Task 1 | call | Not started |
-| 13 | `13-L3T1-phishing-choice.png` | Should Ananya click the link? | 6, Task 1 | screen | Not started |
-| 14 | `14-L3T1-fake-website.png` | Fake bank website (YES path) | 6, Task 1 | screen | Not started |
-| 15 | `15-L3T2-scam-reveal.png` | CAMS TEL scam reveal | 6, Task 2 | cinematic | Not started |
-| 16 | `16-L3T3-passkey-computer.png` | Passkey on the on-screen computer | 6, Task 3 | screen | Not started |
-| 17 | `17-L3T4-scan-evidence.png` | Scan evidence (statement + phishing card) | 6, Task 4 | table | Not started |
-| 18 | `18-L3T5-review-report.png` | Review incident report | 6, Task 5 | screen | Not started |
-| 19 | `19-report-submitted.png` | Report submitted | 6, Task 5 | cinematic | Not started |
-| 20 | `20-certificate.png` | Mission complete certificate | 7 | cinematic | Not started |
-| 21 | `21-case-board.png` | Case Board (level select) | 8 | screen | Not started |
-| 22 | `22-feedback-popups.png` | Correct / incorrect feedback pop-ups | 2 | overlay | Not started |
+| # | Image file (in `/design/screens/`) | Friendly name | Spec section | Scene type | Route | Status |
+|---|---|---|---|---|---|---|
+| 01 | `01-start.png` | Start screen ("Save the Savings Account") | 3 | screen | `/` | Placeholder (Stage 0) |
+| 02 | `02-call-ananya-1.png` | Ananya's first phone call | 3 | call | `/call/ananya` | Placeholder (Stage 0) |
+| 03 | `03-case-assigned.png` | Case assigned ("Open Case File") | 3 | cinematic | `/case-assigned` | Placeholder (Stage 0) |
+| 04 | `04-L1T1-account-type.png` | Account type cards on table | 4, Task 1 | table | `/level-1/account-type` | Placeholder (Stage 0) |
+| 05 | `05-L1T2-verify-identity.png` | Verify Identity (KYC cards on table) | 4, Task 2 | table | `/level-1/verify-identity` | Placeholder (Stage 0) |
+| 06 | `06-L1T3-withdrawal-slip.png` | Deposit vs withdrawal slips on table | 4, Task 3 | table | `/level-1/withdrawal-slip` | Placeholder (Stage 0) |
+| 07 | `07-L1-complete.png` | Level 1 complete | 4 | cinematic | `/level-1/complete` | Placeholder (Stage 0) |
+| 08 | `08-L2T1-closing-balance.png` | Closing balance (statement + answer cards) | 5, Task 1 | table | `/level-2/closing-balance` | Placeholder (Stage 0) |
+| 09 | `09-L2T2-cheque.png` | Cheque investigation | 5, Task 2 | screen | `/level-2/cheque` | Placeholder (Stage 0) |
+| 10 | `10-L2T3-highlighter.png` | Highlight the suspicious transaction | 5, Task 3 | screen | `/level-2/highlighter` | Placeholder (Stage 0) |
+| 11 | `11-L2-complete.png` | Level 2 complete | 5 | cinematic | `/level-2/complete` | Placeholder (Stage 0) |
+| 12 | `12-call-ananya-2.png` | Ananya's second phone call | 6, Task 1 | call | `/level-3/call-ananya` | Placeholder (Stage 0) |
+| 13 | `13-L3T1-phishing-choice.png` | Should Ananya click the link? | 6, Task 1 | screen | `/level-3/phishing` | Placeholder (Stage 0) |
+| 14 | `14-L3T1-fake-website.png` | Fake bank website (YES path) | 6, Task 1 | screen | `/level-3/fake-website` | Placeholder (Stage 0) |
+| 15 | `15-L3T2-scam-reveal.png` | CAMS TEL scam reveal | 6, Task 2 | cinematic | `/level-3/scam-reveal` | Placeholder (Stage 0) |
+| 16 | `16-L3T3-passkey-computer.png` | Passkey on the on-screen computer | 6, Task 3 | screen | `/level-3/passkey` | Placeholder (Stage 0) |
+| 17 | `17-L3T4-scan-evidence.png` | Scan evidence (statement + phishing card) | 6, Task 4 | table | `/level-3/scan-evidence` | Placeholder (Stage 0) |
+| 18 | `18-L3T5-review-report.png` | Review incident report | 6, Task 5 | screen | `/level-3/review-report` | Placeholder (Stage 0) |
+| 19 | `19-report-submitted.png` | Report submitted | 6, Task 5 | cinematic | `/report-submitted` | Placeholder (Stage 0) |
+| 20 | `20-certificate.png` | Mission complete certificate | 7 | cinematic | `/certificate` | Placeholder (Stage 0) |
+| 21 | `21-case-board.png` | Case Board (level select) | 8 | screen | `/case-board` | Placeholder (Stage 0) |
+| 22 | `22-feedback-popups.png` | Correct / incorrect feedback pop-ups | 2 | overlay | overlay (no route) | Placeholder (Stage 0) |
+
+Routes are defined in `src/app/screens.ts`. A phone camera opening a printed QR code lands on `/a/<artefact-id>`, a friendly page outside the game canvas (10.3).
 
 The top progress tracker (Section 8) appears inside task screens, so it is built from the first task screen it appears in (04) and checked on later ones.
 
@@ -570,7 +581,7 @@ Scene types: `call` (phone call), `table` (cards on a table: camera active), `sc
 
 | Stage | What gets built | Images needed | Status |
 |---|---|---|---|
-| 0 | Full game logic, scanning, QR printing, placeholder UI for every screen | `01-start.png` (overall theme and mood only, not layout) | In progress: scaffold, content data module, game state core and tests done (see 13.3). Scanning, QR printing and placeholder UI to do. |
+| 0 | Full game logic, scanning, QR printing, placeholder UI for every screen | `01-start.png` (overall theme and mood only, not layout) | In progress: scaffold, content data module, game state core, placeholder UI and routing done (see 13.3). Camera scanning and QR printing to do. |
 | 1 | Opening sequence | `01-start.png`, `02-call-ananya-1.png`, `03-case-assigned.png` | Not started |
 | 2 | Level 1 + progress tracker + feedback pop-ups | `04` to `07`, `22-feedback-popups.png` | Not started |
 | 3 | Case Board | `21-case-board.png` | Not started |
@@ -585,7 +596,7 @@ The owner may reorder stages, or split a stage into more prompts, but each promp
 
 **Stage 0, prompt 1 (2026-10-14): scaffold, content data module, game state core.**
 
-- Stack: Vite 8, React 19, TypeScript 6, react-router, zustand (persist), motion, howler, vitest, Playwright (config at 1280 × 831; browsers not yet installed: `npx playwright install chromium`), `@vitejs/plugin-basic-ssl` (dev server on HTTPS and the LAN).
+- Stack: Vite 8, React 19, TypeScript 6, react-router, zustand (persist), motion, howler, vitest, Playwright (config at 1280 × 831; Chromium installed), `@vitejs/plugin-basic-ssl` (dev server on HTTPS and the LAN).
 - `src/content/gameData.ts` holds all content. `buildGameContent(CASE_FIGURES)` derives running balances, the closing balance, answer-card amounts, the cheque amount in words, the passkey and every figure-dependent line of copy.
 - `src/state/gameStore.ts` holds all progress and answer checking. Persisted under the localStorage key `save-the-savings-account` (progress only, no player data). Stored progress is sanitised on load, so edited storage can't skip locked tasks.
 - Tests: `npm test` (74 passing).
@@ -612,4 +623,22 @@ Game-logic guesses (confirm or correct):
 7. Case Board: a level is "in progress" once any task in it is completed or attempted, and "available" if it's unlocked but untouched.
 8. Revisiting a completed task replays the explanations. Wrong answers there show feedback but aren't counted.
 9. Wrong closing-balance cards come from common mistakes (each forgets one transaction) and get a matching explanation, plus a general hint that grows with each wrong card.
+
+**Stage 0, prompt 2 (2026-10-14): placeholder UI and routing.** Images used: `01-start.png` (theme and mood only).
+
+- A route for every screen in 13.1 (Route column), on the fixed 1280 × 831 canvas scaled to fit and letterboxed (`src/app/Stage.tsx`). Placeholder styling uses tokens only (9.2, 9.3, 9.5 guesses above).
+- Route guards (`src/app/navigation.ts`): locked task screens, level-complete screens, the fake website, report-submitted and the certificate redirect to the player's current task, even when typed as a URL. The URL decides which task is active in the store, so scans and taps are checked against the screen on show.
+- Table scenes (04, 05, 06, 08, 17) show the cards on the desk, evidence slots where several cards are needed, and a clearly labelled SIMULATED SCAN panel. That panel offers the task's cards, any other case-file card, and an unrelated QR code.
+- Progress tracker, Case Board (revisit and resume), feedback pop-ups and toasts (screen 22), and the `/a/:artefactId` phone landing page.
+- All UI copy moved into `GAME.ui` in the content module. Components contain no answers or copy.
+- Tests: `npm test` (87 unit tests), `npm run test:e2e` (4 Playwright tests: the whole mission with simulated scans, leave-and-resume from the Case Board with locked URLs, the phishing NO path, the phone landing page).
+
+More game-logic guesses (confirm or correct):
+
+10. Level 3, Task 1 opens with Ananya's second call (12), including when resumed or revisited from the Case Board.
+11. Correct, incorrect and progress feedback is a pop-up the player closes. Neutral notes ("looks correct", "not needed", "Already verified", not an option, unknown QR) are a toast that closes itself after 2.8 s. Scans stay locked while either is showing.
+12. On the closing-balance statement (08), the opening balance shows and the running balances are blank. The closing balance shows "?" until the task is solved. The highlighter statement (10) shows every balance.
+13. The fake website (14) stays open under the consequence pop-up. It closes when the player leaves Level 3, Task 1, and reloading on it returns to the phishing choice (13).
+14. A successful report submission goes straight to Report submitted (19), with no pop-up.
+15. The Case Board can be opened at any time. Before OPEN CASE FILE, every level shows as locked. The start screen adds RESUME CASE for returning players, and REPLAY MISSION clears all progress.
 
