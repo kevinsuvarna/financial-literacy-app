@@ -64,17 +64,18 @@ test('plays the whole mission with simulated scans', async ({ page }) => {
 
   // Task 2: the cheque is tapped, not scanned.
   await expect(page).toHaveURL(/\/level-2\/cheque$/)
+  const dateArea = tasks.L2T2.areas.find((a) => a.id === 'date')!
   await page.locator('[data-area="date"]').click()
-  await closeToast(page, 'This detail looks correct. Keep investigating.')
+  if (!dateArea.isDiscrepancy) await closeToast(page, dateArea.feedback.message)
   await page.locator('[data-area="amount-words"]').click()
   await closeDialog(page, tasks.L2T2.correct.title)
 
   // Task 3: drag the highlighter onto a normal row, then onto the suspicious one.
   await expect(page).toHaveURL(/\/level-2\/highlighter$/)
   const highlighter = page.getByTestId('highlighter')
-  const bookFair = GAME.statement.rows.find((row) => row.id === 'book-fair')!
-  await highlighter.dragTo(page.locator('[data-row-id="book-fair"]'))
-  await closeToast(page, bookFair.highlightFeedback)
+  const ordinaryRow = GAME.statement.rows.find((row) => !row.suspicious)!
+  await highlighter.dragTo(page.locator(`[data-row-id="${ordinaryRow.id}"]`))
+  await closeToast(page, ordinaryRow.highlightFeedback)
   await highlighter.dragTo(page.locator('[data-row-id="cams-tel"]'))
   await closeDialog(page, tasks.L2T3.correct.title)
   await expect(page.getByRole('heading', { name: GAME.levels[1].complete.title })).toBeVisible()

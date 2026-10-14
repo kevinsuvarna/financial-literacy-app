@@ -250,13 +250,13 @@ describe('Level 2', () => {
   it('cheque: other areas look correct, the amount reveals the mismatch', () => {
     playUntil(store, 'L2T2')
     state().viewTask('L2T2')
-    for (const area of ['date', 'payee', 'signature'] as const) {
-      expect(state().inspectChequeArea(area).outcome).toBe('neutral')
-      expect(state().feedback?.message).toContain('This detail looks correct. Keep investigating.')
+    for (const area of GAME.tasks.L2T2.areas.filter((a) => !a.isDiscrepancy)) {
+      expect(state().inspectChequeArea(area.id).outcome).toBe('neutral')
+      expect(state().feedback?.message).toBe(area.feedback.message)
     }
     expect(state().completedTasks).not.toContain('L2T2')
     expect(state().inspectChequeArea('amount-words')).toMatchObject({ outcome: 'correct', completedTask: 'L2T2' })
-    expect(state().feedback?.title).toBe('MISMATCH FOUND!')
+    expect(state().feedback?.title).toBe(GAME.tasks.L2T2.correct.title)
   })
 
   it('highlighter: feedback on every row, the CAMS TEL row is the clue', () => {

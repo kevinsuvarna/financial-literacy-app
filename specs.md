@@ -625,16 +625,16 @@ The owner may reorder stages, or split a stage into more prompts, but each promp
 - `src/state/gameStore.ts` holds all progress and answer checking. Persisted under the localStorage key `save-the-savings-account` (progress only, no player data). Stored progress is sanitised on load, so edited storage can't skip locked tasks.
 - Tests: `npm test` (74 passing).
 
-PLACEHOLDER case figures (replace with Stage 4 mockup values; everything else re-derives):
+Case figures: **replaced with mockup 08/09 values on 2026-10-14** (see the mockups entry below). Everything else re-derives:
 
 | Item | Value |
 |---|---|
-| Opening balance | ₹8,240 |
-| Transactions | +₹1,500 pocket money · −₹600 cash withdrawal · +₹1,525 cheque deposit · −₹1,525 cheque returned · −₹450 book fair · +₹2,000 birthday gift · −₹5,999 CAMS TEL mobile recharge |
-| Closing balance (derived) | ₹4,691 |
-| Cheque | ₹1,525 in figures, "One Thousand Two Hundred Twenty-Five" (₹1,225) in words: a birthday cheque from Dadi that Ananya deposited and that was returned |
-| Answer cards (derived) | A ₹5,291 (forgot the withdrawal) · B ₹10,690 (forgot CAMS TEL) · C ₹4,691 (correct) · D ₹6,216 (forgot the cheque return) |
-| Passkey (derived) | 159 |
+| Opening balance | ₹8,200 |
+| Credits / debits (derived) | ₹5,050 / ₹10,798 |
+| Closing balance (derived) | ₹2,452 (owner decision) |
+| Cheque | No. 000123, Ananya → Rhythm Music Academy, ₹1,500 in figures, "One Thousand Five Hundred and Fifty Rupees Only" (₹1,550) in words |
+| Answer cards (derived) | A ₹5,452 (cheque payment added instead of subtracted) · B ₹2,402 (forgot the ₹50 interest) · C ₹2,452 (correct) · D ₹3,502 (fixed near-miss from the mockup) |
+| Passkey (derived) | 209 |
 
 Game-logic guesses (confirm or correct):
 
@@ -725,4 +725,18 @@ Missing assets: a real chime sound (the current one is synthesised), a Home Scre
 Cheque: National Bank, Hitech City Branch, IFSC NBIN0001234, dated 25-08-2026, pay Rhythm Music Academy, ₹1,500.00 in figures, "One Thousand Five Hundred and Fifty Rupees Only" (₹1,550) in words, signed Ananya Sharma, cheque no. 000123. So the returned cheque is one **Ananya wrote**, not the placeholder's birthday cheque from Dadi.
 
 **Task tracker labels from the mockups:** Level 1: Account, KYC, Bank Records. Level 2: Bank Balance, Cheque, Transactions. The tracker shows the level title and its own three steps; the folder icon is presumably the Case Board.
+
+**Figures applied to the game data (2026-10-14):**
+
+- `CASE_FIGURES` now holds the mockup statement and cheque.
+- The answer cards have three kinds of wrong card:
+  - `omits`: forgot a transaction;
+  - `flips`: added a debit instead of subtracting it;
+  - `fixed`: a printed near-miss. The data refuses a fixed card equal to the closing balance.
+- Amounts in words use the cheque style "… Hundred and Fifty", with "Rupees Only" after the words.
+- Copy taken from the mockups:
+  - 08b–08e card feedback. 08b's hint names the cheque payment rather than the mobile recharge, since that's what produces ₹5,452.
+  - The 08c success text. I kept the spec's "credits increase, debits decrease" explanation in it, because 08c doesn't cover it.
+  - The 09c–09f cheque lines. "This looks right." replaces the spec's "This detail looks correct. Keep investigating."
+- A test pins the statement, the cards and the passkey to the mockup values.
 

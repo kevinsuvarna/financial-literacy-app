@@ -78,15 +78,16 @@ function wordsBelowHundred(n: number): string {
   return ones ? `${TENS[Math.floor(n / 10)]}-${ones}` : TENS[Math.floor(n / 10)]
 }
 
-function wordsBelowThousand(n: number): string {
+function wordsBelowThousand(n: number, hasHigherPart: boolean): string {
   const hundreds = Math.floor(n / 100)
   const rest = n % 100
-  return [hundreds ? `${ONES[hundreds]} Hundred` : '', rest ? wordsBelowHundred(rest) : '']
-    .filter(Boolean)
-    .join(' ')
+  if (!rest) return `${ONES[hundreds]} Hundred`
+  const tail = wordsBelowHundred(rest)
+  if (hundreds) return `${ONES[hundreds]} Hundred and ${tail}`
+  return hasHigherPart ? `and ${tail}` : tail
 }
 
-/** Whole rupees in words, Indian numbering: 1225 → "One Thousand Two Hundred Twenty-Five". */
+/** Whole rupees in words, Indian numbering, cheque style: 1550 → "One Thousand Five Hundred and Fifty". */
 export function amountInWords(amount: number): string {
   if (!Number.isInteger(amount) || amount < 0 || amount >= 1_000_000_000) {
     throw new RangeError(`Cannot write ${amount} in words`)
@@ -98,7 +99,7 @@ export function amountInWords(amount: number): string {
     [Math.floor((amount % 100_000) / 1000), 'Thousand'],
   ] as const
   const words = groups.filter(([n]) => n > 0).map(([n, unit]) => `${wordsBelowHundred(n)} ${unit}`)
-  if (amount % 1000) words.push(wordsBelowThousand(amount % 1000))
+  if (amount % 1000) words.push(wordsBelowThousand(amount % 1000, words.length > 0))
   return words.join(' ')
 }
 
@@ -268,22 +269,26 @@ export interface ChequeFigures {
   drawerShortName: string
   bankName: string
   branch: string
+  branchAddress: string
+  ifsc: string
   accountNumber: string
   amountInFigures: number
   /** The (different) amount written in words. Must end in the same digit as the figures (spec 5, Task 2). */
   amountInWordsValue: number
 }
 
-export interface BalanceCardFigure {
-  id: BalanceCardId
-  /**
-   * The transaction this card "forgets": a common mistake whose amount is derived from the
-   * statement. Omit it on the one correct card, which always shows the computed closing balance.
-   */
-  omits?: string
-  /** Wrong-card feedback. {omittedAmount} is the forgotten transaction's amount. */
-  feedback?: string
-}
+/**
+ * A closing-balance answer card. The correct card always shows the computed closing balance.
+ * Wrong cards are common mistakes, derived from the statement where possible:
+ * - `omits`: forgot one transaction
+ * - `flips`: added a debit (or subtracted a credit) instead
+ * - `fixed`: a near-miss printed as-is; it must not equal the closing balance
+ * Feedback copy may use {transactionAmount} (omits/flips) and {openingBalance}.
+ */
+export type BalanceCardFigure =
+  | { id: BalanceCardId; kind: 'correct' }
+  | { id: BalanceCardId; kind: 'omits' | 'flips'; transaction: string; feedback: Copy }
+  | { id: BalanceCardId; kind: 'fixed'; amount: number; feedback: Copy }
 
 export interface CaseFigures {
   account: { holder: string; type: string; maskedNumber: string; bankName: string; branch: string }
@@ -296,106 +301,154 @@ export interface CaseFigures {
 }
 
 export const CASE_FIGURES: CaseFigures = {
+  // From mockups 08 and 09 (2026-10-14). The closing balance (₹2,452) is computed, never typed in.
   account: {
     holder: 'Ananya Sharma',
-    type: 'Savings Account',
-    maskedNumber: 'XXXXXX4417', // PLACEHOLDER
-    bankName: 'Banyan Tree Bank', // PLACEHOLDER (fictional)
-    branch: 'Lakeview Branch', // PLACEHOLDER (fictional)
+    type: 'Savings Account (Minor)',
+    maskedNumber: 'XXXX XXXX 3210',
+    bankName: 'First National Bank',
+    branch: 'Hitech City Branch',
   },
-  statementPeriod: { from: '2026-09-01', to: '2026-09-30' }, // PLACEHOLDER
-  openingBalance: 8240, // PLACEHOLDER
+  statementPeriod: { from: '2026-08-01', to: '2026-08-31' },
+  openingBalance: 8200,
   transactions: [
     {
       id: 'pocket-money',
-      date: '2026-09-03',
-      description: 'Pocket money: UPI from Rakesh Sharma',
+      date: '2026-08-02',
+      description: 'Pocket Money (Parent Transfer)',
       direction: 'credit',
-      amount: 1500, // PLACEHOLDER
-      highlightFeedback: '{amount} of pocket money from Papa: money coming in. Ananya was expecting this one. Keep looking.',
+      amount: 1000,
+      highlightFeedback: '{amount} of pocket money from her parents: money coming in. Ananya was expecting this one. Keep looking.',
     },
     {
-      id: 'cash-withdrawal',
-      date: '2026-09-07',
-      description: 'Cash withdrawal: withdrawal slip at branch',
+      id: 'cafe-express',
+      date: '2026-08-05',
+      description: 'Cafe Express',
       direction: 'debit',
-      amount: 600, // PLACEHOLDER
-      highlightFeedback: 'Ananya took out {amount} herself using a withdrawal slip. Nothing unusual here.',
+      amount: 350,
+      highlightFeedback: 'Ananya spent {amount} at Cafe Express. She remembers this one.',
     },
     {
-      id: 'cheque-deposit',
-      date: '2026-09-10',
-      description: 'Cheque deposit: Chq No. 004517',
+      id: 'stylehub',
+      date: '2026-08-08',
+      description: 'Online Shopping – StyleHub',
+      direction: 'debit',
+      amount: 1200,
+      highlightFeedback: '{amount} of online shopping at StyleHub. Ananya remembers ordering it.',
+    },
+    {
+      id: 'playzone',
+      date: '2026-08-12',
+      description: 'Game Top-Up – PlayZone',
+      direction: 'debit',
+      amount: 499,
+      highlightFeedback: 'A {amount} game top-up at PlayZone. Ananya bought it herself.',
+    },
+    {
+      id: 'grandparents-gift',
+      date: '2026-08-15',
+      description: 'Gift from Grandparents',
       direction: 'credit',
+      amount: 2500,
+      highlightFeedback: 'A {amount} gift from her grandparents: money coming in. This looks normal.',
+    },
+    {
+      id: 'cinemax',
+      date: '2026-08-18',
+      description: 'Movie Tickets – CineMax',
+      direction: 'debit',
+      amount: 800,
+      highlightFeedback: 'Movie tickets at CineMax for {amount}. Ananya remembers going to the film.',
+    },
+    {
+      id: 'quickbite',
+      date: '2026-08-22',
+      description: 'Food Delivery – QuickBite',
+      direction: 'debit',
+      amount: 450,
+      highlightFeedback: '{amount} of food delivery from QuickBite. Ananya remembers ordering it.',
+    },
+    {
+      id: 'cheque-payment',
+      date: '2026-08-25',
+      description: 'Cheque No. 000123 – Music Class Fees',
+      direction: 'debit',
       amount: CHEQUE_AMOUNT,
-      highlightFeedback: "Dadi's birthday cheque for {amount}. You've already investigated this cheque.",
+      highlightFeedback: "Ananya's {amount} cheque for her music classes. You've already found out why it came back.",
     },
     {
       id: 'cheque-returned',
-      date: '2026-09-12',
-      description: 'Cheque returned: Chq No. 004517',
-      direction: 'debit',
-      amount: CHEQUE_AMOUNT,
-      highlightFeedback: 'The cheque was returned, so the {amount} was taken back out. You already know why.',
-    },
-    {
-      id: 'book-fair',
-      date: '2026-09-15',
-      description: 'School book fair: debit card',
-      direction: 'debit',
-      amount: 450, // PLACEHOLDER
-      highlightFeedback: 'Ananya spent {amount} at the school book fair. She remembers buying those books.',
-    },
-    {
-      id: 'birthday-gift',
-      date: '2026-09-18',
-      description: 'Birthday gift: UPI from Meera Iyer',
+      date: '2026-08-28',
+      description: 'Cheque No. 000123 – Returned',
       direction: 'credit',
-      amount: 2000, // PLACEHOLDER
-      highlightFeedback: 'A {amount} birthday gift from Meera Aunty: money coming in. This looks normal.',
+      amount: CHEQUE_AMOUNT,
+      highlightFeedback: 'The cheque was returned, so the {amount} came back in. You already know why.',
     },
     {
       id: 'cams-tel',
-      date: '2026-09-22', // PLACEHOLDER
-      description: 'Mobile recharge: CAMS TEL',
+      date: '2026-08-30',
+      // Owner decision: CAMS TEL, not the mockup's "FastTel", so it matches the phishing message.
+      description: 'Mobile Recharge – CAMS TEL',
       direction: 'debit',
       amount: 5999, // fixed by spec 5, Task 3
       suspicious: true,
       highlightFeedback:
         "Ananya doesn't remember making this {amount} \"mobile recharge\" to CAMS TEL, and it's far bigger than anything else she spends. That doesn't prove it's fraud, but it's a clue worth investigating.",
     },
+    {
+      id: 'interest',
+      date: '2026-08-31',
+      description: 'Interest Credit',
+      direction: 'credit',
+      amount: 50,
+      highlightFeedback: '{amount} of interest: the bank pays Ananya a little extra for keeping money in her savings account.',
+    },
   ],
   cheque: {
-    number: '004517', // PLACEHOLDER
-    date: '2026-09-08', // PLACEHOLDER
-    payee: 'Ananya Sharma',
-    drawer: 'Kamla Sharma', // PLACEHOLDER
-    drawerShortName: 'Dadi',
-    bankName: 'Banyan Tree Bank', // PLACEHOLDER
-    branch: 'Lakeview Branch', // PLACEHOLDER
-    accountNumber: 'XXXXXX2093', // PLACEHOLDER
-    amountInFigures: 1525, // PLACEHOLDER
-    amountInWordsValue: 1225, // PLACEHOLDER: differs from the figures but ends in the same digit
+    number: '000123',
+    date: '2026-08-25',
+    payee: 'Rhythm Music Academy',
+    drawer: 'Ananya Sharma',
+    drawerShortName: 'Ananya',
+    bankName: 'National Bank',
+    branch: 'Hitech City Branch',
+    branchAddress: 'Plot No. 12, Hitech City, Hyderabad – 500081',
+    ifsc: 'NBIN0001234',
+    accountNumber: '1234567890',
+    amountInFigures: 1500,
+    amountInWordsValue: 1550, // differs from the figures but ends in the same digit
   },
   balanceCards: [
     {
       id: 'balance-card-a',
-      omits: 'cash-withdrawal',
-      feedback:
-        'Close! But this amount forgets the {omittedAmount} cash withdrawal. Money Ananya took out with a withdrawal slip lowers her balance too.',
+      kind: 'flips',
+      transaction: 'cheque-payment',
+      feedback: {
+        title: 'NOT QUITE',
+        message: 'This balance is much higher than it should be.',
+        detail: 'Check the {transactionAmount} cheque payment carefully. It is a debit — money OUT, so it must be subtracted, not added.',
+      },
     },
     {
       id: 'balance-card-b',
-      omits: 'cams-tel',
-      feedback:
-        "This amount leaves out the {omittedAmount} payment to CAMS TEL. Even if Ananya doesn't remember it, that money still left her account.",
+      kind: 'omits',
+      transaction: 'interest',
+      feedback: {
+        title: 'NOT QUITE',
+        message: 'Very close. Check the last transaction in the statement.',
+        detail: 'Did you include the {transactionAmount} interest credit?',
+      },
     },
-    { id: 'balance-card-c' },
+    { id: 'balance-card-c', kind: 'correct' },
     {
       id: 'balance-card-d',
-      omits: 'cheque-returned',
-      feedback:
-        'This amount counts the cheque deposit but forgets that the cheque was returned. When a cheque is returned, its {omittedAmount} is taken back out.',
+      kind: 'fixed',
+      amount: 3502,
+      feedback: {
+        title: 'NOT QUITE',
+        message: 'Your calculation is close, but something is off.',
+        detail: 'Start with {openingBalance} → add the credits → subtract the debits.',
+      },
     },
   ],
 }
@@ -569,7 +622,7 @@ const KYC_SLOTS: EvidenceSlot[] = [
   { artefactId: 'aadhaar-card', label: 'Aadhaar' },
 ]
 
-const LOOKS_CORRECT = 'This detail looks correct. Keep investigating.'
+const LOOKS_CORRECT = 'This looks right.'
 
 /** Builds all game content from the case figures. Tests rebuild it with altered figures. */
 export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
@@ -590,16 +643,26 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
   if (suspiciousRows.length !== 1) throw new Error('The statement needs exactly one suspicious transaction')
   const suspicious = suspiciousRows[0]
 
-  // Closing-balance answer cards: one correct, the rest derived from common mistakes.
+  // Closing-balance answer cards: one correct, the rest common mistakes.
   const balanceCards = figures.balanceCards.map((card) => {
-    if (!card.omits) return { id: card.id, amount: ledger.closingBalance, feedback: null }
-    const omitted = rows.find((row) => row.id === card.omits)
-    if (!omitted || !card.feedback) throw new Error(`Balance card ${card.id} needs a valid transaction and feedback`)
-    return {
-      id: card.id,
-      amount: ledger.closingBalance - signedAmount(omitted),
-      feedback: fillTemplate(card.feedback, { omittedAmount: formatRupees(omitted.amount) }),
+    if (card.kind === 'correct') return { id: card.id, amount: ledger.closingBalance, feedback: null }
+    const values: Record<string, string> = { openingBalance: formatRupees(ledger.openingBalance) }
+    let amount: number
+    if (card.kind === 'fixed') {
+      amount = card.amount
+    } else {
+      const row = rows.find((r) => r.id === card.transaction)
+      if (!row) throw new Error(`Balance card ${card.id} refers to unknown transaction ${card.transaction}`)
+      values.transactionAmount = formatRupees(row.amount)
+      // Forgetting a row undoes its effect once; flipping its sign undoes it twice.
+      amount = ledger.closingBalance - signedAmount(row) * (card.kind === 'flips' ? 2 : 1)
     }
+    const feedback: Copy = {
+      ...card.feedback,
+      message: fillTemplate(card.feedback.message, values),
+      ...(card.feedback.detail ? { detail: fillTemplate(card.feedback.detail, values) } : {}),
+    }
+    return { id: card.id, amount, feedback }
   })
   const correctCards = balanceCards.filter((card) => card.amount === ledger.closingBalance)
   if (correctCards.length !== 1) throw new Error('Exactly one closing-balance card must show the closing balance')
@@ -769,14 +832,13 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       options: balanceCards.map((card) => card.id),
       required: [correctCards[0].id],
       correct: {
-        title: 'CORRECT!',
-        message: fill('Ananya has {closingBalance} left.'),
-        detail:
-          'Money coming into the account (credits) increases the balance, and money going out (debits) decreases it.',
+        title: 'CORRECT',
+        message: 'Great job! You read the statement and worked out the balance.',
+        detail: fill(
+          "Ananya has {closingBalance} left: money coming in (credits) increases the balance, and money going out (debits) decreases it. A bank statement keeps a record of the money moving in and out of an account over a period of time. Now, let's see if everything on Ananya's statement matches what she actually did.",
+        ),
       },
-      incorrect: Object.fromEntries(
-        balanceCards.flatMap((card) => (card.feedback ? [[card.id, { title: 'NOT QUITE', message: card.feedback }]] : [])),
-      ),
+      incorrect: Object.fromEntries(balanceCards.flatMap((card) => (card.feedback ? [[card.id, card.feedback]] : []))),
       neutral: {},
       notAnOption: { message: "That's from the case file, but it isn't a closing-balance card." },
     },
@@ -790,20 +852,20 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       instruction: 'Tap different parts of the cheque to investigate.',
       hints: [],
       areas: [
-        { id: 'bank', label: 'Bank name and branch', isDiscrepancy: false, feedback: { message: `The bank name and branch are printed clearly. ${LOOKS_CORRECT}` } },
-        { id: 'date', label: 'Date', isDiscrepancy: false, feedback: { message: `The date is filled in and the cheque isn't out of date. ${LOOKS_CORRECT}` } },
-        { id: 'payee', label: 'Pay', isDiscrepancy: false, feedback: { message: fill(`The cheque is made out to {payee}. ${LOOKS_CORRECT}`) } },
+        { id: 'bank', label: 'Bank name and branch', isDiscrepancy: false, feedback: { message: `The bank name and branch are printed by the bank. ${LOOKS_CORRECT}` } },
+        { id: 'date', label: 'Date', isDiscrepancy: false, feedback: { message: `The date is valid and matches the transaction. ${LOOKS_CORRECT}` } },
+        { id: 'payee', label: 'Pay', isDiscrepancy: false, feedback: { message: fill(`The payee name is correctly written as {payee}. ${LOOKS_CORRECT}`) } },
         { id: 'amount-words', label: 'Amount in words', isDiscrepancy: true },
         { id: 'amount-figures', label: 'Amount in figures', isDiscrepancy: true },
         { id: 'account-number', label: 'Account number', isDiscrepancy: false, feedback: { message: `The account number is printed by the bank. ${LOOKS_CORRECT}` } },
-        { id: 'signature', label: 'Signature', isDiscrepancy: false, feedback: { message: fill(`{drawerShortName} has signed the cheque. ${LOOKS_CORRECT}`) } },
+        { id: 'signature', label: 'Signature', isDiscrepancy: false, feedback: { message: fill(`The signature matches {drawerShortName}'s bank records. ${LOOKS_CORRECT}`) } },
         { id: 'cheque-number', label: 'Cheque number', isDiscrepancy: false, feedback: { message: `The cheque number matches the one on the statement. ${LOOKS_CORRECT}` } },
       ],
       correct: {
-        title: 'MISMATCH FOUND!',
-        message: fill('The amount in figures says {chequeFigures}, but the amount in words says {chequeWords} ({chequeWordsAmount}).'),
+        title: 'YOU SPOTTED IT',
+        message: "The amounts don't match.",
         detail: fill(
-          "The amount in numbers and the amount in words don't match, so the bank can't be sure how much to pay. A mismatch like this can cause a cheque to be returned, and that's what happened to {drawerShortName}'s cheque.",
+          "The cheque says {chequeFigures} in numbers but {chequeWordsAmount} in words. The amounts don't match, so the bank returned the cheque. But that still doesn't explain Ananya's missing money.",
         ),
       },
     },
@@ -1044,7 +1106,7 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
 
     cheque: {
       ...cheque,
-      amountInWords: `Rupees ${chequeWords} Only`,
+      amountInWords: `${chequeWords} Rupees Only`,
     },
 
     phishingMessage,

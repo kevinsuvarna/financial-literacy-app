@@ -82,10 +82,41 @@ describe('closing-balance answer cards (Level 2, Task 1)', () => {
     }
   })
 
-  it('still has exactly one correct card after a placeholder changes', () => {
+  it('derives the wrong cards from common mistakes', () => {
+    const { statement } = GAME
+    const interest = statement.rows.find((r) => r.id === 'interest')!
+    const cheque = statement.rows.find((r) => r.id === 'cheque-payment')!
+    // Forgot the interest credit; added the cheque payment instead of subtracting it.
+    expect(GAME.artefacts['balance-card-b'].printedAmount).toBe(statement.closingBalance - interest.amount)
+    expect(GAME.artefacts['balance-card-a'].printedAmount).toBe(statement.closingBalance + 2 * cheque.amount)
+  })
+
+  it('refuses a fixed wrong card that equals the closing balance', () => {
+    const closing = GAME.statement.closingBalance
+    const cards = CASE_FIGURES.balanceCards.map((card) => (card.kind === 'fixed' ? { ...card, amount: closing } : card))
+    expect(() => buildGameContent({ ...CASE_FIGURES, balanceCards: cards })).toThrow()
+  })
+
+  it('still has exactly one correct card after a figure changes', () => {
     const changed = buildGameContent(withOpeningBalance(37))
     const [answer] = changed.tasks.L2T1.required
     expect(changed.artefacts[answer].printedAmount).toBe(changed.statement.closingBalance)
+  })
+})
+
+describe('figures match mockups 08 and 09 (owner decision: closing balance ₹2,452)', () => {
+  it('reproduces the statement, the answer cards and the passkey', () => {
+    const { statement } = GAME
+    expect(statement.openingBalance).toBe(8200)
+    expect(statement.totalCredits).toBe(5050)
+    expect(statement.totalDebits).toBe(10798)
+    expect(statement.closingBalance).toBe(2452)
+    // The running balances printed in the mockup's Balance column.
+    expect(statement.rows.slice(0, 7).map((r) => r.balanceAfter)).toEqual([9200, 8850, 7650, 7151, 9651, 8851, 8401])
+    const amounts = ARTEFACT_IDS.flatMap((id) => GAME.artefacts[id].printedAmount ?? [])
+    expect(amounts.sort((a, b) => a - b)).toEqual([2402, 2452, 3502, 5452])
+    expect(GAME.cheque).toMatchObject({ amountInFigures: 1500, amountInWordsValue: 1550, number: '000123' })
+    expect(GAME.passkey).toBe('209')
   })
 })
 
@@ -98,16 +129,17 @@ describe('cheque (Level 2, Task 2)', () => {
   })
 
   it('writes the words amount from its value', () => {
-    expect(cheque.amountInWords).toBe(`Rupees ${amountInWords(cheque.amountInWordsValue)} Only`)
+    expect(cheque.amountInWords).toBe(`${amountInWords(cheque.amountInWordsValue)} Rupees Only`)
   })
 
-  it('appears on the statement as a deposit followed by a return of the amount in figures', () => {
-    const deposit = statement.rows.findIndex((r) => r.id === 'cheque-deposit')
+  it("appears on the statement as Ananya's payment followed by its return, for the amount in figures", () => {
+    const payment = statement.rows.findIndex((r) => r.id === 'cheque-payment')
     const returned = statement.rows.findIndex((r) => r.id === 'cheque-returned')
-    expect(deposit).toBeGreaterThanOrEqual(0)
-    expect(returned).toBeGreaterThan(deposit)
-    expect(statement.rows[deposit]).toMatchObject({ direction: 'credit', amount: cheque.amountInFigures })
-    expect(statement.rows[returned]).toMatchObject({ direction: 'debit', amount: cheque.amountInFigures })
+    expect(payment).toBeGreaterThanOrEqual(0)
+    expect(returned).toBeGreaterThan(payment)
+    expect(statement.rows[payment]).toMatchObject({ direction: 'debit', amount: cheque.amountInFigures })
+    expect(statement.rows[returned]).toMatchObject({ direction: 'credit', amount: cheque.amountInFigures })
+    expect(statement.rows[payment].description).toContain(cheque.number)
   })
 
   it('has the mismatch in the amount areas only', () => {
@@ -124,10 +156,13 @@ describe('amountInWords', () => {
     [40, 'Forty'],
     [99, 'Ninety-Nine'],
     [100, 'One Hundred'],
-    [1225, 'One Thousand Two Hundred Twenty-Five'],
-    [5999, 'Five Thousand Nine Hundred Ninety-Nine'],
+    [105, 'One Hundred and Five'],
+    [1225, 'One Thousand Two Hundred and Twenty-Five'],
+    [1550, 'One Thousand Five Hundred and Fifty'],
+    [2050, 'Two Thousand and Fifty'],
+    [5999, 'Five Thousand Nine Hundred and Ninety-Nine'],
     [100000, 'One Lakh'],
-    [12345678, 'One Crore Twenty-Three Lakh Forty-Five Thousand Six Hundred Seventy-Eight'],
+    [12345678, 'One Crore Twenty-Three Lakh Forty-Five Thousand Six Hundred and Seventy-Eight'],
   ])('%i → %s', (amount, words) => {
     expect(amountInWords(amount)).toBe(words)
   })
@@ -144,7 +179,7 @@ describe('suspicious transaction (Level 2, Task 3)', () => {
     expect(suspicious).toHaveLength(1)
     expect(suspicious[0]).toMatchObject({ amount: 5999, direction: 'debit' })
     expect(suspicious[0].description).toContain('CAMS TEL')
-    expect(suspicious[0].description).toContain('Mobile recharge')
+    expect(suspicious[0].description).toContain('Mobile Recharge')
   })
 
   it('has highlight feedback for every row', () => {
