@@ -6,6 +6,8 @@ export const incidentReportSchema = z.object({
   concern: z.string().min(1),
   /** How each piece of evidence is described on the report, keyed by artefact id. */
   evidenceDescriptions: z.record(z.string(), z.string().min(1)),
+  /** A few words for each piece of evidence, for where the full description doesn't fit. */
+  evidenceTitles: z.record(z.string(), z.string().min(1)),
 });
 export type IncidentReport = z.infer<typeof incidentReportSchema>;
 
@@ -15,6 +17,10 @@ export const incidentReport: IncidentReport = incidentReportSchema.parse({
   evidenceDescriptions: {
     'bank-statement': 'Bank statement — unrecognised CAMS TEL transaction',
     'phishing-message': 'Suspicious message — link claiming to unblock debit card',
+  },
+  evidenceTitles: {
+    'bank-statement': 'Bank statement',
+    'phishing-message': 'Suspicious message',
   },
 });
 

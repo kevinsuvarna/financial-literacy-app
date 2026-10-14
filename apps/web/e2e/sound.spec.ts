@@ -18,6 +18,7 @@ const SOUNDS = [
   'key',
   'boot',
   'unlock',
+  'paperclip',
 ];
 
 test('every placeholder sound is served from /audio', async ({ request }) => {

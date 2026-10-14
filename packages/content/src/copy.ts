@@ -102,6 +102,9 @@ export const copy = {
     verified: 'VERIFIED',
     answer: 'Your answer',
     progress: (scanned: number, required: number) => `${scanned} of ${required} verified`,
+    alreadyAccepted: (label: string, acceptedWord: string) =>
+      `${label} is already ${acceptedWord}.`,
+    unnamedCard: 'This item',
 
     permissionHeading: 'Switch on the evidence scanner?',
     permissionBody:
@@ -244,7 +247,15 @@ export const copy = {
     showSource: (document: string) => `SHOW ME THE ${document}`,
   },
 
+  evidence: {
+    slots: 'Evidence slots',
+    waiting: 'Waiting for a scan',
+    attached: 'ATTACHED',
+    progress: (attached: number, required: number) => `${attached} of ${required} attached`,
+  },
+
   report: {
+    form: 'INCIDENT REPORT',
     customer: 'Customer',
     transaction: 'Transaction',
     concern: 'Concern',
@@ -252,6 +263,10 @@ export const copy = {
     attached: 'Attached',
     missing: 'Missing',
     submit: 'SUBMIT INCIDENT REPORT',
+    /** Stamped on the report once it is in. Submitted — not proven. */
+    submittedStamp: 'SUBMITTED',
+    submittedNote: 'Submitted for investigation',
+    goTo: (taskPrompt: string) => `GO TO ${taskPrompt}`,
   },
 
   caseBoard: {
@@ -279,7 +294,12 @@ export const copy = {
     ],
     awardedTo: 'This certifies that you are now a',
     badge: 'Junior Bank Officer',
+    issuer: 'LOTUS VALLEY BANK — OFFICER TRAINING',
     backToBoard: 'BACK TO CASE BOARD',
     replay: 'REPLAY MISSION',
+    print: 'PRINT CERTIFICATE',
+    download: 'DOWNLOAD PNG',
+    downloadFailed: 'The picture could not be made on this device. Try PRINT CERTIFICATE instead.',
+    fileName: 'junior-bank-officer-certificate.png',
   },
 } as const;

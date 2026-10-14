@@ -57,7 +57,7 @@ test('debug panel jumps to a task, injects a scan and resets', async ({ page }) 
 
   await panel.getByLabel('Inject artefact scan').selectOption('bank-statement');
   await panel.getByRole('button', { name: 'Inject scan' }).click();
-  await expect(page.getByText('1 of 2 verified')).toBeVisible();
+  await expect(page.getByText('1 of 2 attached')).toBeVisible();
   await expect(panel.getByTestId('debug-scanner')).toContainText('bank-statement via debug');
 
   await panel.getByRole('button', { name: 'Reset game' }).click();

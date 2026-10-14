@@ -17,7 +17,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="mx-auto flex min-h-screen max-w-4xl flex-col gap-6 px-4 py-6">
-      <header className="flex flex-col gap-4">
+      <header className="flex flex-col gap-4 print:hidden">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Link to="/" className="font-display font-bold tracking-wide">
             {copy.appTitle}

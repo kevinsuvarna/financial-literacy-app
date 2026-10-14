@@ -2,6 +2,7 @@ import { createActor, type Actor } from 'xstate';
 import { describe, expect, it } from 'vitest';
 import { derivePasskey } from '@app/content';
 import { gameMachine } from './machine';
+import { handleReportSubmission } from './rules';
 import {
   getAttempts,
   getLastFeedback,
@@ -9,6 +10,8 @@ import {
   getLevelStatus,
   getTaskStatus,
 } from './selectors';
+
+import type { GameContext } from './types';
 
 type GameActor = Actor<typeof gameMachine>;
 
@@ -464,6 +467,38 @@ describe('scanAll evidence task (l3-t4-scan-evidence)', () => {
     expect(getTaskStatus(context, 'l3-t4-scan-evidence')).toBe('completed');
     expect(getTaskStatus(context, 'l3-t5-review-submit')).toBe('available');
   });
+
+  it('keeps the report locked while any evidence is missing, whatever else is scanned', () => {
+    const actor = toEvidence();
+    expect(getTaskStatus(actor.getSnapshot().context, 'l3-t5-review-submit')).toBe('locked');
+
+    actor.send({ type: 'ARTEFACT_SCANNED', id: 'phishing-message' });
+    actor.send({ type: 'ARTEFACT_SCANNED', id: 'cheque' });
+    actor.send({ type: 'ARTEFACT_SCANNED', id: 'phishing-message' });
+
+    const { context } = actor.getSnapshot();
+    expect(context.tasks['l3-t4-scan-evidence']?.scannedIds).toEqual(['phishing-message']);
+    expect(getTaskStatus(context, 'l3-t5-review-submit')).toBe('locked');
+
+    // A locked report can be neither opened nor submitted.
+    actor.send({ type: 'GOTO_TASK', taskId: 'l3-t5-review-submit' });
+    actor.send({ type: 'SUBMIT_REPORT' });
+    expect(actor.getSnapshot().context.viewedTaskId).toBe('l3-t4-scan-evidence');
+    expect(actor.getSnapshot().value).toBe('inGame');
+    expect(actor.getSnapshot().context.reportSubmitted).toBe(false);
+  });
+
+  it('says a piece of evidence scanned twice is already attached, without a new attempt', () => {
+    const actor = toEvidence();
+    actor.send({ type: 'ARTEFACT_SCANNED', id: 'bank-statement' });
+    actor.send({ type: 'ARTEFACT_SCANNED', id: 'bank-statement' });
+
+    const { context } = actor.getSnapshot();
+    expect(getLastFeedback(context, 'l3-t4-scan-evidence')).toBe(
+      "Ananya's Bank Statement is already attached.",
+    );
+    expect(getAttempts(context, 'l3-t4-scan-evidence')).toBe(0);
+  });
 });
 
 describe('report submission and mission complete', () => {
@@ -490,6 +525,71 @@ describe('report submission and mission complete', () => {
     expect(snapshot.value).toBe('missionComplete');
     expect(snapshot.context.reportSubmitted).toBe(true);
     expect(getTaskStatus(snapshot.context, 'l3-t5-review-submit')).toBe('completed');
+  });
+
+  describe('with evidence missing', () => {
+    // Play never leads here — the report is locked until both pieces are attached — so this is
+    // a save that reached the report some other way: an older build's, or one edited by hand.
+    function reportWithout(...missing: string[]): GameContext {
+      const { context } = toReport().getSnapshot();
+      const evidence = context.tasks['l3-t4-scan-evidence'];
+      if (!evidence) throw new Error('no evidence task');
+      return {
+        ...context,
+        tasks: {
+          ...context.tasks,
+          'l3-t4-scan-evidence': {
+            ...evidence,
+            scannedIds: evidence.scannedIds.filter((id) => !missing.includes(id)),
+          },
+        },
+      };
+    }
+
+    it('refuses the report, says why, and counts the attempt', () => {
+      for (const missing of [['phishing-message'], ['bank-statement', 'phishing-message']]) {
+        const before = reportWithout(...missing);
+        const after = handleReportSubmission(before);
+
+        expect(getTaskStatus(after, 'l3-t5-review-submit')).not.toBe('completed');
+        expect(after.reportSubmitted).toBe(false);
+        expect(getAttempts(after, 'l3-t5-review-submit')).toBe(1);
+        expect(getLastFeedback(after, 'l3-t5-review-submit')).toMatch(
+          /can’t be submitted yet — evidence is missing/,
+        );
+      }
+    });
+
+    it('goes on refusing however often it is asked', () => {
+      let context = reportWithout('bank-statement');
+      for (let i = 0; i < 5; i += 1) context = handleReportSubmission(context);
+
+      expect(getAttempts(context, 'l3-t5-review-submit')).toBe(5);
+      expect(context.reportSubmitted).toBe(false);
+    });
+
+    it('accepts the report once the evidence is there after all', () => {
+      const refused = handleReportSubmission(reportWithout('bank-statement'));
+      const evidence = refused.tasks['l3-t4-scan-evidence'];
+      if (!evidence) throw new Error('no evidence task');
+      const complete: GameContext = {
+        ...refused,
+        tasks: {
+          ...refused.tasks,
+          'l3-t4-scan-evidence': {
+            ...evidence,
+            scannedIds: ['phishing-message', 'bank-statement'],
+          },
+        },
+      };
+
+      const submitted = handleReportSubmission(complete);
+      expect(getTaskStatus(submitted, 'l3-t5-review-submit')).toBe('completed');
+      expect(submitted.reportSubmitted).toBe(true);
+      expect(getLastFeedback(submitted, 'l3-t5-review-submit')).toMatch(
+        /submitted for investigation.*nothing has been proven yet/i,
+      );
+    });
   });
 
   it('still allows review navigation after mission complete', () => {

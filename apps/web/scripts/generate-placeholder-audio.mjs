@@ -211,6 +211,15 @@ const sounds = {
       { at: 0.27, duration: 0.2, voice: bell(783.99, 14) },
       { at: 0.37, duration: 0.38, voice: bell(1174.66, 8) },
     ]),
+
+  // A paperclip sliding onto paper: a papery swish, then a small bright snick of wire.
+  paperclip: () =>
+    render(0.3, (t) => {
+      const swish = noise() * gate(t, 0.16, 0.05) * (t < 0.16 ? 0.16 : 0);
+      const snick = t >= 0.15 ? sine(3100, t) * pluck(t - 0.15, 60, 0.001) * 0.35 : 0;
+      const tick = t >= 0.15 ? noise() * pluck(t - 0.15, 140, 0.001) * 0.3 : 0;
+      return swish + snick + tick;
+    }),
 };
 
 mkdirSync(outputDir, { recursive: true });

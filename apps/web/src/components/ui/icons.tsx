@@ -40,6 +40,14 @@ export function LockIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function PaperclipIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <path d="M8 7v9a4 4 0 0 0 8 0V6a2.5 2.5 0 0 0-5 0v9.5a1 1 0 0 0 2 0V8" />
+    </Icon>
+  );
+}
+
 export function SoundOnIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <Icon {...props}>

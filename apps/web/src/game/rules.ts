@@ -1,4 +1,5 @@
 import {
+  copy,
   derivePasskey,
   getArtefact,
   getPasskeyHint,
@@ -102,9 +103,11 @@ export function markViewed(context: GameContext, taskId: string): GameContext {
   return ensureInProgress(viewed, taskId);
 }
 
-function alreadyVerifiedMessage(id: string): string {
-  const label = getArtefact(id)?.label ?? 'This item';
-  return `${label} is already verified.`;
+function alreadyAcceptedMessage(id: string, acceptedWord: string): string {
+  return copy.scanner.alreadyAccepted(
+    getArtefact(id)?.label ?? copy.scanner.unnamedCard,
+    acceptedWord,
+  );
 }
 
 function recordWrongAttempt(
@@ -123,7 +126,7 @@ function recordWrongAttempt(
 function applyScanAll(context: GameContext, taskId: string, submittedId: string): GameContext {
   const task = getTask(taskId);
   const progress = context.tasks[taskId];
-  if (!task || !isInteractiveTask(task) || !progress) return context;
+  if (!task || task.kind !== 'scanAll' || !progress) return context;
 
   if (!task.acceptedIds.includes(submittedId)) {
     return recordWrongAttempt(context, taskId, task.feedback[submittedId] ?? null);
@@ -131,7 +134,7 @@ function applyScanAll(context: GameContext, taskId: string, submittedId: string)
 
   if (progress.scannedIds.includes(submittedId)) {
     return updateTaskProgress(context, taskId, {
-      lastFeedback: alreadyVerifiedMessage(submittedId),
+      lastFeedback: alreadyAcceptedMessage(submittedId, task.acceptedWord),
     });
   }
 
@@ -237,6 +240,6 @@ export function handleReportSubmission(context: GameContext): GameContext {
   const attempts = (started.tasks[taskId]?.attempts ?? progress.attempts) + 1;
   return updateTaskProgress(started, taskId, {
     attempts,
-    lastFeedback: 'Check that both pieces of evidence are attached before submitting.',
+    lastFeedback: task.missingEvidenceText,
   });
 }

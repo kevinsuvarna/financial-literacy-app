@@ -56,7 +56,7 @@ export function DebugPanel() {
       as="aside"
       tone="raised"
       aria-label="Debug panel"
-      className="fixed right-3 bottom-3 z-50 max-h-[85vh] w-80 max-w-[calc(100vw-1.5rem)] overflow-y-auto text-sm"
+      className="fixed right-3 bottom-3 z-50 max-h-[85vh] print:hidden w-80 max-w-[calc(100vw-1.5rem)] overflow-y-auto text-sm"
     >
       <details open>
         <summary className="cursor-pointer font-display font-bold">Debug</summary>

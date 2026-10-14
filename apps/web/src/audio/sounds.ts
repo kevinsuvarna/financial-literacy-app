@@ -22,6 +22,7 @@ const SOUNDS = {
   key: { file: 'key.wav', volume: 0.55 },
   boot: { file: 'boot.wav', volume: 0.5 },
   unlock: { file: 'unlock.wav', volume: 0.7 },
+  paperclip: { file: 'paperclip.wav', volume: 0.65 },
 } as const;
 
 export type SoundName = keyof typeof SOUNDS;

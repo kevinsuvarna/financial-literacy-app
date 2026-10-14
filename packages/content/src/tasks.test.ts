@@ -108,6 +108,48 @@ describe('incident report', () => {
       }
     }
   });
+
+  it('has a short title for each of them, which its description opens with', () => {
+    for (const task of tasks) {
+      if (task.kind !== 'report') continue;
+      for (const evidenceId of task.requiredEvidenceIds) {
+        const title = incidentReport.evidenceTitles[evidenceId];
+        expect(title, `no title for evidence ${evidenceId}`).toBeTruthy();
+        expect(incidentReport.evidenceDescriptions[evidenceId]).toMatch(new RegExp(`^${title} — `));
+      }
+    }
+  });
+
+  it('only requires evidence that an earlier scan task attaches', () => {
+    for (const [index, task] of tasks.entries()) {
+      if (task.kind !== 'report') continue;
+      const attachable = tasks
+        .slice(0, index)
+        .flatMap((earlier) => (earlier.kind === 'scanAll' ? earlier.acceptedIds : []));
+      for (const evidenceId of task.requiredEvidenceIds) {
+        expect(attachable, `nothing attaches ${evidenceId} before ${task.id}`).toContain(
+          evidenceId,
+        );
+      }
+    }
+  });
+
+  it('is submitted for investigation — never described as proven', () => {
+    const report = getTask('l3-t5-review-submit');
+    expect(report?.successText).toMatch(/submitted for investigation/i);
+    expect(report?.successText).toMatch(/suspected fraud/);
+    expect(report?.successText).toMatch(/nothing has been proven/);
+    expect(incidentReport.concern).toMatch(/^Suspected/);
+  });
+
+  it('turns the cheque away from the evidence, saying why', () => {
+    const evidence = getTask('l3-t4-scan-evidence');
+    if (evidence?.kind !== 'scanAll') throw new Error('expected a scanAll task');
+
+    expect(evidence.slotStyle).toBe('labelled');
+    expect(evidence.acceptedIds).toEqual(['bank-statement', 'phishing-message']);
+    expect(evidence.feedback.cheque).toMatch(/^Not needed\..*already been explained/);
+  });
 });
 
 const transactionIds = new Set(transactions.map((t) => t.id));

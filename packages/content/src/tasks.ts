@@ -63,7 +63,18 @@ const interactiveShape = {
 
 export const taskSchema = z.discriminatedUnion('kind', [
   z.object({ ...taskBaseShape, ...interactiveShape, kind: z.literal('scanOne') }),
-  z.object({ ...taskBaseShape, ...interactiveShape, kind: z.literal('scanAll') }),
+  z.object({
+    ...taskBaseShape,
+    ...interactiveShape,
+    kind: z.literal('scanAll'),
+    /**
+     * How the cards scanned so far are shown: `numbered` slots fill in whatever order the cards
+     * arrive; `labelled` gives every required card a slot of its own, named for it.
+     */
+    slotStyle: z.enum(['numbered', 'labelled']).default('numbered'),
+    /** What an accepted card has been, for "… is already verified." on a repeat scan. */
+    acceptedWord: z.string().min(1).default('verified'),
+  }),
   z.object({ ...taskBaseShape, ...interactiveShape, kind: z.literal('tap') }),
   z.object({ ...taskBaseShape, ...interactiveShape, kind: z.literal('highlight') }),
   z.object({
@@ -93,6 +104,8 @@ export const taskSchema = z.discriminatedUnion('kind', [
     ...taskBaseShape,
     kind: z.literal('report'),
     requiredEvidenceIds: z.array(z.string().min(1)).min(1),
+    /** Said when the report is submitted with any of that evidence not attached. */
+    missingEvidenceText: z.string().min(1),
   }),
 ]);
 export type Task = z.infer<typeof taskSchema>;
@@ -291,11 +304,13 @@ export const tasks: Task[] = z.array(taskSchema).parse([
     detail: 'Scan the two artefacts that support this incident report.',
     optionIds: ['bank-statement', 'phishing-message', 'cheque'],
     acceptedIds: ['bank-statement', 'phishing-message'],
+    slotStyle: 'labelled',
+    acceptedWord: 'attached',
     feedback: {
       cheque:
-        'The cheque’s returned-payment issue has already been explained — it isn’t evidence for this report.',
+        'Not needed. The cheque’s returned payment has already been explained — it isn’t evidence for this report.',
     },
-    successText: 'Both pieces of evidence are attached.',
+    successText: 'Both pieces of evidence are attached to the incident report.',
     hints: [],
   },
   {
@@ -305,8 +320,11 @@ export const tasks: Task[] = z.array(taskSchema).parse([
     prompt: 'REVIEW INCIDENT REPORT',
     detail: 'Check that both pieces of evidence are attached before submitting.',
     requiredEvidenceIds: ['bank-statement', 'phishing-message'],
+    missingEvidenceText:
+      'This report can’t be submitted yet — evidence is missing. Attach both pieces of evidence first.',
+    // Submitted, not solved: the fraud is suspected, and it is the bank's job to investigate.
     successText:
-      'Report submitted for investigation. Ananya has been notified — well done, Officer.',
+      'Report submitted for investigation. The bank will now look into the suspected fraud — nothing has been proven yet. Ananya has been notified. Well done, Officer.',
     hints: [],
   },
 ]);

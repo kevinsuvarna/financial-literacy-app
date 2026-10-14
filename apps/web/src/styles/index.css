@@ -187,6 +187,29 @@
     }
   }
 
+  /* One piece of confetti falling the height of whatever it is laid over. */
+  --animate-confetti: confetti-fall 3s linear both;
+
+  @keyframes confetti-fall {
+    0% {
+      top: -6%;
+      transform: translateX(0) rotate(0deg);
+    }
+    25% {
+      transform: translateX(14px) rotate(170deg);
+    }
+    50% {
+      transform: translateX(-10px) rotate(330deg);
+    }
+    75% {
+      transform: translateX(12px) rotate(510deg);
+    }
+    100% {
+      top: 106%;
+      transform: translateX(0) rotate(720deg);
+    }
+  }
+
   @keyframes ink-draw {
     from {
       stroke-dashoffset: 1;
@@ -353,6 +376,28 @@
 /* Phosphor bloom: text that glows in its own colour. */
 @utility text-glow {
   text-shadow: 0 0 0.45em color-mix(in srgb, currentColor 60%, transparent);
+}
+
+/* Print what is on screen in its own colours, where the browser would otherwise drop them. */
+@utility print-colors {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/*
+ * Printing is for the certificate: one landscape page, dark ink on white paper. The game's
+ * chrome hides itself with `print:hidden`.
+ */
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 12mm;
+  }
+
+  body {
+    background-color: white;
+    color: var(--color-ink);
+  }
 }
 
 @layer base {
