@@ -44,17 +44,16 @@ test('START TRAINING unlocks audio and loads the sounds', async ({ page }) => {
 
 test('the mute toggle is remembered across reloads', async ({ page }) => {
   await page.goto('/');
-  const mute = page.getByRole('button', { name: 'Mute sound' });
-  await expect(mute).toHaveAttribute('aria-pressed', 'false');
-  await expect(mute).toContainText('Sound on');
+  // Named by what it shows, so the name changes with the state.
+  const toggle = page.getByRole('button', { name: /^Sound o(n|ff)$/ });
+  await expect(toggle).toHaveAccessibleName('Sound on');
 
-  await mute.click();
-  await expect(mute).toHaveAttribute('aria-pressed', 'true');
-  await expect(mute).toContainText('Sound off');
+  await toggle.click();
+  await expect(toggle).toHaveAccessibleName('Sound off');
 
   await page.reload();
-  await expect(mute).toHaveAttribute('aria-pressed', 'true');
+  await expect(toggle).toHaveAccessibleName('Sound off');
 
-  await mute.click();
-  await expect(mute).toHaveAttribute('aria-pressed', 'false');
+  await toggle.click();
+  await expect(toggle).toHaveAccessibleName('Sound on');
 });

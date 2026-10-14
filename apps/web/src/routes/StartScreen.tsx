@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { copy } from '@app/content';
 import { playSound, unlockAudio } from '../audio/sounds';
+import { focusFirstHeading } from '../components/focus';
 import { Button, ButtonLink, FadeIn, Heading, Text } from '../components/ui';
 import { useGame } from '../game';
 import { CallDialogue } from '../intro/CallDialogue';
@@ -18,6 +19,12 @@ export function StartScreen() {
   const game = useGame();
   const navigate = useNavigate();
   const [step, setStep] = useState<IntroStep>('title');
+  const stepRef = useRef<HTMLDivElement>(null);
+
+  // Each step of the intro replaces the last, button and all: take focus to its title.
+  useEffect(() => {
+    if (step !== 'title') focusFirstHeading(stepRef.current);
+  }, [step]);
 
   function startTraining() {
     // This click is the player's first interaction, which is what lets the browser play audio.
@@ -62,7 +69,9 @@ export function StartScreen() {
   if (step === 'ringing') {
     return (
       <FadeIn key="ringing">
-        <IncomingCall onAnswer={() => setStep('call')} />
+        <div ref={stepRef}>
+          <IncomingCall onAnswer={() => setStep('call')} />
+        </div>
       </FadeIn>
     );
   }
@@ -70,14 +79,18 @@ export function StartScreen() {
   if (step === 'call') {
     return (
       <FadeIn key="call">
-        <CallDialogue onContinue={() => setStep('assigned')} />
+        <div ref={stepRef}>
+          <CallDialogue onContinue={() => setStep('assigned')} />
+        </div>
       </FadeIn>
     );
   }
 
   return (
     <FadeIn key="assigned">
-      <CaseAssigned onOpen={openCaseFile} />
+      <div ref={stepRef}>
+        <CaseAssigned onOpen={openCaseFile} />
+      </div>
     </FadeIn>
   );
 }

@@ -277,6 +277,9 @@ export function TapTask({ task }: { task: TaskOfKind<'tap'> }) {
           <motion.div
             ref={lensRef}
             aria-hidden="true"
+            // Keyboard users inspect the details directly (Tab, Enter); the loupe is for
+            // pointers and fingers, so it is kept out of the Tab order too.
+            tabIndex={-1}
             data-testid="loupe"
             drag
             dragConstraints={dragBounds}

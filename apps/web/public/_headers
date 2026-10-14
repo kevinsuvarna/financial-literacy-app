@@ -1,0 +1,22 @@
+# Cloudflare Pages response headers. (Copied into dist/ by the build; ignored by `vite preview`.)
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  X-Frame-Options: DENY
+  Cross-Origin-Opener-Policy: same-origin
+  # The game uses the camera, on this site only, to read QR codes; it uses nothing else.
+  Permissions-Policy: camera=(self), microphone=(), geolocation=(), payment=(), usb=()
+
+# Built assets have content hashes in their names: they never change, so cache them for good.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# The service worker and what tells it about updates must always be fetched fresh, or players
+# could be stuck on an old version of the game.
+/sw.js
+  Cache-Control: no-cache
+/registerSW.js
+  Cache-Control: no-cache
+/manifest.webmanifest
+  Cache-Control: no-cache

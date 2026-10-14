@@ -3,20 +3,18 @@ import { setMuted } from '../audio/sounds';
 import { useMuted } from '../audio/useMuted';
 import { Button, SoundOffIcon, SoundOnIcon } from './ui';
 
-/** A toggle button: its name stays "Mute sound" and `aria-pressed` says whether it is on. */
+/**
+ * Turns the game's sound on and off. Its name is exactly what it shows — "Sound on" or "Sound
+ * off" — so someone using voice control can say what they see, and a screen reader hears the
+ * same state that is on screen.
+ */
 export function SoundToggle() {
   const muted = useMuted();
 
   return (
-    <Button
-      variant="secondary"
-      size="sm"
-      aria-label={copy.sound.mute}
-      aria-pressed={muted}
-      onClick={() => setMuted(!muted)}
-    >
+    <Button variant="secondary" size="sm" onClick={() => setMuted(!muted)}>
       {muted ? <SoundOffIcon /> : <SoundOnIcon />}
-      <span aria-hidden="true">{muted ? copy.sound.off : copy.sound.on}</span>
+      {muted ? copy.sound.off : copy.sound.on}
     </Button>
   );
 }

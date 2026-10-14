@@ -22,8 +22,8 @@ export function ChequeFace({
   checkedZoneIds = [],
 }: ChequeFaceProps) {
   return (
-    <div className="absolute inset-0 rounded-card border-2 border-line bg-surface-sunken text-ink">
-      <span className="absolute top-[3%] left-[8%] font-display text-xs font-bold tracking-widest">
+    <div className="@container absolute inset-0 rounded-card border-2 border-line bg-surface-sunken text-ink">
+      <span className="absolute top-[3%] left-[8%] font-display text-cheque font-bold tracking-widest">
         {copy.cheque.bank}
       </span>
       {chequeHitZones.map((zone) => {
@@ -35,14 +35,14 @@ export function ChequeFace({
             data-zone={zone.id}
             style={zoneStyle(zone)}
             className={cx(
-              'absolute flex items-center gap-1.5 overflow-hidden rounded-sm border px-2 text-xs leading-tight',
+              'absolute flex items-center gap-1.5 overflow-hidden rounded-sm border px-2 text-cheque',
               mismatch && 'border-2 border-clue bg-clue-soft font-bold',
               checked && 'border-dashed border-line bg-surface text-ink-muted',
               !mismatch && !checked && 'border-dashed border-ink-muted bg-surface',
               glowingZoneIds.includes(zone.id) && 'animate-glow ring-2 ring-gold/70',
             )}
           >
-            <span className="shrink-0 text-[0.625rem] tracking-wide text-ink-muted uppercase">
+            <span className="shrink-0 text-cheque-caption tracking-wide text-ink-muted uppercase">
               {zone.caption}
             </span>
             <span className="truncate">{chequeFieldValues[zone.id]}</span>

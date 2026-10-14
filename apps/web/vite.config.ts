@@ -22,12 +22,31 @@ export default defineConfig({
         theme_color: '#0b1440',
         background_color: '#0b1440',
         display: 'standalone',
+        start_url: '/',
+        scope: '/',
+        // Tablets are held either way round; laptops don't turn.
+        orientation: 'any',
+        icons: [
+          { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+          {
+            src: '/icons/icon-maskable-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
+          },
+          { src: '/icon.svg', sizes: 'any', type: 'image/svg+xml' },
+        ],
       },
       workbox: {
-        // Precache the QR decoder's WASM, the sound effects and the cards' QR codes too, so
-        // scanning, sound and the print sheets all work offline.
-        globPatterns: ['**/*.{js,css,html,wasm,wav,svg}'],
+        // Full offline play: everything the game can load is precached on the first visit —
+        // the app, the QR decoder's WASM, every sound, the cards' QR codes and the icons — so a
+        // classroom with no connection can play from start to certificate.
+        globPatterns: ['**/*.{js,css,html,wasm,wav,svg,png,webmanifest}'],
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
+        // Every route is the same single page: open /play or /print offline and get the app.
+        navigateFallback: 'index.html',
+        cleanupOutdatedCaches: true,
       },
     }),
     ...(useLanHttps ? [basicSsl()] : []),

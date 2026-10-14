@@ -1,0 +1,7 @@
+{
+  // Cloudflare Pages: the built game is a static site. See apps/web/README.md for deploying.
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "save-the-savings-account",
+  "pages_build_output_dir": "./dist",
+  "compatibility_date": "2024-09-23",
+}

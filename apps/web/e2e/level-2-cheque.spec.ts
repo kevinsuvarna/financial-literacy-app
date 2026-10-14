@@ -151,8 +151,14 @@ test('with reduced motion the reveal appears without animating', async ({ page }
 
   await zone(page, 'Payee Name').focus();
   await page.keyboard.press('Tab');
-  // The loupe jumps to the focused detail rather than gliding.
-  expect(await distanceBetween(loupe(page), printed(page, 'date'))).toBeLessThan(3);
+  // The loupe jumps to the focused detail rather than gliding: it is there within a frame or
+  // two (it is drawn on the next animation frame), well before a 250 ms glide could finish.
+  await expect
+    .poll(() => distanceBetween(loupe(page), printed(page, 'date')), {
+      intervals: [16],
+      timeout: 150,
+    })
+    .toBeLessThan(3);
 
   await zone(page, 'Amount in Figures').click();
   await expect(redString(page).locator('path')).toHaveCSS(

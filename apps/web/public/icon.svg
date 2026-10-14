@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>Save the Savings Account</title>
+  <rect width="512" height="512" rx="112" fill="#0b1440"/>
+  <circle cx="226" cy="226" r="150" fill="#16215a"/>
+  <circle cx="226" cy="226" r="84" fill="#c9a24b"/>
+  <circle cx="226" cy="226" r="62" fill="none" stroke="#0b1440" stroke-width="10"/>
+  <path d="M196 196h60M196 220h60M218 196c34 0 34 48 0 48h-22l56 52" fill="none" stroke="#0b1440" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="226" cy="226" r="150" fill="none" stroke="#f7f0df" stroke-width="30"/>
+  <path d="M336 336l96 96" stroke="#1aa7a1" stroke-width="48" stroke-linecap="round"/>
+</svg>

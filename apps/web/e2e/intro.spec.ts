@@ -24,8 +24,12 @@ test('the phone rings until the call is answered with a full swipe', async ({ pa
   await expectPrompt(page, 'Ananya');
 
   // A half-hearted swipe springs back and the phone keeps ringing.
+  const handleX = async () => (await page.getByTestId('swipe-handle').boundingBox())?.x ?? NaN;
+  const restingX = await handleX();
   await swipe(page, 0.3);
   await expect(page.getByText('Incoming call')).toBeVisible();
+  // Let it finish springing back before the next swipe is measured from it.
+  await expect.poll(handleX).toBeCloseTo(restingX, 0);
 
   await swipe(page, 1);
   await expect(page.getByText('On the line')).toBeVisible();

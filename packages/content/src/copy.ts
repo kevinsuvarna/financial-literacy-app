@@ -89,7 +89,6 @@ export const copy = {
   },
 
   sound: {
-    mute: 'Mute sound',
     on: 'Sound on',
     off: 'Sound off',
   },
@@ -229,9 +228,10 @@ export const copy = {
     keypadHelp:
       'Press the keys, or type on your keyboard: number keys to enter a digit, Backspace to delete one, and Enter to try the passkey.',
     deleteKey: 'DEL',
-    deleteLabel: 'Delete the last digit',
+    // Each starts with what the key shows, so it can be said aloud to voice control.
+    deleteLabel: 'DEL — delete the last digit',
     enterKey: 'ENT',
-    enterLabel: 'Enter the passkey',
+    enterLabel: 'ENT — enter the passkey',
     folder: 'EVIDENCE',
     folderState: (state: string) => `Evidence folder: ${state}`,
     locked: 'LOCKED',
