@@ -655,7 +655,7 @@ More game-logic guesses (confirm or correct):
   - The camera tests feed Chromium a fake webcam video of a printed card. They check that it's read once, that the feed stays hidden, that the scanner restarts on the next table scene and stops off them, and the blocked-camera and no-camera fallbacks.
 - Not testable here: real-camera scanning on an iPad in a Safari tab and in Home Screen mode (Section 11). That needs the owner's device, over the LAN HTTPS address printed by `npm run dev`.
 
-More guesses (confirm or correct):
+More guesses: 16–20 confirmed by the owner (2026-10-14).
 
 16. After the first TURN ON SCANNER tap, later table scenes switch the scanner on by themselves until the page is reloaded. The camera stays on for 1.5 s between back-to-back table scenes and is off everywhere else.
 17. A card held in view counts once, and counts again after 2 s out of view. A card read while a pop-up is open counts as soon as the pop-up closes.
