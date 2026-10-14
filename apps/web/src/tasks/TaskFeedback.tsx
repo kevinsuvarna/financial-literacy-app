@@ -24,8 +24,10 @@ export function TaskFeedback({ task, reviewing, onFinishLevel }: TaskFeedbackPro
   const attempts = game.getAttempts(task.id);
   const hint = solved ? null : game.getCurrentHint(task.id);
   // The highlighter and cheque tasks stick their wrong-answer feedback onto the thing that was
-  // marked or tapped, so repeating it down here would say everything twice.
-  const showsRetryFeedback = task.kind !== 'highlight' && task.kind !== 'tap';
+  // marked or tapped, and the passkey terminal prints its own on its screen — so repeating it
+  // down here would say everything twice.
+  const showsRetryFeedback =
+    task.kind !== 'highlight' && task.kind !== 'tap' && task.kind !== 'passkey';
   // A choice that moved the story on as a lesson (clicking the phishing link) gets its debrief
   // on a plain card — no CORRECT stamp, no green — because it wasn't the right call.
   const lesson =

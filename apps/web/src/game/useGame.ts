@@ -7,6 +7,7 @@ import {
   getAttempts,
   getCurrentHint,
   getLastFeedback,
+  getLastSubmission,
   getLevelEntryTaskId,
   getLevelStatus,
   getScannedIds,
@@ -45,6 +46,7 @@ export function useGame() {
     getAttempts: (taskId: string) => getAttempts(context, taskId),
     getScannedIds: (taskId: string) => getScannedIds(context, taskId),
     getLastFeedback: (taskId: string) => getLastFeedback(context, taskId),
+    getLastSubmission: (taskId: string) => getLastSubmission(context, taskId),
     getCurrentHint: (taskId: string) => getCurrentHint(context, taskId),
     isTaskReachable: (taskId: string) => isTaskReachable(context, taskId),
 

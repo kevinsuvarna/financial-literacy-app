@@ -4,7 +4,8 @@ import { ChequeView } from './ChequeView';
 import { PhishingMessageView } from './PhishingMessageView';
 import { StatementView } from './StatementView';
 
-function Reference({ reference }: { reference: TaskReference }) {
+/** A read-only copy of one document. */
+export function ReferenceDocument({ reference }: { reference: TaskReference }) {
   switch (reference) {
     case 'statement':
       return <StatementView />;
@@ -19,5 +20,5 @@ function Reference({ reference }: { reference: TaskReference }) {
 
 /** Read-only copies of the documents a task asks the player to consult. */
 export function TaskReferences({ references }: { references: TaskReference[] }) {
-  return references.map((reference) => <Reference key={reference} reference={reference} />);
+  return references.map((reference) => <ReferenceDocument key={reference} reference={reference} />);
 }

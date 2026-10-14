@@ -15,6 +15,9 @@ const SOUNDS = [
   'ping',
   'drain',
   'reveal',
+  'key',
+  'boot',
+  'unlock',
 ];
 
 test('every placeholder sound is served from /audio', async ({ request }) => {

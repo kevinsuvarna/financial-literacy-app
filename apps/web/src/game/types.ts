@@ -8,6 +8,12 @@ export interface TaskProgress {
   scannedIds: string[];
   /** The most recent feedback/success text for the viewed task, for the UI to render. */
   lastFeedback: string | null;
+  /**
+   * The last wrong code entered at a passkey task — what its lights and hints describe. Always
+   * digits (see `isPasskeyAttempt`), and cleared once the task is solved. Saves from before
+   * this field existed don't have it, so read it through `getLastSubmission`.
+   */
+  lastSubmission: string | null;
 }
 
 export interface GameContext {

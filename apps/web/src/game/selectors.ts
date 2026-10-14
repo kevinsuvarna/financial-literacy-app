@@ -70,6 +70,11 @@ export function getLastFeedback(context: GameContext, taskId: string): string | 
   return context.tasks[taskId]?.lastFeedback ?? null;
 }
 
+/** The last wrong code entered at a passkey task, if there has been one. */
+export function getLastSubmission(context: GameContext, taskId: string): string | null {
+  return context.tasks[taskId]?.lastSubmission ?? null;
+}
+
 /** The hint to show for the task's current attempt count, escalating through `task.hints`. */
 export function getCurrentHint(context: GameContext, taskId: string): string | null {
   const task = getTask(taskId);

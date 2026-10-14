@@ -30,6 +30,16 @@
   --color-cork: #c49a6c;
   --color-cork-edge: #7d5730;
 
+  /* The evidence terminal: the glass of a CRT, its phosphor text, and the plastic around it. */
+  --color-crt: #04140b;
+  --color-crt-glow: #0e3522;
+  --color-phosphor: #74ffa3;
+  --color-phosphor-dim: #3f9f65;
+  --color-phosphor-amber: #ffc857;
+  --color-phosphor-alert: #ff8273;
+  --color-casing: #d8cfb7;
+  --color-casing-shade: #a79c7e;
+
   --font-display: 'Courier New', ui-monospace, monospace;
   --font-body: ui-sans-serif, system-ui, sans-serif;
 
@@ -72,6 +82,110 @@
   /* A highlighter stroke drawing itself; the fading variant is a wrong guess wearing off. */
   --animate-ink-draw: ink-draw 0.4s ease-out both;
   --animate-ink-fade: ink-draw 0.4s ease-out both, fade-out 0.6s ease-in 1.1s forwards;
+
+  /* A picture tube warming up: a bright line that opens out into the picture. */
+  --animate-crt-on: crt-on 0.65s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  /* Slow and slight on purpose — a tube that isn't quite steady, never a flash. */
+  --animate-crt-flicker: crt-flicker 5s steps(1, end) infinite;
+  --animate-blink: blink 1.1s steps(1, end) infinite;
+  /* Two names for one shake: swapping between them replays it without remounting anything. */
+  --animate-shake: shake 0.45s ease-in-out both;
+  --animate-shake-again: shake-again 0.45s ease-in-out both;
+
+  @keyframes crt-on {
+    0% {
+      transform: scale(0.05, 0.01);
+      filter: brightness(2.2);
+    }
+    40% {
+      transform: scale(1, 0.01);
+      filter: brightness(2.2);
+    }
+    100% {
+      transform: scale(1, 1);
+      filter: brightness(1);
+    }
+  }
+
+  @keyframes crt-flicker {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    7% {
+      opacity: 0.94;
+    }
+    9% {
+      opacity: 1;
+    }
+    43% {
+      opacity: 0.96;
+    }
+    45% {
+      opacity: 1;
+    }
+    78% {
+      opacity: 0.92;
+    }
+    80% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes blink {
+    0%,
+    49% {
+      opacity: 1;
+    }
+    50%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes shake {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    15% {
+      transform: translate(-10px, 2px);
+    }
+    30% {
+      transform: translate(9px, -2px);
+    }
+    45% {
+      transform: translate(-7px, 1px);
+    }
+    60% {
+      transform: translate(5px, 0);
+    }
+    80% {
+      transform: translate(-2px, 0);
+    }
+  }
+
+  @keyframes shake-again {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    15% {
+      transform: translate(-10px, 2px);
+    }
+    30% {
+      transform: translate(9px, -2px);
+    }
+    45% {
+      transform: translate(-7px, 1px);
+    }
+    60% {
+      transform: translate(5px, 0);
+    }
+    80% {
+      transform: translate(-2px, 0);
+    }
+  }
 
   @keyframes ink-draw {
     from {
@@ -220,6 +334,25 @@
     color-mix(in srgb, var(--color-on-canvas) 28%, transparent) 0 1px,
     transparent 1px 3px
   );
+}
+
+/* The dark lines between a CRT's rows of pixels. */
+@utility bg-scanlines {
+  background-image: repeating-linear-gradient(
+    0deg,
+    color-mix(in srgb, var(--color-crt) 40%, transparent) 0 1px,
+    transparent 1px 3px
+  );
+}
+
+/* CRT glass: brightest in the middle, falling away to the corners. */
+@utility bg-crt-glass {
+  background-image: radial-gradient(ellipse at center, var(--color-crt-glow), var(--color-crt) 78%);
+}
+
+/* Phosphor bloom: text that glows in its own colour. */
+@utility text-glow {
+  text-shadow: 0 0 0.45em color-mix(in srgb, currentColor 60%, transparent);
 }
 
 @layer base {

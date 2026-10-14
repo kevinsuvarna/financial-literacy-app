@@ -56,8 +56,9 @@ test('plays the whole mission from the start screen to the certificate', async (
   await nextTask(page);
 
   await expectPrompt(page, 'THREE CLUES HOLD THE PASSKEY');
-  await page.getByRole('textbox', { name: 'Three-digit passkey' }).fill('109');
-  await page.getByRole('button', { name: 'UNLOCK' }).click();
+  await page.keyboard.type('109');
+  await page.keyboard.press('Enter');
+  await expect(page.getByTestId('terminal-status')).toHaveText('ACCESS GRANTED');
   await nextTask(page);
 
   await expectPrompt(page, 'SCAN EVIDENCE');

@@ -1,10 +1,11 @@
 import { createActor, type Actor } from 'xstate';
 import { describe, expect, it } from 'vitest';
+import { derivePasskey } from '@app/content';
 import { gameMachine } from './machine';
 import {
   getAttempts,
-  getCurrentHint,
   getLastFeedback,
+  getLastSubmission,
   getLevelStatus,
   getTaskStatus,
 } from './selectors';
@@ -351,29 +352,73 @@ describe('passkey task (l3-t3-evidence-passkey)', () => {
     return actor;
   }
 
-  it('escalates through hints on repeated wrong attempts, clamped to the last hint', () => {
+  const taskId = 'l3-t3-evidence-passkey';
+  const progressOf = (actor: GameActor) => actor.getSnapshot().context.tasks[taskId];
+
+  it('escalates the hint with each wrong code: the order, then the lights, then a source', () => {
     const actor = toPasskey();
 
     actor.send({ type: 'SUBMIT_PASSKEY', code: '000' });
-    expect(getAttempts(actor.getSnapshot().context, 'l3-t3-evidence-passkey')).toBe(1);
-    expect(getCurrentHint(actor.getSnapshot().context, 'l3-t3-evidence-passkey')).toMatch(
-      /closing balance/i,
-    );
+    expect(getAttempts(actor.getSnapshot().context, taskId)).toBe(1);
+    expect(getLastSubmission(actor.getSnapshot().context, taskId)).toBe('000');
+    expect(getLastFeedback(actor.getSnapshot().context, taskId)).toMatch(/Check the order/);
 
     actor.send({ type: 'SUBMIT_PASSKEY', code: '111' });
-    expect(getCurrentHint(actor.getSnapshot().context, 'l3-t3-evidence-passkey')).toMatch(
-      /cheque/i,
+    expect(getLastSubmission(actor.getSnapshot().context, taskId)).toBe('111');
+    expect(getLastFeedback(actor.getSnapshot().context, taskId)).toMatch(
+      /lights under your last code/,
     );
 
-    actor.send({ type: 'SUBMIT_PASSKEY', code: '222' });
-    expect(getCurrentHint(actor.getSnapshot().context, 'l3-t3-evidence-passkey')).toMatch(
-      /suspicious transaction/i,
+    // 1 0 2: only the third digit is wrong, so the hint names where the third digit comes from.
+    actor.send({ type: 'SUBMIT_PASSKEY', code: '102' });
+    expect(getLastFeedback(actor.getSnapshot().context, taskId)).toMatch(
+      /third digit is not right yet.*CAMS TEL/,
     );
 
-    const thirdHint = getCurrentHint(actor.getSnapshot().context, 'l3-t3-evidence-passkey');
-    actor.send({ type: 'SUBMIT_PASSKEY', code: '333' });
-    expect(getAttempts(actor.getSnapshot().context, 'l3-t3-evidence-passkey')).toBe(4);
-    expect(getCurrentHint(actor.getSnapshot().context, 'l3-t3-evidence-passkey')).toBe(thirdHint);
+    // 1 2 9: now it is the second digit, from the cheque. Still the last kind of hint.
+    actor.send({ type: 'SUBMIT_PASSKEY', code: '129' });
+    expect(getAttempts(actor.getSnapshot().context, taskId)).toBe(4);
+    expect(getLastFeedback(actor.getSnapshot().context, taskId)).toMatch(
+      /second digit is not right yet.*cheque/,
+    );
+    expect(getTaskStatus(actor.getSnapshot().context, taskId)).toBe('inProgress');
+  });
+
+  it('never puts a digit in a hint', () => {
+    const actor = toPasskey();
+    for (const code of ['000', '901', '190', '108', '209', '119']) {
+      actor.send({ type: 'SUBMIT_PASSKEY', code });
+      expect(getLastFeedback(actor.getSnapshot().context, taskId), code).toMatch(/^\D+$/);
+    }
+  });
+
+  it('ignores anything that is not three digits — no attempt, nothing stored', () => {
+    const actor = toPasskey();
+    const before = progressOf(actor);
+
+    for (const code of ['', '10', '1090', 'abc', '1o9', ' 109', '10 9', 'hunter2']) {
+      actor.send({ type: 'SUBMIT_PASSKEY', code });
+    }
+
+    expect(progressOf(actor)).toEqual(before);
+    expect(getAttempts(actor.getSnapshot().context, taskId)).toBe(0);
+    expect(getLastSubmission(actor.getSnapshot().context, taskId)).toBeNull();
+  });
+
+  it('forgets the last wrong code once the right one is entered, and never stores that', () => {
+    const actor = toPasskey();
+    actor.send({ type: 'SUBMIT_PASSKEY', code: '901' });
+    actor.send({ type: 'SUBMIT_PASSKEY', code: derivePasskey() });
+
+    const { context } = actor.getSnapshot();
+    expect(getTaskStatus(context, taskId)).toBe('completed');
+    expect(getLastSubmission(context, taskId)).toBeNull();
+    expect(getLastFeedback(context, taskId)).toMatch(/Unlocked/);
+    expect(JSON.stringify(context.tasks[taskId])).not.toContain(derivePasskey());
+
+    // Solved is solved: a later wrong code changes nothing.
+    actor.send({ type: 'SUBMIT_PASSKEY', code: '000' });
+    expect(actor.getSnapshot().context.tasks[taskId]).toEqual(context.tasks[taskId]);
   });
 
   it('completes on the derived passkey', () => {

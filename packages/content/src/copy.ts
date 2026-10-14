@@ -1,3 +1,5 @@
+import type { TaskReference } from './tasks';
+
 /**
  * Every player-facing string that isn't tied to one task, artefact or document. Wording is
  * placeholder-quality where SPEC.md doesn't dictate it; the capitalised CTAs and headings are
@@ -186,8 +188,60 @@ export const copy = {
   },
 
   passkey: {
-    input: 'Three-digit passkey',
-    submit: 'UNLOCK',
+    terminal: 'Evidence terminal',
+    /** The start-up log, one line at a time. The last line is replaced once the code is in. */
+    boot: [
+      'LOTUS VALLEY BANK — EVIDENCE TERMINAL',
+      'MEMORY CHECK ........ OK',
+      'CASE FILE: ANANYA SHARMA ........ FOUND',
+    ],
+    folderLocked: 'EVIDENCE FOLDER ........ LOCKED',
+    folderUnlocked: 'EVIDENCE FOLDER ........ UNLOCKED',
+    enter: 'ENTER PASSKEY',
+    denied: 'ACCESS DENIED',
+    granted: 'ACCESS GRANTED',
+    /** Read out as the display changes, e.g. "Passkey display: 1, 0, blank". */
+    display: (cells: string[]) => `Passkey display: ${cells.join(', ')}`,
+    blank: 'blank',
+    hidden: 'hidden',
+    /** Shown in the display for a code that was accepted earlier and is no longer on screen. */
+    mask: '*',
+    lastCode: 'LAST CODE',
+    hintCount: (hintNumber: number, hintTotal: number) => `HINT ${hintNumber} OF ${hintTotal}`,
+    lights: 'Lights for your last code',
+    light: (position: string, digit: string, meaning: string) =>
+      `${position} digit, ${digit}: ${meaning}`,
+    grades: {
+      match: { symbol: '✓', legend: 'RIGHT PLACE', meaning: 'right digit, right place' },
+      misplaced: {
+        symbol: '↔',
+        legend: 'WRONG PLACE',
+        meaning: 'in the passkey, but in a different place',
+      },
+      miss: { symbol: '✕', legend: 'NOT IN PASSKEY', meaning: 'not in the passkey' },
+    },
+    keypad: 'Keypad',
+    keypadHelp:
+      'Press the keys, or type on your keyboard: number keys to enter a digit, Backspace to delete one, and Enter to try the passkey.',
+    deleteKey: 'DEL',
+    deleteLabel: 'Delete the last digit',
+    enterKey: 'ENT',
+    enterLabel: 'Enter the passkey',
+    folder: 'EVIDENCE',
+    folderState: (state: string) => `Evidence folder: ${state}`,
+    locked: 'LOCKED',
+    unlocked: 'UNLOCKED',
+    documents: 'CASE DOCUMENTS',
+    documentsHelp: 'Everything the three clues come from.',
+    lookHere: 'LOOK HERE',
+    /** How a hint names the document it points to, for the "show me" button. */
+    sources: {
+      statement: 'BANK STATEMENT',
+      cheque: 'CHEQUE',
+      'phishing-message': 'MESSAGE',
+      'balance-working': 'WORKING',
+    } satisfies Record<TaskReference, string>,
+    showSource: (document: string) => `SHOW ME THE ${document}`,
   },
 
   report: {

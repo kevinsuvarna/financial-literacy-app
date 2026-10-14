@@ -278,13 +278,10 @@ export const tasks: Task[] = z.array(taskSchema).parse([
     prompt: 'THREE CLUES HOLD THE PASSKEY',
     detail: 'Enter the last digit of each value, in this order:',
     steps: ['The closing balance.', 'The amount on the cheque.', 'The suspicious transaction.'],
-    references: ['statement', 'cheque'],
     successText: 'Unlocked! You’ve connected the key clues in this case.',
-    hints: [
-      'Start with the closing balance you worked out in Level 2 — use only its last digit.',
-      'The second digit is the last digit of the amount on the cheque.',
-      'The third digit is the last digit of the suspicious transaction — the Mobile Recharge to CAMS TEL.',
-    ],
+    // The documents this task shows, and its hints, come from the clues in passkey.ts: a hint
+    // here depends on the code that was entered, so it can't be a fixed list.
+    hints: [],
   },
   {
     id: 'l3-t4-scan-evidence',

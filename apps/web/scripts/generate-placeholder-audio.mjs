@@ -177,6 +177,40 @@ const sounds = {
       const strike = sine(880, t) * pluck(t, 7) * 0.2;
       return chord + strike;
     }),
+
+  // One chunky keypad key: a plastic clack with a low thock under it.
+  key: () =>
+    render(0.08, (t) => {
+      const clack = noise() * pluck(t, 130, 0.001) * 0.5;
+      const thock = sine(190, t) * pluck(t, 55, 0.002) * 0.5;
+      return clack + thock;
+    }),
+
+  // An old monitor switching on: a thump, the tube whining up to pitch, then a ready beep.
+  boot: () =>
+    render(1.1, (t) => {
+      const thump = sine(62, t) * pluck(t, 16, 0.002) * 0.6;
+      const whine = sine(900 + 2600 * Math.min(1, t / 0.55), t) * gate(t, 0.7, 0.08) * 0.05;
+      const beep = t >= 0.78 ? square(880, t) * gate(t - 0.78, 0.16) * 0.14 : 0;
+      return thump + (t < 0.7 ? whine : 0) + beep;
+    }),
+
+  // A lock giving way: two metal clicks, then a short rising pair.
+  unlock: () =>
+    mix(0.75, [
+      {
+        at: 0,
+        duration: 0.08,
+        voice: (t) => (noise() * 0.55 + sine(340, t) * 0.45) * pluck(t, 65, 0.001) * 0.7,
+      },
+      {
+        at: 0.13,
+        duration: 0.1,
+        voice: (t) => (noise() * 0.55 + sine(250, t) * 0.45) * pluck(t, 50, 0.001) * 0.8,
+      },
+      { at: 0.27, duration: 0.2, voice: bell(783.99, 14) },
+      { at: 0.37, duration: 0.38, voice: bell(1174.66, 8) },
+    ]),
 };
 
 mkdirSync(outputDir, { recursive: true });

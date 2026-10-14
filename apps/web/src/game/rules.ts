@@ -1,9 +1,11 @@
 import {
+  derivePasskey,
   getArtefact,
+  getPasskeyHint,
   getTask,
   isInteractiveTask,
+  isPasskeyAttempt,
   levels,
-  passkey as correctPasskey,
   tasks,
   type TaskKind,
 } from '@app/content';
@@ -25,6 +27,7 @@ export function createInitialContext(): GameContext {
       attempts: 0,
       scannedIds: [],
       lastFeedback: null,
+      lastSubmission: null,
     };
   });
   return {
@@ -185,16 +188,24 @@ export function handlePasskeySubmission(context: GameContext, code: string): Gam
   const progress = context.tasks[taskId];
   if (!task || !progress || task.kind !== 'passkey') return context;
   if (progress.status === 'completed' || progress.status === 'locked') return context;
+  // Only what the keypad can enter counts as an attempt. Anything else is dropped here, so no
+  // other text can ever be recorded as a "code" (CLAUDE.md rule 5).
+  if (!isPasskeyAttempt(code)) return context;
 
   const started = ensureInProgress(context, taskId);
-  if (code === correctPasskey) {
-    return completeTask(started, taskId, task.successText);
+  if (code === derivePasskey()) {
+    // The winning code itself is never stored.
+    const cleared = updateTaskProgress(started, taskId, { lastSubmission: null });
+    return completeTask(cleared, taskId, task.successText);
   }
 
+  // Each wrong code earns a stronger hint, worked out from that code — never the passkey.
   const attempts = (started.tasks[taskId]?.attempts ?? progress.attempts) + 1;
-  const hint =
-    task.hints.length > 0 ? task.hints[Math.min(attempts - 1, task.hints.length - 1)] : undefined;
-  return updateTaskProgress(started, taskId, { attempts, lastFeedback: hint ?? null });
+  return updateTaskProgress(started, taskId, {
+    attempts,
+    lastSubmission: code,
+    lastFeedback: getPasskeyHint(attempts, code)?.text ?? null,
+  });
 }
 
 export function getAttachedEvidence(context: GameContext): Set<string> {

@@ -19,6 +19,9 @@ const SOUNDS = {
   ping: { file: 'ping.wav', volume: 0.6 },
   drain: { file: 'drain.wav', volume: 0.6 },
   reveal: { file: 'reveal.wav', volume: 0.75 },
+  key: { file: 'key.wav', volume: 0.55 },
+  boot: { file: 'boot.wav', volume: 0.5 },
+  unlock: { file: 'unlock.wav', volume: 0.7 },
 } as const;
 
 export type SoundName = keyof typeof SOUNDS;
