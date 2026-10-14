@@ -1095,8 +1095,16 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       permissionCta: 'TURN ON SCANNER',
       holdHint: 'Hold the card up to the scanner',
       unknownQr: { title: 'HMM…', message: "That's not part of the case file, Officer." } satisfies Copy,
+      startingMessage: 'Starting the scanner…',
       fallbackTitle: 'SCANNER UNAVAILABLE',
       fallbackMessage: "The camera isn't available, so choose the card you're holding from the list instead.",
+      deniedTitle: 'SCANNER BLOCKED',
+      deniedMessage:
+        "The camera wasn't allowed, so choose the card you're holding from the list instead. To use the scanner, allow the camera in your browser settings, then try again.",
+      errorTitle: 'SCANNER STOPPED',
+      errorMessage: 'Something went wrong with the camera. Try again, or choose the card from the list.',
+      retryCta: 'TRY AGAIN',
+      useListCta: 'USE THE LIST INSTEAD',
       simulatedLabel: 'Simulated scan',
     },
 

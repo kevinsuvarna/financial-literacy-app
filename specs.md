@@ -473,7 +473,8 @@ Use fictional banking data throughout. Do not collect real banking credentials o
 QR generation and validation are fully automated. The project owner must never need to match codes to cards by hand.
 
 - Each QR encodes `https://<game-domain>/a/<artefact-id>`. If scanned with a normal phone camera, it opens a friendly page rather than gibberish.
-  - `<game-domain>` comes from the single constant `GAME_DOMAIN` in `src/content/gameData.ts`: `[GUESSED: save-the-savings.example]`. Set the real domain before printing. The scanner only accepts codes for this domain.
+  - `<game-domain>` comes from the single constant `GAME_DOMAIN` in `src/content/gameData.ts`: `[GUESSED: save-the-savings.example]`. Set the real domain before printing. The scanner only accepts codes for this domain. While it's a placeholder, `npm run print` marks every page and the guide as TEST PRINT.
+  - The command is `npm run print` (`scripts/print-artefacts.ts`). Codes use error correction level Q and print 3.4 cm wide on 90 × 58 mm cards, 8 per A4 page.
 - Validation (does this artefact answer the current task?) happens in the game logic, using the central content data.
 - One command produces:
   1. `print/artefacts.pdf`: print-ready A4 sheets with each QR placed inside its card layout, a clear label, and cut marks.
@@ -581,7 +582,7 @@ Scene types: `call` (phone call), `table` (cards on a table: camera active), `sc
 
 | Stage | What gets built | Images needed | Status |
 |---|---|---|---|
-| 0 | Full game logic, scanning, QR printing, placeholder UI for every screen | `01-start.png` (overall theme and mood only, not layout) | In progress: scaffold, content data module, game state core, placeholder UI and routing done (see 13.3). Camera scanning and QR printing to do. |
+| 0 | Full game logic, scanning, QR printing, placeholder UI for every screen | `01-start.png` (overall theme and mood only, not layout) | Built, awaiting owner confirmation (see 13.3). Real-iPad camera checks (Section 11) still to be done by the owner. |
 | 1 | Opening sequence | `01-start.png`, `02-call-ananya-1.png`, `03-case-assigned.png` | Not started |
 | 2 | Level 1 + progress tracker + feedback pop-ups | `04` to `07`, `22-feedback-popups.png` | Not started |
 | 3 | Case Board | `21-case-board.png` | Not started |
@@ -641,4 +642,26 @@ More game-logic guesses (confirm or correct):
 13. The fake website (14) stays open under the consequence pop-up. It closes when the player leaves Level 3, Task 1, and reloading on it returns to the phishing choice (13).
 14. A successful report submission goes straight to Report submitted (19), with no pop-up.
 15. The Case Board can be opened at any time. Before OPEN CASE FILE, every level shows as locked. The start screen adds RESUME CASE for returning players, and REPLAY MISSION clears all progress.
+
+**Stage 0, prompt 3 (2026-10-14): camera scanning and QR printing.** Images used: none.
+
+- Camera scanner (`src/scanner/`), active only on table scenes. It starts after the in-story explanation and a TURN ON SCANNER tap, using `facingMode: "user"`. The `<video>` is hidden but kept in the DOM (2 × 2 px, transparent, `playsinline`, `muted`), and decoding uses jsQR on frames scaled to 640 px, about 8 times a second.
+  - It recovers on `visibilitychange`, `pageshow`, `focus` and a camera track ending.
+  - It falls back to the card list when the camera is blocked or missing, and plays a chime and a flash on each read the game accepts.
+  - The jsQR decoder loads only once the scanner starts.
+- Home Screen mode: `public/manifest.webmanifest` (standalone, landscape) and the Apple meta tags in `index.html`.
+- `npm run print` writes `print/artefacts.pdf`, `print/qr/<L>-<T>_<artefact>.png` (17 codes) and `print/PRINTING.md`. The `print/` folder is generated and git-ignored.
+- Tests: `npm test` (101 unit, including decoding generated QR images and reading every printed PNG back), `npm run test:e2e` (7 Playwright).
+  - The camera tests feed Chromium a fake webcam video of a printed card. They check that it's read once, that the feed stays hidden, that the scanner restarts on the next table scene and stops off them, and the blocked-camera and no-camera fallbacks.
+- Not testable here: real-camera scanning on an iPad in a Safari tab and in Home Screen mode (Section 11). That needs the owner's device, over the LAN HTTPS address printed by `npm run dev`.
+
+More guesses (confirm or correct):
+
+16. After the first TURN ON SCANNER tap, later table scenes switch the scanner on by themselves until the page is reloaded. The camera stays on for 1.5 s between back-to-back table scenes and is off everywhere else.
+17. A card held in view counts once, and counts again after 2 s out of view. A card read while a pop-up is open counts as soon as the pop-up closes.
+18. The chime and flash play on every read the game accepts, right or wrong; correctness is shown by the pop-up.
+19. In production, the card list appears only when the camera is blocked or missing, or after USE THE LIST INSTEAD. In development it's always shown, for testing.
+20. Printed cards: 90 × 58 mm, QR 3.4 cm at error correction level Q. The cards show the card name, the task, the amount (closing-balance cards) and the code's address in small print. Owner-designed cards can use the PNGs instead.
+
+Missing assets: a real chime sound (the current one is synthesised), a Home Screen app icon (`apple-touch-icon`, 180 × 180 PNG), and the real `GAME_DOMAIN`.
 

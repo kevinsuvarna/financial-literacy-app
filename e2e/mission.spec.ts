@@ -4,10 +4,7 @@
  */
 import { expect, test, type Page } from '@playwright/test'
 import { GAME, formatRupees, type ArtefactId } from '../src/content/gameData'
-import { STORAGE_KEY, STORAGE_VERSION, type GameProgress } from '../src/state/gameStore'
-
-const dialog = (page: Page) => page.getByRole('dialog')
-const toast = (page: Page) => page.getByRole('status')
+import { closeDialog, closeToast, dialog, seedProgress } from './helpers'
 
 async function scan(page: Page, id: ArtefactId) {
   await page
@@ -16,32 +13,12 @@ async function scan(page: Page, id: ArtefactId) {
     .click()
 }
 
-async function closeDialog(page: Page, title?: string) {
-  if (title) await expect(dialog(page).getByRole('heading')).toHaveText(title)
-  await dialog(page).getByRole('button').click()
-  await expect(dialog(page)).toBeHidden()
-}
-
-async function closeToast(page: Page, text: string) {
-  await expect(toast(page)).toContainText(text)
-  await toast(page).getByRole('button').click()
-  await expect(toast(page)).toBeHidden()
-}
-
 async function startCase(page: Page) {
   await page.goto('/')
   await page.getByRole('button', { name: GAME.start.cta }).click()
   await expect(page.getByText(GAME.openingCall.disconnected)).toBeVisible()
   await page.getByRole('button', { name: GAME.ui.continue }).click()
   await page.getByRole('button', { name: GAME.caseAssigned.cta }).click()
-}
-
-/** Starts the page with saved progress, as if the player had played this far before. */
-async function seedProgress(page: Page, progress: GameProgress) {
-  await page.addInitScript(
-    ([key, value]) => window.localStorage.setItem(key, value),
-    [STORAGE_KEY, JSON.stringify({ state: progress, version: STORAGE_VERSION })] as const,
-  )
 }
 
 test('plays the whole mission with simulated scans', async ({ page }) => {

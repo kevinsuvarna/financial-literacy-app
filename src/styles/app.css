@@ -434,10 +434,113 @@ p {
   font-size: var(--size-ui);
 }
 
-/* Simulated scan: deliberately looks like a testing tool, not part of the desk. */
-.sim-panel {
+/* ─── Scanner (spec 10.2) ───────────────────────────────────────────────── */
+
+/* The live feed is never shown, but must stay in the DOM: tiny and transparent, never display: none. */
+.camera-feed {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  width: 2px;
+  height: 2px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.scanner-panel {
   flex: none;
   width: 270px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.scanner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 14px;
+  border: var(--outline) solid var(--ink);
+  border-radius: var(--radius-panel);
+  background: var(--paper-cream);
+  font-size: var(--size-small);
+  text-align: center;
+}
+
+.scanner-title {
+  font-family: var(--font-ui);
+  font-weight: var(--weight-ui);
+  font-size: var(--size-ui);
+}
+
+.scanner-link {
+  border: none;
+  background: none;
+  font-size: 13px;
+  text-decoration: underline;
+}
+
+.scanner-hint {
+  font-family: var(--font-ui);
+}
+
+/* Animated reticle in place of the hidden feed. */
+.reticle {
+  position: relative;
+  width: 170px;
+  height: 170px;
+  border-radius: 14px;
+  background:
+    linear-gradient(var(--ink), var(--ink)) top left / 34px 5px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) top left / 5px 34px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) top right / 34px 5px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) top right / 5px 34px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) bottom left / 34px 5px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) bottom left / 5px 34px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) bottom right / 34px 5px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) bottom right / 5px 34px no-repeat;
+  animation: reticle-pulse 1.6s ease-in-out infinite;
+}
+
+.reticle-line {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--thread-red);
+  animation: reticle-sweep 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes reticle-pulse {
+  50% {
+    scale: 0.94;
+  }
+}
+
+@keyframes reticle-sweep {
+  from {
+    top: 16px;
+  }
+  to {
+    top: calc(100% - 20px);
+  }
+}
+
+.scan-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background: var(--paper-cream);
+  pointer-events: none;
+}
+
+/* Simulated scan: deliberately looks like a testing tool, not part of the desk. */
+.sim-panel {
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: 8px;

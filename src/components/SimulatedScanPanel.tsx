@@ -16,7 +16,7 @@ export function SimulatedScanPanel({ task }: { task: ScanTask }) {
   const copy = GAME.ui.simulatedScan
 
   return (
-    <aside className="sim-panel" data-testid="simulated-scan" aria-labelledby="sim-panel-title">
+    <section className="sim-panel" data-testid="simulated-scan" aria-labelledby="sim-panel-title">
       <h2 id="sim-panel-title" className="sim-panel-title">
         {copy.title}
       </h2>
@@ -50,6 +50,6 @@ export function SimulatedScanPanel({ task }: { task: ScanTask }) {
       <button type="button" className="sim-button sim-button--wide" onClick={() => handle(scanQr(copy.unrelatedQrText))}>
         {copy.unrelated}
       </button>
-    </aside>
+    </section>
   )
 }

@@ -1,0 +1,9 @@
+{
+  "name": "Save the Savings Account",
+  "short_name": "Save Savings",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#052039",
+  "theme_color": "#052039"
+}

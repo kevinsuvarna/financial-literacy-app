@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { GAME, formatRupees, type GameTasks, type ScanTask, type TaskId } from '../content/gameData'
 import { Icon } from '../components/Icon'
-import { SimulatedScanPanel } from '../components/SimulatedScanPanel'
+import { ScannerPanel } from '../components/ScannerPanel'
 import { TaskScreen } from '../components/TaskScreen'
 import { isTaskCompleted, useGameStore } from '../state/gameStore'
 
@@ -11,7 +11,7 @@ const NO_ARTEFACTS: readonly string[] = []
 
 /**
  * Placeholder for the table scenes (04, 05, 06, 08, 17): cards on the desk, evidence slots for
- * tasks that collect several cards, and the simulated-scan panel.
+ * tasks that collect several cards, and the scanner. The only screens where the camera runs.
  */
 export function ScanTableScreen({ taskId, document }: { taskId: ScanTaskId; document?: ReactNode }) {
   const task: ScanTask = GAME.tasks[taskId]
@@ -19,7 +19,7 @@ export function ScanTableScreen({ taskId, document }: { taskId: ScanTaskId; docu
   const completed = useGameStore((s) => isTaskCompleted(s, taskId))
 
   return (
-    <TaskScreen taskId={taskId} aside={<SimulatedScanPanel task={task} />}>
+    <TaskScreen taskId={taskId} aside={<ScannerPanel task={task} />}>
       <div className="table-scene">
         {document}
         {task.collect && (
