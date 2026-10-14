@@ -1,5 +1,7 @@
-import { writeFakeCameraFile } from './fakeCamera';
+import { artefacts } from '@app/content';
+import { generateFakeCameraVideos } from '../../../scripts/lib/artefactAssets';
 
-export default function globalSetup(): void {
-  writeFakeCameraFile();
+/** Makes sure every artefact's fake-camera video exists and matches the registry. */
+export default async function globalSetup(): Promise<void> {
+  await generateFakeCameraVideos(artefacts);
 }

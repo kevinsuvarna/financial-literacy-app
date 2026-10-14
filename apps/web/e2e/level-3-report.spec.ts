@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { expect, test, type Page } from '@playwright/test';
+import { pdfPageSizesMm } from '../../../scripts/lib/pdf';
 import { expectPrompt, jumpToTask, nextTask, nextTaskButton, picker, scan } from './helpers';
 
 const STATEMENT = "Ananya's Bank Statement";
@@ -288,6 +289,9 @@ test('certificate: confetti, the stamped badge, print, a PNG to keep, and the wa
   await expect(page.getByRole('button', { name: 'PRINT CERTIFICATE' })).toBeHidden();
   await expect(page.getByRole('button', { name: 'DOWNLOAD PNG' })).toBeHidden();
   await expect(page.getByRole('link', { name: 'BACK TO CASE BOARD' })).toBeHidden();
+  // One landscape A4 page — the certificate's own page rule, not the card sheets' portrait one.
+  const printed = await page.pdf({ preferCSSPageSize: true });
+  expect(pdfPageSizesMm(printed)).toEqual([{ width: 297, height: 210 }]);
   await page.emulateMedia({ media: 'screen' });
 
   // The ways on: the Case Board, with every level complete…

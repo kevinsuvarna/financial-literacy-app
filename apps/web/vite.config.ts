@@ -24,8 +24,9 @@ export default defineConfig({
         display: 'standalone',
       },
       workbox: {
-        // Precache the QR decoder's WASM and the sound effects too, so both work offline.
-        globPatterns: ['**/*.{js,css,html,wasm,wav}'],
+        // Precache the QR decoder's WASM, the sound effects and the cards' QR codes too, so
+        // scanning, sound and the print sheets all work offline.
+        globPatterns: ['**/*.{js,css,html,wasm,wav,svg}'],
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
       },
     }),

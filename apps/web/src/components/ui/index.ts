@@ -9,6 +9,7 @@ export { HighlighterPen } from './HighlighterPen';
 export { InkStroke, PinTag, StickyNote } from './Marks';
 export { Notice, type NoticeTone } from './Notice';
 export { PaperThumbnail, Seal } from './Paper';
+export { CutCard, PrintSheet } from './Print';
 export { RedString } from './RedString';
 export {
   Casing,

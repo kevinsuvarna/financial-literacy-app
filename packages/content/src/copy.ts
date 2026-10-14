@@ -1,3 +1,4 @@
+import type { ArtefactKind } from './artefacts';
 import type { TaskReference } from './tasks';
 
 /**
@@ -14,6 +15,7 @@ export const copy = {
       'Welcome, Junior Bank Officer. Your training starts today — and your first case is already calling.',
     cta: 'START TRAINING',
     resume: 'RESUME CASE',
+    printCards: 'Print the artefact cards',
   },
 
   incomingCall: {
@@ -283,6 +285,29 @@ export const copy = {
     actionLabel: (action: string, label: string) => `${action}: ${label}`,
     tasksSolved: (solved: number, total: number) => `${solved} of ${total} tasks solved`,
     viewCertificate: 'VIEW CERTIFICATE',
+  },
+
+  print: {
+    heading: 'ARTEFACT CARDS',
+    intro:
+      'These are the cards the game is played with. Print every sheet on A4 at 100% scale (“actual size”, not “fit to page”), then cut each card out along its crop marks.',
+    sizeNote:
+      'Each code is at least 3 cm across. Printed smaller, it may not scan from arm’s length.',
+    print: 'PRINT',
+    back: 'BACK TO THE GAME',
+    sheet: (sheetNumber: number, sheetCount: number) => `Sheet ${sheetNumber} of ${sheetCount}`,
+    sheetNote: 'Print at 100% (actual size). Cut along the crop marks.',
+    qrAlt: (label: string) => `QR code for ${label}`,
+    /** What each kind of card is, printed small above its name. */
+    kinds: {
+      'account-type': 'Account type',
+      'identity-document': 'Identity document',
+      'bank-slip': 'Bank slip',
+      'balance-answer': 'Closing balance',
+      cheque: 'Case document',
+      statement: 'Case document',
+      evidence: 'Evidence',
+    } satisfies Record<ArtefactKind, string>,
   },
 
   certificate: {

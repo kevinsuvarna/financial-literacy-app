@@ -40,6 +40,22 @@
   --color-casing: #d8cfb7;
   --color-casing-shade: #a79c7e;
 
+  /*
+   * The print sheets, in real units: an A4 page and the cards cut from it. Two cards across
+   * and four down fill the page inside its margin. The QR image is 4 cm so that the code
+   * itself — the image less its quiet zone — is never under 3 cm.
+   */
+  --spacing-sheet-w: 210mm;
+  --spacing-sheet-h: 297mm;
+  --spacing-sheet-margin: 10mm;
+  --spacing-card-w: 90mm;
+  --spacing-card-h: 60mm;
+  --spacing-card-gap-x: 10mm;
+  --spacing-card-gap-y: 8mm;
+  --spacing-qr: 40mm;
+  --spacing-crop: 3mm;
+  --spacing-crop-gap: 1.5mm;
+
   --font-display: 'Courier New', ui-monospace, monospace;
   --font-body: ui-sans-serif, system-ui, sans-serif;
 
@@ -384,14 +400,31 @@
   print-color-adjust: exact;
 }
 
+/* Prints something on the card sheets' kind of page (see the @page rules below). */
+@utility page-sheets {
+  page: sheets;
+}
+
 /*
- * Printing is for the certificate: one landscape page, dark ink on white paper. The game's
- * chrome hides itself with `print:hidden`.
+ * Two things get printed, on two kinds of page. The certificate is what the game itself
+ * prints, so it gets the default: one landscape page with a margin. The artefact cards ask
+ * for their own by name: portrait sheets that are laid out to the millimetre and so bring
+ * their own margin. (Only the sheets are named. Naming a page forces a break wherever the
+ * name changes, and the certificate sits inside the game's layout, which would be left on
+ * blank pages of its own either side.)
+ *
+ * Either way it is dark ink on white paper, and the game's chrome hides itself with
+ * `print:hidden`.
  */
 @media print {
   @page {
     size: A4 landscape;
     margin: 12mm;
+  }
+
+  @page sheets {
+    size: A4 portrait;
+    margin: 0;
   }
 
   body {

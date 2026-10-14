@@ -51,6 +51,10 @@ export function StartScreen() {
             )}
           </div>
         )}
+        {/* For whoever is setting the game up: the cards have to be printed before it starts. */}
+        <ButtonLink to="/print" variant="quiet" size="sm">
+          {copy.start.printCards}
+        </ButtonLink>
       </FadeIn>
     );
   }
