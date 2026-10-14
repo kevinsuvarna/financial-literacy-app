@@ -361,7 +361,7 @@ Do not allow the player to skip required tasks or access locked future levels.
 
 The mockups in `/design/screens/` are the source of truth for all visuals and override any previously built screens. Section 13 maps each mockup to its route and game state.
 
-- **Target viewport (design canvas):** 1280 × 831 `[GUESSED: confirmed by 01-start.png, exported at 6048 × 3928 = 4.725 × this canvas]`
+- **Target viewport (design canvas):** 1280 × 831 `[GUESSED, now contradicted: the Figma frames are 1512 × 982. Every screen except 01 is exported at that size, and 01-start.png (6048 × 3928) is exactly 4 × 1512 × 982. Same aspect ratio, so only the canvas constant changes. Switch to 1512 × 982 when Stage 1 starts matching mockups.]`
 - **Scaling:** every screen is built on a fixed 1280 × 831 canvas, scaled proportionally to fit the device (letterboxed with the background colour if the aspect ratio differs). This keeps layouts identical to the mockups on every iPad and laptop.
 - **Filled-in typography and colour tokens are exact and locked.** Never substitute or approximate them. A token still marked `[FILL]` is guessed following Section 12.5.
 - Components use tokens only, never raw hex values or font names, so replacing a guessed value updates every screen at once.
@@ -551,13 +551,36 @@ Export each Figma frame with the file name below. The friendly name is what prom
 |---|---|---|---|---|---|---|
 | 01 | `01-start.png` | Start screen ("Save the Savings Account") | 3 | screen | `/` | Placeholder (Stage 0) |
 | 02 | `02-call-ananya-1.png` | Ananya's first phone call | 3 | call | `/call/ananya` | Placeholder (Stage 0) |
+| 02b | `02b-call-ananya-1-talking.png` | First call: "Something is wrong with my bank account" | 3 | call | same route, call step 2 | Mockup received |
+| 02c | `02c-call-ananya-1-talking.png` | First call: "someone is trying to steal my pocket money" + "Take note of clues" | 3 | call | same route, call step 3 | Mockup received |
+| 02d | `02d-call-ananya-1-connecting.png` | First call breaking up: "…I was checking my account and then-" | 3 | call | same route, call step 4 | Mockup received |
+| 02e | `02d-call-ananya-1-disconnected.png` | First call: CONNECTION LOST (file is named 02d; rename to 02e-…) | 3 | call | same route, call step 5 | Mockup received |
 | 03 | `03-case-assigned.png` | Case assigned ("Open Case File") | 3 | cinematic | `/case-assigned` | Placeholder (Stage 0) |
 | 04 | `04-L1T1-account-type.png` | Account type cards on table | 4, Task 1 | table | `/level-1/account-type` | Placeholder (Stage 0) |
+| 04a | `04a-L1T1-account-type-current-wrong.png` | Account type: Current scanned (NOT QUITE) | 4, Task 1 | table | same route, feedback | Mockup received |
+| 04b | `04b-L1T1-account-type-savings-correc.png` | Account type: Savings scanned (ACCOUNT IDENTIFIED) | 4, Task 1 | table | same route, feedback | Mockup received |
+| 04c | `04c-L1T1-account-type-fixed-wrong.png` | Account type: Fixed Deposit scanned (NOT QUITE) | 4, Task 1 | table | same route, feedback | Mockup received |
+| 04d | `04d-L1T1-account-type-recurring-wrong.png` | Account type: Recurring Deposit scanned (NOT QUITE) | 4, Task 1 | table | same route, feedback | Mockup received |
 | 05 | `05-L1T2-verify-identity.png` | Verify Identity (KYC cards on table) | 4, Task 2 | table | `/level-1/verify-identity` | Placeholder (Stage 0) |
+| 05b | `05b-L1T2-verify-identity-library-scanned.png` | KYC: Library card scanned (NOT QUITE) | 4, Task 2 | table | same route, feedback | Mockup received |
+| 05c | `05c-L1T2-verify-identity-pan-scanned.png` | KYC: PAN scanned first (VALID, SCAN NEXT) | 4, Task 2 | table | same route, feedback | Mockup received |
+| 05d | `05d-L1T2-verify-identity-aadhaar-scanned.png` | KYC: Aadhaar scanned, both done (VALID, NEXT CLUE) | 4, Task 2 | table | same route, feedback | Mockup received |
+| 05e | `05e-L1T2-verify-identity-passport-scanned.png` | KYC: Expired passport scanned (NOT QUITE) | 4, Task 2 | table | same route, feedback | Mockup received |
 | 06 | `06-L1T3-withdrawal-slip.png` | Deposit vs withdrawal slips on table | 4, Task 3 | table | `/level-1/withdrawal-slip` | Placeholder (Stage 0) |
 | 07 | `07-L1-complete.png` | Level 1 complete | 4 | cinematic | `/level-1/complete` | Placeholder (Stage 0) |
 | 08 | `08-L2T1-closing-balance.png` | Closing balance (statement + answer cards) | 5, Task 1 | table | `/level-2/closing-balance` | Placeholder (Stage 0) |
+| 08 (base) | `L3-T4_bank-statement.png` | Closing balance: statement on the desk (misnamed; rename to 08-L2T1-closing-balance.png) | 5, Task 1 | table | same route | Mockup received |
+| 08b | `08b-L2T1-closing-balance-statement-wrong.png` | Closing balance: ₹5,452 scanned (NOT QUITE) | 5, Task 1 | table | same route, feedback | Mockup received |
+| 08c | `08c-L2T1-closing-balance-statement-right.png` | Closing balance: correct card (CORRECT). Shows ₹3,502, which contradicts the statement; see 13.3 | 5, Task 1 | table | same route, feedback | Mockup received |
+| 08d | `08d-L2T1-closing-balance-statement-wrong.png` | Closing balance: ₹2,402 scanned (NOT QUITE, forgot interest) | 5, Task 1 | table | same route, feedback | Mockup received |
+| 08e | `08e-L2T1-closing-balance-statement-wrong.png` | Closing balance: ₹3,502 scanned (NOT QUITE). Same amount 08c marks correct | 5, Task 1 | table | same route, feedback | Mockup received |
 | 09 | `09-L2T2-cheque.png` | Cheque investigation | 5, Task 2 | screen | `/level-2/cheque` | Placeholder (Stage 0) |
+| 09 (clue) | `09-L2T2-cheque-clue.png` | "WAIT… LOOK AT THIS": statement with the cheque rows highlighted, CHECK CHEQUE (new screen before the cheque) | 5, Task 2 | screen | new route needed | Mockup received |
+| 09b | `09b-L2T2-cheque.png` | Cheque investigation: "CAN YOU SPOT WHAT'S WRONG IN HER CHEQUE?" | 5, Task 2 | screen | `/level-2/cheque` | Mockup received |
+| 09c | `09c-L2T2-cheque-name-tapped.png` | Cheque: payee tapped ("looks right", TRY AGAIN) | 5, Task 2 | screen | same route, feedback | Mockup received |
+| 09d | `09d-L2T2-cheque-date-tapped.png` | Cheque: date tapped ("looks right", TRY AGAIN) | 5, Task 2 | screen | same route, feedback | Mockup received |
+| 09e | `09e-L2T2-cheque-amount-mismatch-found.png` | Cheque: amount row tapped (mismatch found, BANK STATEMENT) | 5, Task 2 | screen | same route, feedback | Mockup received |
+| 09f | `09f-L2T2-cheque-signature.png` | Cheque: signature tapped ("looks right", TRY AGAIN) | 5, Task 2 | screen | same route, feedback | Mockup received |
 | 10 | `10-L2T3-highlighter.png` | Highlight the suspicious transaction | 5, Task 3 | screen | `/level-2/highlighter` | Placeholder (Stage 0) |
 | 11 | `11-L2-complete.png` | Level 2 complete | 5 | cinematic | `/level-2/complete` | Placeholder (Stage 0) |
 | 12 | `12-call-ananya-2.png` | Ananya's second phone call | 6, Task 1 | call | `/level-3/call-ananya` | Placeholder (Stage 0) |
@@ -664,4 +687,42 @@ More guesses: 16–20 confirmed by the owner (2026-10-14).
 20. Printed cards: 90 × 58 mm, QR 3.4 cm at error correction level Q. The cards show the card name, the task, the amount (closing-balance cards) and the code's address in small print. Owner-designed cards can use the PNGs instead.
 
 Missing assets: a real chime sound (the current one is synthesised), a Home Screen app icon (`apple-touch-icon`, 180 × 180 PNG), and the real `GAME_DOMAIN`.
+
+**Mockups received (2026-10-14): 02–05, 08, 09 and their variants. Guesses checked against them:**
+
+- Guess 1 (Level 1 opens after OPEN CASE FILE): consistent with 03, which hands straight to "Identify Ananya's account type".
+- Guess 2 (either amount area finds the mismatch): **confirmed** by 09e. The highlighted area is the whole RUPEES row, words and figures together.
+- Guess 3 (KYC completes on the last card): **confirmed** by 05c/05d. There's no separate "identity verified" screen. The last valid card's feedback has NEXT CLUE; the first has SCAN NEXT.
+- Guesses 4 and 11 (pop-up vs toast): **revised.** Every outcome, including neutral cheque taps ("This looks right"), is a full feedback card that replaces the scene, with TRY AGAIN, SCAN NEXT, NEXT, NEXT CLUE or BANK STATEMENT. There are no toasts, and scans stay locked while a card is showing.
+- Guess 9 (a different explanation per wrong balance card): **confirmed** in principle by 08b/08d/08e, each with its own message. The amounts themselves conflict; see below.
+- Guess 12 (closing-balance statement): 08 shows running balances for the first rows, then blank, with the closing balance left empty.
+- Guesses 5–8, 10 and 13–15: no mockups yet.
+
+**Owner decisions (2026-10-14):** the closing balance is **₹2,452**, computed from the statement rows (08c, the summary totals and the printed answer cards need fixing), and the scam name stays **CAMS TEL** (the statement row becomes "Mobile Recharge – CAMS TEL").
+
+**Conflicts in the mockups (items 1 and 3 decided above):**
+
+1. The statement doesn't add up. Its rows give a closing balance of **₹2,452**: ₹8,200 + credits ₹5,050 − debits ₹10,798. But 08c marks ₹3,502 as correct while 08e marks ₹3,502 as wrong. The summary box shows total debits ₹7,850 (the rows sum to ₹10,798) and, in one copy, total credits ₹4,500 (the rows sum to ₹5,050). 08d's hint ("Did you include the ₹50 interest credit?") only works if the answer is ₹2,452. The passkey is unaffected: every candidate ends in 2, so it's 2-0-9 either way.
+2. 08b's hint for ₹5,452 ("Mobile Recharge… must be subtracted, not added") doesn't match that amount. Adding the ₹5,999 instead of subtracting gives ₹14,450. ₹5,452 is what you get by adding the ₹1,500 cheque payment instead of subtracting it.
+3. The suspicious row reads "Mobile Recharge – **FastTel**", but the spec (5, Task 3; 6, Task 2) and the 01-start newspaper use **CAMS TEL**. Level 3 depends on that name matching the phishing message.
+4. In `L3-T4_bank-statement.png`, the Type/Amount columns are shifted one row down from the descriptions; the 09 copy is aligned. The bank is "First National Bank" on the statement but "National Bank" on the cheque. The statement account is XXXX XXXX 3210 but the cheque's A/c No. is 1234567890.
+5. Copy typos to fix in the mockups and printed cards: "Reccuring" (the account card), "Aadhar" (the official spelling is Aadhaar), "YES ; IT'S", "To keeps your lump-sum money… for a interest rate", "A FIXED DEPOSIT IS USED.", "as an document", "Helloo?" (if not intended).
+6. File names: two files start with 02d, and the 08 base screen is named like a QR print file (`L3-T4_bank-statement.png`).
+
+**Real figures from the mockups (replace CASE_FIGURES in Stage 4 once item 1 is settled):** First National Bank, Ananya Sharma, Savings Account (Minor), XXXX XXXX 3210, 01–31 Aug 2026. Opening ₹8,200. Rows:
+- 02 Aug Pocket Money (Parent Transfer) +1,000
+- 05 Aug Cafe Express −350
+- 08 Aug Online Shopping – StyleHub −1,200
+- 12 Aug Game Top-Up – PlayZone −499
+- 15 Aug Gift from Grandparents +2,500
+- 18 Aug Movie Tickets – CineMax −800
+- 22 Aug Food Delivery – QuickBite −450
+- 25 Aug Cheque No. 000123 – Music Class Fees −1,500
+- 28 Aug Cheque No. 000123 – Returned +1,500
+- 30 Aug Mobile Recharge −5,999
+- 31 Aug Interest Credit +50
+
+Cheque: National Bank, Hitech City Branch, IFSC NBIN0001234, dated 25-08-2026, pay Rhythm Music Academy, ₹1,500.00 in figures, "One Thousand Five Hundred and Fifty Rupees Only" (₹1,550) in words, signed Ananya Sharma, cheque no. 000123. So the returned cheque is one **Ananya wrote**, not the placeholder's birthday cheque from Dadi.
+
+**Task tracker labels from the mockups:** Level 1: Account, KYC, Bank Records. Level 2: Bank Balance, Cheque, Transactions. The tracker shows the level title and its own three steps; the folder icon is presumably the Case Board.
 
