@@ -1,0 +1,194 @@
+/*
+ * Loaded last: rules that apply across every screen (owner requests, 2026-10-17).
+ */
+
+/* Button labels sit in the middle of their buttons; the arrow hangs off the side of the label. */
+.cta-label {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.cta-label-after,
+.cta-label-before {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+}
+
+.cta-label-after {
+  left: calc(100% + 16px);
+}
+
+.cta-label-before {
+  right: calc(100% + 16px);
+}
+
+.scene-cta,
+.glow-cta,
+.fake-button {
+  justify-content: center !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.pc-button .cta-label {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+}
+
+.pc-button .cta-label-after {
+  left: calc(100% + 22px);
+  top: 50%;
+}
+
+/* Keep arrows inside their buttons: a slightly shorter arrow, a little closer to the words. */
+.scene-cta .scene-cta-arrow {
+  width: 46px;
+}
+
+.scene-cta .cta-label-after {
+  left: calc(100% + 12px);
+}
+
+.scene-cta .cta-label-before {
+  right: calc(100% + 12px);
+}
+
+.fake-button .cta-label-after {
+  left: calc(100% + 10px);
+}
+
+.fake-button .cta-label-before {
+  right: calc(100% + 10px);
+}
+
+/* The card feedback buttons (04a–05e) are narrow: room for TRY AGAIN and its arrow. */
+.feedback-scene--card .fb-cta {
+  min-width: 360px;
+}
+
+/* Sound on / off, top-right corner (styled like the back button). */
+.mute-button {
+  position: absolute;
+  right: 12px;
+  top: 37px;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--step-future);
+  box-shadow: inset 0 0 0 2px var(--text-light);
+  color: var(--text-light);
+  cursor: pointer;
+}
+
+.mute-button svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.mute-button .mute-speaker {
+  fill: currentColor;
+}
+
+.mute-button:hover,
+.mute-button:focus-visible {
+  background: var(--step-bright);
+  color: var(--ink);
+}
+
+.mute-button.is-muted {
+  opacity: 0.75;
+}
+
+/* 07: the magnifying glass on the panel's lower-right corner (measured from the updated 07). */
+.story-magnifier {
+  position: absolute;
+  left: 1095px;
+  top: 490px;
+  z-index: 3;
+  width: 330px;
+  height: 310px;
+  pointer-events: none;
+}
+
+/*
+ * Equal padding on every button (owner request): the label and its arrow travel together as one
+ * group, and each button is as wide as that group plus the same padding on both sides.
+ * Replaces the hanging-arrow rule above for these buttons.
+ */
+.scene-cta,
+.glow-cta {
+  width: auto !important;
+  min-width: 0 !important;
+  padding: 0 var(--cta-pad, 44px) 4px !important;
+}
+
+.scene-cta .cta-label,
+.glow-cta .cta-label,
+.pc-button .cta-label,
+.fake-button .cta-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.scene-cta .cta-label-after,
+.scene-cta .cta-label-before,
+.glow-cta .cta-label-after,
+.pc-button .cta-label-after,
+.fake-button .cta-label-after,
+.fake-button .cta-label-before {
+  position: static;
+  translate: none;
+}
+
+/* The smaller buttons (certificate) get proportionally smaller padding. */
+.cert-actions .cert-cta {
+  --cta-pad: 32px;
+}
+
+/* YES / NO are a matched pair: equal widths, so their padding is equal too. */
+.phish-choice {
+  width: 309px !important;
+  padding: 0 0 4px !important;
+}
+
+/* The fake site's buttons: sized to their words with equal padding, one each side of the page. */
+.fake-button {
+  width: auto !important;
+  padding: 0 32px !important;
+}
+
+.fake-button--submit {
+  left: auto !important;
+  right: 53px;
+}
+
+/* The phishing outcome buttons keep their right edge 56 px in from the panel's (11d, 11f). */
+.phish-cta--loss {
+  left: auto !important;
+  right: 240px;
+}
+
+.phish-cta--safe {
+  left: auto !important;
+  right: 238px;
+}
+
+/* BACK works on every screen, even while the level transition (z 40) is playing. */
+.back-button {
+  z-index: 45;
+}

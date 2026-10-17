@@ -1,3 +1,4 @@
+import { BackButton } from '../components/BackButton'
 import { useNavigate } from 'react-router'
 import { GAME } from '../content/gameData'
 import { SCREENS } from '../app/screens'
@@ -10,6 +11,7 @@ export function ReportSubmittedScreen() {
 
   return (
     <div className="screen screen--centered">
+      <BackButton />
       <div className="hero paper">
         <h1 className="display-title display-title--medium">{submitted.title}</h1>
         <p className="hero-intro">{submitted.message}</p>

@@ -5,6 +5,8 @@ import {
   canOpenScreen,
   redirectFor,
   resumeRoute,
+  levelIntroAfter,
+  previousScreenPath,
   routeAfterCompleting,
   routeAfterLevel,
   taskEntryRoute,
@@ -47,12 +49,15 @@ describe('moving on', () => {
     expect(routeAfterCompleting({ outcome: 'correct', completedTask: 'L1T3', completedLevel: 1 })).toBe(
       SCREENS.level1Complete.path,
     )
+    // Level 2 goes straight on to Ananya's second call, through the Case Board transition.
     expect(routeAfterCompleting({ outcome: 'correct', completedTask: 'L2T3', completedLevel: 2 })).toBe(
-      SCREENS.level2Complete.path,
+      SCREENS.callAnanya2.path,
     )
+    expect(levelIntroAfter({ outcome: 'correct', completedTask: 'L2T3', completedLevel: 2 })).toBe(3)
+    expect(levelIntroAfter({ outcome: 'correct', completedTask: 'L1T3', completedLevel: 1 })).toBeUndefined()
     expect(
       routeAfterCompleting({ outcome: 'correct', completedTask: 'L3T5', completedLevel: 3, missionComplete: true }),
-    ).toBe(SCREENS.reportSubmitted.path)
+    ).toBe(SCREENS.certificate.path)
   })
 
   it('continues from a level-complete screen into the next level', () => {
@@ -63,7 +68,8 @@ describe('moving on', () => {
 
   it('resumes at the start, the current task, or the certificate', () => {
     expect(resumeRoute(fresh)).toBe(SCREENS.start.path)
-    expect(resumeRoute(progressAt('L2T2'))).toBe(SCREENS.cheque.path)
+    // Level 2, Task 2 opens on its clue screen (09), before the cheque.
+    expect(resumeRoute(progressAt('L2T2'))).toBe(SCREENS.chequeClue.path)
     expect(resumeRoute(progressAt(null))).toBe(SCREENS.certificate.path)
   })
 })
@@ -106,3 +112,26 @@ describe('screen guards', () => {
     expect(open('fakeWebsite', { ...progressAt('L2T3'), fakeSiteOpen: true })).toBe(false)
   })
 })
+
+describe('BACK (owner request: the previous screen in the game, not the previous action)', () => {
+  it('steps back through the screens in the order the game shows them', () => {
+    expect(previousScreenPath('verifyIdentity')).toBe(SCREENS.accountType.path)
+    expect(previousScreenPath('accountType')).toBe(SCREENS.caseAssigned.path)
+    // …and from the case (or the call) all the way home, where RESUME CASE carries on.
+    expect(previousScreenPath('caseAssigned')).toBe(SCREENS.start.path)
+    expect(previousScreenPath('callAnanya1')).toBe(SCREENS.start.path)
+    expect(previousScreenPath('closingBalance')).toBe(SCREENS.level1Complete.path)
+    expect(previousScreenPath('cheque')).toBe(SCREENS.chequeClue.path)
+    // Level 2 goes straight on to the second call, so BACK from it returns to the highlighter.
+    expect(previousScreenPath('callAnanya2')).toBe(SCREENS.highlighter.path)
+    expect(previousScreenPath('scanEvidence')).toBe(SCREENS.passkey.path)
+    expect(previousScreenPath('certificate')).toBe(SCREENS.reviewReport.path)
+  })
+
+  it('takes side screens back to the screen they open from', () => {
+    expect(previousScreenPath('fakeWebsite')).toBe(SCREENS.phishingChoice.path)
+    expect(previousScreenPath('start')).toBeNull()
+    expect(previousScreenPath('caseBoard')).toBeNull()
+  })
+})
+

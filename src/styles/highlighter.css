@@ -1,0 +1,340 @@
+/*
+ * Level 2, Task 3: the highlighter (mockups 10–10j). Canvas pixels measured from 10; the
+ * statement is laid out flat at 900 × 720 (see highlighterLayout.ts).
+ */
+
+:root {
+  --hl-title: #f2e7c8; /* sampled: heading on navy (10, 10b) */
+  --hl-suspicious: #bd3838; /* sampled: SUSPICIOUS (10h) */
+  --hl-hint-ink: #22191b; /* sampled: hint on the desk (10) */
+  --hl-drag-me: #7fb2a5; /* sampled: "Drag me over the transaction" */
+  --hl-paper: #f8eedb; /* sampled: statement, far edge */
+  --hl-paper-near: #ece5d5; /* sampled: statement, near edge */
+  --hl-ink: #4a545a; /* guessed from the blurred row text */
+  --hl-head: #1d4058; /* sampled: column-head bar (blurred) */
+  --hl-credit: #3e9c79; /* guessed from the blurred figures */
+  --hl-debit: #d9535c;
+  --hl-band: #ede59b; /* sampled: highlighter band (10b) */
+  --hl-desk-mid: #7b5544; /* sampled: desk, middle */
+  --hl-desk-near: #996f59; /* sampled: desk, near edge */
+}
+
+.screen--highlighter,
+.hl-feedback {
+  position: absolute;
+  inset: 0;
+}
+
+.desk-scene--highlighter .desk-scene-top {
+  /* Measured on 10: dark to y 480, then a ramp to the near colour at y 760. */
+  background: linear-gradient(180deg, var(--desk-top) 0%, var(--desk-top) 48.9%, var(--hl-desk-near) 77.4%);
+}
+
+.desk-scene--highlighter .desk-scene-edge {
+  display: none;
+}
+
+.desk-scene--highlighter + .desk-scene-front,
+.desk-scene--highlighter .desk-scene-front {
+  top: 944px;
+}
+
+.hl-title {
+  position: absolute;
+  left: 124px;
+  top: 196px;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 45px;
+  font-weight: 400;
+  line-height: 52px;
+  color: var(--hl-title);
+  -webkit-text-stroke: 0.6px var(--hl-title);
+  white-space: pre-line;
+}
+
+.hl-verdict--suspicious {
+  color: var(--hl-suspicious);
+  -webkit-text-stroke-color: var(--hl-suspicious);
+}
+
+/* ─── The statement (flat 900 × 720) ────────────────────────────────────── */
+
+.hs-sheet {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  border-radius: 10px;
+  background: linear-gradient(180deg, var(--hl-paper) 0%, var(--hl-paper-near) 100%);
+  box-shadow: 0 6px 10px color-mix(in srgb, var(--ink) 40%, transparent);
+  color: var(--hl-ink);
+  font-family: var(--font-display);
+}
+
+.hs-sheet p {
+  position: absolute;
+  margin: 0;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.hs-bank-icon {
+  position: absolute;
+  left: 29px;
+  top: 18px;
+  width: 88px;
+  height: 70px;
+}
+
+.hs-bank-icon .icon-ink {
+  fill: var(--hl-head);
+}
+
+.hs-bank {
+  left: 133px;
+  top: 45px;
+  font-size: 25.3px;
+  color: var(--hl-head);
+  -webkit-text-stroke: 0.4px var(--hl-head);
+}
+
+.hs-account {
+  left: 134px;
+  top: 75px;
+  font-size: 11px;
+}
+
+.hs-period-label,
+.hs-period {
+  right: 64px;
+  font-size: 10.5px;
+}
+
+.hs-period-label {
+  top: 48px;
+}
+
+.hs-period {
+  top: 73px;
+}
+
+.hs-rule {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  top: 106px;
+  height: 1.5px;
+  background: color-mix(in srgb, var(--hl-ink) 25%, transparent);
+}
+
+.hs-head {
+  position: absolute;
+  left: 27px;
+  top: 131px;
+  width: 847px;
+  height: 40px;
+  border-radius: 4px;
+  background: var(--hl-head);
+  color: var(--hl-paper);
+  font-size: 12px;
+  line-height: 40px;
+}
+
+.hs-head span,
+.hs-row span {
+  position: absolute;
+  white-space: nowrap;
+}
+
+.hs-head .hs-col-date,
+.hs-row .hs-col-date {
+  left: 26px;
+}
+
+.hs-head .hs-col-desc,
+.hs-row .hs-col-desc {
+  left: 250px;
+}
+
+.hs-head .hs-col-amount {
+  left: 694px;
+}
+
+.hs-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hs-row {
+  position: absolute;
+  left: 0;
+  width: 900px;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.hs-row::after {
+  content: '';
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 0;
+  height: 1px;
+  background: color-mix(in srgb, var(--hl-ink) 12%, transparent);
+}
+
+.hs-row:last-child::after {
+  display: none;
+}
+
+.hs-row span {
+  top: 50%;
+  translate: 0 -50%;
+}
+
+.hs-row .hs-col-date {
+  left: 53px;
+}
+
+.hs-row .hs-col-desc {
+  left: 277px;
+}
+
+.hs-row .hs-col-amount {
+  right: 108px;
+}
+
+.hs-head .hs-col-date {
+  left: 26px;
+}
+
+.hs-amount--credit {
+  color: var(--hl-credit);
+}
+
+.hs-amount--debit {
+  color: var(--hl-debit);
+}
+
+/* The band the highlighter leaves across a row. */
+.hs-row.is-highlighted::before {
+  content: '';
+  position: absolute;
+  left: 20px;
+  width: 865px;
+  top: 50%;
+  height: 30px;
+  translate: 0 -50%;
+  background: var(--hl-band);
+}
+
+/* ─── The pen ───────────────────────────────────────────────────────────── */
+
+.highlighter,
+.hl-pen-rest {
+  position: absolute;
+  z-index: 3;
+  filter: drop-shadow(6px 12px 8px color-mix(in srgb, var(--ink) 40%, transparent));
+}
+
+.highlighter {
+  cursor: grab;
+  touch-action: none;
+}
+
+.highlighter.is-dragging {
+  cursor: grabbing;
+}
+
+.highlighter.is-returning {
+  transition: translate 0.25s ease-out;
+}
+
+.highlighter .highlighter-pen,
+.hl-pen-rest .highlighter-pen {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.highlighter-tip {
+  position: absolute;
+  left: 0;
+  top: 33px;
+  width: 8px;
+  height: 8px;
+  pointer-events: none;
+}
+
+/* ─── Text on the desk ──────────────────────────────────────────────────── */
+
+.hl-hint {
+  position: absolute;
+  left: 77px;
+  top: 866px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 25px;
+  color: var(--hl-hint-ink);
+  white-space: pre-line;
+}
+
+.hl-hint .mat-hint-icon {
+  width: 46px;
+  height: 46px;
+}
+
+.hl-hint .mat-hint-icon .icon-ring {
+  stroke: var(--text-light);
+  stroke-width: 2.6;
+}
+
+.hl-drag-me {
+  position: absolute;
+  left: 1169px;
+  top: 874px;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 20px;
+  color: var(--hl-drag-me);
+  white-space: pre-line;
+}
+
+.hl-note {
+  position: absolute;
+  left: 958px;
+  top: 385px;
+  width: 360px;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 25px;
+  color: var(--hl-title);
+}
+
+.hl-cta {
+  top: 208px;
+  height: 92px;
+  font-size: 45px;
+}
+
+.hl-cta--back {
+  left: 956px;
+  width: 373px;
+}
+
+.hl-cta--next {
+  left: 939px;
+  width: 422px;
+}
+
+.hl-feedback .hl-title {
+  top: 199px;
+}

@@ -1,7 +1,7 @@
 import { createContext, use } from 'react'
 
 /** The fixed design canvas (spec 9.1). Every screen is laid out at this size, then scaled to fit. */
-export const CANVAS = { width: 1280, height: 831 } as const
+export const CANVAS = { width: 1512, height: 982 } as const
 
 export const ScaleContext = createContext(1)
 

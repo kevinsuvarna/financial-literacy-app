@@ -1,7 +1,8 @@
 /**
  * The camera scanner (spec 10.2). One instance for the whole app:
- * - The camera starts only after the player taps TURN ON SCANNER (once per session); after that,
- *   each table scene starts it again on its own.
+ * - Camera access is asked for on the game's first tap (START TRAINING / RESUME CASE), which
+ *   iPad Safari requires; there is no in-game request (owner decision). Every table scene then
+ *   starts scanning by itself.
  * - It decodes only while a table scene is attached, and stops shortly after the scene closes.
  * - The video feed is never shown: the element stays in the DOM, tiny and transparent
  *   (never display: none), `playsinline` and `muted`, as iPad Safari requires.
@@ -32,8 +33,8 @@ function statusForError(error: unknown): ScannerStatus {
 class CameraScanner {
   private status: ScannerStatus = 'off'
   private listeners = new Set<() => void>()
-  /** The player has switched the scanner on this session. */
-  private enabled = false
+  /** Camera access has been asked for on a tap this page load. */
+  private accessRequested = false
   private handler: DecodeHandler | null = null
   private stream: MediaStream | null = null
   private video: HTMLVideoElement | null = null
@@ -64,7 +65,7 @@ class CameraScanner {
   attach(handler: DecodeHandler): () => void {
     window.clearTimeout(this.releaseTimer)
     this.handler = handler
-    if (this.enabled) this.start()
+    this.start()
     return () => {
       if (this.handler !== handler) return
       this.handler = null
@@ -72,9 +73,30 @@ class CameraScanner {
     }
   }
 
-  /** The player tapped TURN ON SCANNER (or TRY AGAIN). Must run inside the tap for iPad Safari. */
-  enable(): void {
-    this.enabled = true
+  /**
+   * Asks for camera access inside the game's first tap, so the browser's own permission prompt
+   * appears at the start rather than mid-task. Does nothing after the first call.
+   */
+  requestAccess(): void {
+    if (this.accessRequested) return
+    this.accessRequested = true
+    if (!this.decode) void import('./decodeQr').then((module) => (this.decode = module.decodeQr))
+    if (this.handler) return this.start()
+    if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) return this.setStatus('unavailable')
+    navigator.mediaDevices
+      .getUserMedia({ audio: false, video: { facingMode: 'user' } })
+      // Access granted: release the camera until a table scene needs it.
+      .then((stream) => {
+        if (!this.stream) stream.getTracks().forEach((t) => t.stop())
+      })
+      .catch((error: unknown) => {
+        if (!this.handler) this.setStatus(statusForError(error))
+      })
+  }
+
+  /** TRY AGAIN after the camera failed. Runs inside the tap. */
+  retry(): void {
+    this.stop()
     this.start()
   }
 
@@ -130,7 +152,7 @@ class CameraScanner {
 
   /** Back from the background, or the camera was interrupted: get going again. */
   private recover() {
-    if (!this.enabled || !this.handler || document.visibilityState !== 'visible') return
+    if (!this.handler || document.visibilityState !== 'visible') return
     const live = this.stream?.getVideoTracks().some((t) => t.readyState === 'live')
     if (!live) {
       this.stop()

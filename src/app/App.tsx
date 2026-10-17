@@ -1,12 +1,23 @@
+import { MotionConfig } from 'motion/react'
 import { useLayoutEffect, type ComponentType, type ReactNode } from 'react'
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from 'react-router'
 import { useGameStore } from '../state/gameStore'
 import { useScreenAccess } from '../state/hooks'
+import { LevelIntro } from '../components/LevelIntro'
+import { MuteButton, SoundDirector } from '../components/SoundDirector'
+import { AccountTypeScreen } from '../screens/AccountTypeScreen'
+import { ClosingBalanceScreen } from '../screens/ClosingBalanceScreen'
+import { Level1CompleteScreen } from '../screens/Level1CompleteScreen'
+import { VerifyIdentityScreen } from '../screens/VerifyIdentityScreen'
+import { WithdrawalSlipScreen } from '../screens/WithdrawalSlipScreen'
 import { CallScreen } from '../screens/CallScreen'
+import { OpeningCallScreen } from '../screens/OpeningCallScreen'
 import { CaseAssignedScreen } from '../screens/CaseAssignedScreen'
 import { CaseBoardScreen } from '../screens/CaseBoardScreen'
 import { CertificateScreen } from '../screens/CertificateScreen'
+import { ChequeClueScreen } from '../screens/ChequeClueScreen'
 import { ChequeScreen } from '../screens/ChequeScreen'
+import { EvidenceScreen } from '../screens/EvidenceScreen'
 import { FakeWebsiteScreen } from '../screens/FakeWebsiteScreen'
 import { HighlighterScreen } from '../screens/HighlighterScreen'
 import { LevelCompleteScreen } from '../screens/LevelCompleteScreen'
@@ -16,31 +27,30 @@ import { PhoneLandingPage } from '../screens/PhoneLandingPage'
 import { ReportSubmittedScreen } from '../screens/ReportSubmittedScreen'
 import { ReviewReportScreen } from '../screens/ReviewReportScreen'
 import { ScamRevealScreen } from '../screens/ScamRevealScreen'
-import { ScanTableScreen } from '../screens/ScanTableScreen'
 import { StartScreen } from '../screens/StartScreen'
-import { Statement } from '../components/Statement'
 import { canOpenScreen, redirectFor } from './navigation'
 import { PHONE_LANDING_PATH, SCREENS, screenForPath, type ScreenKey } from './screens'
 import { Stage } from './Stage'
 
 const SCREEN_COMPONENTS: Record<ScreenKey, ComponentType> = {
   start: StartScreen,
-  callAnanya1: () => <CallScreen variant="opening" />,
+  callAnanya1: OpeningCallScreen,
   caseAssigned: CaseAssignedScreen,
-  accountType: () => <ScanTableScreen taskId="L1T1" />,
-  verifyIdentity: () => <ScanTableScreen taskId="L1T2" />,
-  withdrawalSlip: () => <ScanTableScreen taskId="L1T3" />,
-  level1Complete: () => <LevelCompleteScreen levelId={1} />,
-  closingBalance: () => <ScanTableScreen taskId="L2T1" document={<Statement balances="closing-after-solved" />} />,
+  accountType: AccountTypeScreen,
+  verifyIdentity: VerifyIdentityScreen,
+  withdrawalSlip: WithdrawalSlipScreen,
+  level1Complete: Level1CompleteScreen,
+  closingBalance: ClosingBalanceScreen,
+  chequeClue: ChequeClueScreen,
   cheque: ChequeScreen,
   highlighter: HighlighterScreen,
   level2Complete: () => <LevelCompleteScreen levelId={2} />,
-  callAnanya2: () => <CallScreen variant="second" />,
+  callAnanya2: CallScreen,
   phishingChoice: PhishingChoiceScreen,
   fakeWebsite: FakeWebsiteScreen,
   scamReveal: ScamRevealScreen,
   passkey: PasskeyScreen,
-  scanEvidence: () => <ScanTableScreen taskId="L3T4" />,
+  scanEvidence: EvidenceScreen,
   reviewReport: ReviewReportScreen,
   reportSubmitted: ReportSubmittedScreen,
   certificate: CertificateScreen,
@@ -69,10 +79,15 @@ function ActiveTaskSync() {
 
 function GameShell() {
   return (
-    <Stage>
-      <ActiveTaskSync />
-      <Outlet />
-    </Stage>
+    <MotionConfig reducedMotion="user">
+      <Stage>
+        <ActiveTaskSync />
+        <Outlet />
+        <LevelIntro />
+        <SoundDirector />
+        <MuteButton />
+      </Stage>
+    </MotionConfig>
   )
 }
 

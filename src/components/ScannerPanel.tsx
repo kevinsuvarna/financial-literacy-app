@@ -1,12 +1,11 @@
 import { motion } from 'motion/react'
 import { useEffect, useState } from 'react'
-import { GAME, type ScanTask } from '../content/gameData'
-import { playChime } from '../audio/chime'
+import { GAME } from '../content/gameData'
+import { playChime } from '../audio/sounds'
 import { cameraScanner } from '../scanner/cameraScanner'
 import { useScannerStatus } from '../scanner/useScannerStatus'
 import { useGameStore } from '../state/gameStore'
 import { useActionHandler } from './actionHandler'
-import { SimulatedScanPanel } from './SimulatedScanPanel'
 
 const copy = GAME.scanner
 
@@ -14,12 +13,11 @@ const copy = GAME.scanner
  * The scanner on table scenes (spec 10.2): in-story explanation, then a reticle while the hidden
  * camera reads cards. Falls back to the simulated list when there's no camera or it's blocked.
  */
-export function ScannerPanel({ task }: { task: ScanTask }) {
+export function ScannerPanel() {
   const handle = useActionHandler()
   const scanQr = useGameStore((s) => s.scanQr)
   const status = useScannerStatus()
   const [flashes, setFlashes] = useState(0)
-  const [listChosen, setListChosen] = useState(false)
 
   useEffect(
     () =>
@@ -34,27 +32,11 @@ export function ScannerPanel({ task }: { task: ScanTask }) {
   )
 
   const cameraFailed = status === 'denied' || status === 'unavailable' || status === 'error'
-  // The list is the fallback; during development it's always there for testing.
-  const showList = import.meta.env.DEV || listChosen || cameraFailed
 
   return (
     <aside className="scanner-panel">
       <div className={`scanner scanner--${status}`} data-testid="scanner" data-status={status}>
-        {status === 'off' && (
-          <>
-            <h2 className="scanner-title">{copy.permissionTitle}</h2>
-            <p>{copy.permissionMessage}</p>
-            <button type="button" className="cta cta--small" onClick={() => cameraScanner.enable()}>
-              {copy.permissionCta}
-            </button>
-            {!showList && (
-              <button type="button" className="scanner-link" onClick={() => setListChosen(true)}>
-                {copy.useListCta}
-              </button>
-            )}
-          </>
-        )}
-        {status === 'starting' && <p>{copy.startingMessage}</p>}
+        {(status === 'off' || status === 'starting') && <p>{copy.startingMessage}</p>}
         {status === 'active' && (
           <>
             <div className="reticle" aria-hidden="true">
@@ -70,14 +52,13 @@ export function ScannerPanel({ task }: { task: ScanTask }) {
             </h2>
             <p>{status === 'denied' ? copy.deniedMessage : status === 'error' ? copy.errorMessage : copy.fallbackMessage}</p>
             {status !== 'unavailable' && (
-              <button type="button" className="cta cta--small" onClick={() => cameraScanner.enable()}>
+              <button type="button" className="cta cta--small" onClick={() => cameraScanner.retry()}>
                 {copy.retryCta}
               </button>
             )}
           </>
         )}
       </div>
-      {showList && <SimulatedScanPanel task={task} />}
       {flashes > 0 && (
         <motion.div
           key={flashes}

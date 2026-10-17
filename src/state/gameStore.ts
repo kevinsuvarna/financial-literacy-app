@@ -48,6 +48,12 @@ export interface Feedback extends Copy {
   taskId: TaskId | null
   tone: FeedbackTone
   hint?: string
+  /** The artefact a scan was about, so feedback cards can show it. */
+  artefactId?: ArtefactId
+  /** The part of the cheque that was tapped (Level 2, Task 2), so it can be shown enlarged. */
+  areaId?: ChequeAreaId
+  /** The statement row the highlighter landed on (Level 2, Task 3), so it can be shown highlighted. */
+  rowId?: string
 }
 
 export type Outcome =
@@ -74,6 +80,8 @@ export interface GameState extends GameProgress {
   feedback: Feedback | null
   /** The simulated phishing page (YES path). Not persisted. */
   fakeSite: { open: boolean; filled: FakeFieldId[] }
+  /** Wrong answers already scanned on each scan task, shown as scanned on the table. Not persisted. */
+  tried: Partial<Record<TaskId, ArtefactId[]>>
 
   completeIntro: () => void
   /** Opens a task screen. Returns false (and changes nothing) for a locked task. Re-opening the same task keeps its state. */
@@ -82,7 +90,7 @@ export interface GameState extends GameProgress {
   dismissFeedback: () => void
   /** Raw text decoded from a QR code by the camera scanner. */
   scanQr: (text: string) => ActionResult
-  /** An artefact chosen from the simulated-scan list (or decoded from a QR code). */
+  /** An artefact scanned (decoded from its QR code) or tapped on screen; both count the same. */
   scanArtefact: (artefactId: string) => ActionResult
   inspectChequeArea: (areaId: ChequeAreaId) => ActionResult
   highlightTransaction: (transactionId: string) => ActionResult
@@ -279,8 +287,16 @@ export function createGameStore({
           return respond(task, 'incorrect', 'incorrect', copy, hint)
         }
 
+        /** Scans: as evaluateArtefact, with the artefact recorded on any feedback it shows. */
         function evaluateScan(artefactId: ArtefactId | null): ActionResult {
           if (get().feedback) return IGNORED
+          const result = evaluateArtefact(artefactId)
+          const feedback = get().feedback
+          if (artefactId && feedback) set({ feedback: { ...feedback, artefactId } })
+          return result
+        }
+
+        function evaluateArtefact(artefactId: ArtefactId | null): ActionResult {
           const task = activeTask('scan')
           if (!task) return IGNORED
           if (!artefactId) return respond(task, 'unknown', 'neutral', content.scanner.unknownQr)
@@ -290,7 +306,12 @@ export function createGameStore({
             const accepted = get().accepted[task.id] ?? []
             const next = accepted.includes(artefactId) ? accepted : [...accepted, artefactId]
             if (!reviewing(task) && task.required.every((id) => next.includes(id))) {
-              return succeed(task, task.correct, { accepted: { ...get().accepted, [task.id]: next } })
+              const lastCard = task.collect.accepted[artefactId]
+              const copy =
+                task.collect.completion === 'last-card' && lastCard
+                  ? { ...lastCard, cta: task.correct.cta, layout: { ...lastCard.layout, ...task.correct.layout } }
+                  : task.correct
+              return succeed(task, copy, { accepted: { ...get().accepted, [task.id]: next } })
             }
             if (reviewing(task) || accepted.includes(artefactId)) {
               return respond(task, 'already', 'neutral', task.collect.already)
@@ -300,7 +321,11 @@ export function createGameStore({
           }
 
           const incorrect = task.incorrect[artefactId]
-          if (incorrect) return fail(task, incorrect)
+          if (incorrect) {
+            const tried = get().tried[task.id] ?? []
+            if (!tried.includes(artefactId)) set({ tried: { ...get().tried, [task.id]: [...tried, artefactId] } })
+            return fail(task, incorrect)
+          }
           return respond(task, 'neutral', 'neutral', task.neutral[artefactId] ?? task.notAnOption)
         }
 
@@ -309,6 +334,7 @@ export function createGameStore({
           activeTaskId: null,
           feedback: null,
           fakeSite: CLOSED_FAKE_SITE,
+          tried: {},
 
           completeIntro: () => set({ introCompleted: true }),
 
@@ -331,16 +357,22 @@ export function createGameStore({
             const task = activeTask('cheque')
             const area = task?.areas.find((a) => a.id === areaId)
             if (!task || !area) return IGNORED
-            if (area.isDiscrepancy) return succeed(task, task.correct)
-            return respond(task, 'neutral', 'neutral', area.feedback)
+            const result = area.isDiscrepancy ? succeed(task, task.correct) : respond(task, 'neutral', 'neutral', area.feedback)
+            const feedback = get().feedback
+            if (feedback) set({ feedback: { ...feedback, areaId } })
+            return result
           },
 
           highlightTransaction: (transactionId) => {
             const task = activeTask('highlight')
             const row = content.statement.rows.find((r) => r.id === transactionId)
             if (!task || !row) return IGNORED
-            if (row.suspicious) return succeed(task, task.correct)
-            return respond(task, 'neutral', 'neutral', { message: row.highlightFeedback })
+            const result = row.suspicious
+              ? succeed(task, task.correct)
+              : respond(task, 'neutral', 'neutral', { message: row.highlightFeedback })
+            const feedback = get().feedback
+            if (feedback) set({ feedback: { ...feedback, rowId: transactionId } })
+            return result
           },
 
           choosePhishingOption: (choice) => {
@@ -401,7 +433,7 @@ export function createGameStore({
           },
 
           resetGame: () =>
-            set({ ...initialProgress(), activeTaskId: null, feedback: null, fakeSite: CLOSED_FAKE_SITE }),
+            set({ ...initialProgress(), activeTaskId: null, feedback: null, fakeSite: CLOSED_FAKE_SITE, tried: {} }),
         }
       },
       {

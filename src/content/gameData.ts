@@ -62,6 +62,13 @@ export function formatRupees(amount: number): string {
   return `₹${RUPEES.format(amount)}`
 }
 
+const STATEMENT_AMOUNT = new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
+/** Statement style, Indian grouping with paise: 8,200.00. */
+export function formatStatementAmount(amount: number): string {
+  return STATEMENT_AMOUNT.format(amount)
+}
+
 export function lastDigit(amount: number): number {
   return Math.abs(Math.trunc(amount)) % 10
 }
@@ -210,7 +217,7 @@ export type ArtefactKind = 'account-type' | 'identity-document' | 'bank-slip' | 
 
 export interface Artefact {
   id: ArtefactId
-  /** Label printed on the card and used in the simulated-scan list. */
+  /** Label printed on the card, and the name of its on-screen tap target. */
   name: string
   kind: ArtefactKind
   /** The task whose screen this card is scanned on; it groups the print files. */
@@ -219,17 +226,40 @@ export interface Artefact {
   printFileName: string
   /** Closing-balance cards only: the amount printed on the card. */
   printedAmount?: number
+  /** How the name breaks on the card drawn on screen (\n = line break). Defaults to the name. */
+  cardLabel: string
+  /** The label under the artefact on its feedback card. Defaults to `cardLabel`. */
+  detailLabel: string
 }
 
-const ARTEFACT_TABLE: Record<ArtefactId, { name: string; kind: ArtefactKind; printTask: TaskId }> = {
-  'savings-account': { name: 'Savings Account', kind: 'account-type', printTask: 'L1T1' },
-  'current-account': { name: 'Current Account', kind: 'account-type', printTask: 'L1T1' },
-  'fixed-deposit-account': { name: 'Fixed Deposit Account', kind: 'account-type', printTask: 'L1T1' },
-  'recurring-deposit-account': { name: 'Recurring Deposit Account', kind: 'account-type', printTask: 'L1T1' },
-  'expired-passport': { name: 'Passport (expired)', kind: 'identity-document', printTask: 'L1T2' },
-  'library-card': { name: 'Library card', kind: 'identity-document', printTask: 'L1T2' },
-  'pan-card': { name: 'PAN card', kind: 'identity-document', printTask: 'L1T2' },
-  'aadhaar-card': { name: 'Aadhaar card', kind: 'identity-document', printTask: 'L1T2' },
+const ARTEFACT_TABLE: Record<
+  ArtefactId,
+  { name: string; kind: ArtefactKind; printTask: TaskId; cardLabel?: string; detailLabel?: string }
+> = {
+  'savings-account': { name: 'Savings Account', kind: 'account-type', printTask: 'L1T1', cardLabel: 'Savings\nAccount' },
+  'current-account': { name: 'Current Account', kind: 'account-type', printTask: 'L1T1', cardLabel: 'Current\nAccount' },
+  'fixed-deposit-account': {
+    name: 'Fixed Deposit Account',
+    kind: 'account-type',
+    printTask: 'L1T1',
+    cardLabel: 'Fixed Deposit\nAccount',
+  },
+  'recurring-deposit-account': {
+    name: 'Recurring Deposit Account',
+    kind: 'account-type',
+    printTask: 'L1T1',
+    cardLabel: 'Recurring\nDeposit Account',
+  },
+  'expired-passport': {
+    name: 'Passport (expired)',
+    kind: 'identity-document',
+    printTask: 'L1T2',
+    cardLabel: 'Passport',
+    detailLabel: 'Expired Passport',
+  },
+  'library-card': { name: 'Library card', kind: 'identity-document', printTask: 'L1T2', cardLabel: 'Library card' },
+  'pan-card': { name: 'PAN card', kind: 'identity-document', printTask: 'L1T2', cardLabel: 'PAN Card' },
+  'aadhaar-card': { name: 'Aadhaar card', kind: 'identity-document', printTask: 'L1T2', cardLabel: 'Aadhaar Card' },
   'deposit-slip': { name: 'Deposit slip', kind: 'bank-slip', printTask: 'L1T3' },
   'withdrawal-slip': { name: 'Withdrawal slip', kind: 'bank-slip', printTask: 'L1T3' },
   'balance-card-a': { name: 'Closing balance card A', kind: 'balance-card', printTask: 'L2T1' },
@@ -255,7 +285,9 @@ export interface CaseTransaction {
   amount: number | typeof CHEQUE_AMOUNT
   /** Exactly one transaction is suspicious: the CAMS TEL "mobile recharge". */
   suspicious?: boolean
-  /** Feedback when the highlighter lands on this row (Level 2, Task 3). {amount} is this row's amount. */
+  /** The name shown with the amount when the highlighter lands on this row (10b–10j: "NOT SUSPICIOUS: ₹ 350 / Cafe Express"). */
+  highlightLabel: string
+  /** The note beside the statement when the highlighter lands on this row (Level 2, Task 3). {amount} is this row's amount. */
   highlightFeedback: string
 }
 
@@ -275,6 +307,8 @@ export interface ChequeFigures {
   amountInFigures: number
   /** The (different) amount written in words. Must end in the same digit as the figures (spec 5, Task 2). */
   amountInWordsValue: number
+  /** The other codes printed in the MICR line after the cheque number (09): city-bank-branch code, account ID, transaction code. */
+  micr: [string, string, string]
 }
 
 /**
@@ -300,6 +334,8 @@ export interface CaseFigures {
   balanceCards: BalanceCardFigure[]
   /** Phishing YES path: what the scammer takes in the simulation. Must be less than the closing balance. */
   simulatedLoss: number
+  /** Level 1, Task 3: the withdrawal Ananya tried. More than her balance, which is why it failed (06b). */
+  withdrawalAttempt: number
 }
 
 export const CASE_FIGURES: CaseFigures = {
@@ -320,7 +356,8 @@ export const CASE_FIGURES: CaseFigures = {
       description: 'Pocket Money (Parent Transfer)',
       direction: 'credit',
       amount: 1000,
-      highlightFeedback: '{amount} of pocket money from her parents: money coming in. Ananya was expecting this one. Keep looking.',
+      highlightLabel: 'Pocket Money',
+      highlightFeedback: 'Ananya gets her pocket money from her parents every month.',
     },
     {
       id: 'cafe-express',
@@ -328,7 +365,8 @@ export const CASE_FIGURES: CaseFigures = {
       description: 'Cafe Express',
       direction: 'debit',
       amount: 350,
-      highlightFeedback: 'Ananya spent {amount} at Cafe Express. She remembers this one.',
+      highlightLabel: 'Cafe Express',
+      highlightFeedback: 'Ananya said she had a latte at the newly opened cafe.',
     },
     {
       id: 'stylehub',
@@ -336,7 +374,8 @@ export const CASE_FIGURES: CaseFigures = {
       description: 'Online Shopping – StyleHub',
       direction: 'debit',
       amount: 1200,
-      highlightFeedback: '{amount} of online shopping at StyleHub. Ananya remembers ordering it.',
+      highlightLabel: 'StyleHub',
+      highlightFeedback: 'This transaction matches Ananya’s shopping plans.',
     },
     {
       id: 'playzone',
@@ -344,7 +383,8 @@ export const CASE_FIGURES: CaseFigures = {
       description: 'Game Top-Up – PlayZone',
       direction: 'debit',
       amount: 499,
-      highlightFeedback: 'A {amount} game top-up at PlayZone. Ananya bought it herself.',
+      highlightLabel: 'PlayZone',
+      highlightFeedback: 'Ananya said she spent money at the arcade.',
     },
     {
       id: 'grandparents-gift',
@@ -352,7 +392,8 @@ export const CASE_FIGURES: CaseFigures = {
       description: 'Gift from Grandparents',
       direction: 'credit',
       amount: 2500,
-      highlightFeedback: 'A {amount} gift from her grandparents: money coming in. This looks normal.',
+      highlightLabel: 'Grandparents',
+      highlightFeedback: 'Ananya recorded receiving money from her grandparents.',
     },
     {
       id: 'cinemax',
@@ -360,7 +401,8 @@ export const CASE_FIGURES: CaseFigures = {
       description: 'Movie Tickets – CineMax',
       direction: 'debit',
       amount: 800,
-      highlightFeedback: 'Movie tickets at CineMax for {amount}. Ananya remembers going to the film.',
+      highlightLabel: 'CineMax',
+      highlightFeedback: 'Ananya recorded going out and watching a movie with friends.',
     },
     {
       id: 'quickbite',
@@ -368,7 +410,8 @@ export const CASE_FIGURES: CaseFigures = {
       description: 'Food Delivery – QuickBite',
       direction: 'debit',
       amount: 450,
-      highlightFeedback: '{amount} of food delivery from QuickBite. Ananya remembers ordering it.',
+      highlightLabel: 'QuickBite',
+      highlightFeedback: 'This transaction matches Ananya’s food order.',
     },
     {
       id: 'cheque-payment',
@@ -376,7 +419,8 @@ export const CASE_FIGURES: CaseFigures = {
       description: 'Cheque No. 000123 – Music Class Fees',
       direction: 'debit',
       amount: CHEQUE_AMOUNT,
-      highlightFeedback: "Ananya's {amount} cheque for her music classes. You've already found out why it came back.",
+      highlightLabel: 'Music Class',
+      highlightFeedback: 'This is the music class cheque you already checked.',
     },
     {
       id: 'cheque-returned',
@@ -384,7 +428,8 @@ export const CASE_FIGURES: CaseFigures = {
       description: 'Cheque No. 000123 – Returned',
       direction: 'credit',
       amount: CHEQUE_AMOUNT,
-      highlightFeedback: 'The cheque was returned, so the {amount} came back in. You already know why.',
+      highlightLabel: 'Music Class',
+      highlightFeedback: 'The bounced cheque matches the earlier music class payment.',
     },
     {
       id: 'cams-tel',
@@ -394,6 +439,7 @@ export const CASE_FIGURES: CaseFigures = {
       direction: 'debit',
       amount: 5999, // fixed by spec 5, Task 3
       suspicious: true,
+      highlightLabel: 'Mobile Recharge – CAMS TEL',
       highlightFeedback:
         "Ananya doesn't remember making this {amount} \"mobile recharge\" to CAMS TEL, and it's far bigger than anything else she spends. That doesn't prove it's fraud, but it's a clue worth investigating.",
     },
@@ -403,7 +449,8 @@ export const CASE_FIGURES: CaseFigures = {
       description: 'Interest Credit',
       direction: 'credit',
       amount: 50,
-      highlightFeedback: '{amount} of interest: the bank pays Ananya a little extra for keeping money in her savings account.',
+      highlightLabel: 'Interest Credit',
+      highlightFeedback: 'Ananya’s weekly log accounts for this.',
     },
   ],
   cheque: {
@@ -419,6 +466,7 @@ export const CASE_FIGURES: CaseFigures = {
     accountNumber: '1234567890',
     amountInFigures: 1500,
     amountInWordsValue: 1550, // differs from the figures but ends in the same digit
+    micr: ['500012345', '123456', '10'],
   },
   balanceCards: [
     {
@@ -427,8 +475,9 @@ export const CASE_FIGURES: CaseFigures = {
       transaction: 'cheque-payment',
       feedback: {
         title: 'NOT QUITE',
-        message: 'This balance is much higher than it should be.',
-        detail: 'Check the {transactionAmount} cheque payment carefully. It is a debit — money OUT, so it must be subtracted, not added.',
+        message: 'This balance is much higher than it\nshould be.',
+        detail: 'Check the {transactionAmount} cheque payment carefully.\nIt is a debit — money OUT, so it must be subtracted, not added.',
+        cta: 'TRY AGAIN',
       },
     },
     {
@@ -437,8 +486,9 @@ export const CASE_FIGURES: CaseFigures = {
       transaction: 'interest',
       feedback: {
         title: 'NOT QUITE',
-        message: 'Very close. Check the last transaction in the statement.',
+        message: 'Very close. Check the last\ntransaction in the statement.',
         detail: 'Did you include the {transactionAmount} interest credit?',
+        cta: 'TRY AGAIN',
       },
     },
     { id: 'balance-card-c', kind: 'correct' },
@@ -448,21 +498,33 @@ export const CASE_FIGURES: CaseFigures = {
       amount: 3502,
       feedback: {
         title: 'NOT QUITE',
-        message: 'Your calculation is close, but something is off.',
-        detail: 'Start with {openingBalance} → add the credits → subtract the debits.',
+        message: 'Your calculation is close, but\nsomething is off.',
+        detail: 'Start with {openingBalance} → add the credits → subtract the debits',
+        cta: 'TRY AGAIN',
       },
     },
   ],
   simulatedLoss: 2000, // owner decision: leaves ₹452 of ₹2,452
+  withdrawalAttempt: 3000, // mockup 06
 }
 
 // ─── Content types ───────────────────────────────────────────────────────────
 
 export interface Copy {
+  /** The stamp on a feedback card (NOT QUITE, VALID…), or a pop-up's title. */
   title?: string
+  /** The heading of a feedback card, or a pop-up's main line. */
   message: string
   /** Extra explanation shown under the message. */
   detail?: string
+  /** Feedback cards (mockups 04a–06c): paragraphs under the heading, in order. */
+  paragraphs?: string[]
+  /** A bulleted list after the paragraphs. */
+  bullets?: string[]
+  /** The card's button label. */
+  cta?: string
+  /** Measured sizes from the mockup, where the design doesn't follow the text length. */
+  layout?: { stampWidth?: number; ctaWidth?: number }
   /** A phone notification shown with the message, e.g. the bank's "money withdrawn" alert. */
   alert?: { sender: string; text: string }
 }
@@ -472,8 +534,18 @@ export interface CallLine {
   text: string
 }
 
+/** One beat of a phone call: the caller's expression, signal strength and what she says. */
+export interface CallStep {
+  mood: 'smiling' | 'talking' | 'worried' | 'alarmed'
+  signal: 'ok' | 'weak' | 'lost'
+  status: string
+  text: string
+  /** A small "take note" prompt shown with this line. */
+  hint?: string
+}
+
 export type PhishingChoice = 'no' | 'yes'
-export type FakeFieldId = 'card-number' | 'expiry' | 'cvv' | 'otp'
+export type FakeFieldId = 'card-number' | 'cvv' | 'otp'
 export type ChequeAreaId =
   | 'bank'
   | 'date'
@@ -487,6 +559,8 @@ export type ChequeAreaId =
 export interface EvidenceSlot {
   artefactId: ArtefactId
   label: string
+  /** What it shows, under its label (14c). */
+  detail?: string
 }
 
 interface TaskCommon {
@@ -504,7 +578,11 @@ interface TaskCommon {
 /** A table scene: the player answers by scanning physical cards (spec 2). */
 export interface ScanTask extends TaskCommon {
   kind: 'scan'
-  /** Cards on the table for this task; also the simulated-scan list. */
+  /** A story line shown above the question (mockup 06). */
+  intro?: string
+  /** Statement scenes: how many transaction rows show a running balance (mockup 08). */
+  statementBalancesShown?: number
+  /** Cards on the table for this task: each can be scanned or tapped on screen. */
   options: ArtefactId[]
   /** All of these must be scanned, in any order, to complete the task. */
   required: ArtefactId[]
@@ -522,6 +600,11 @@ export interface ScanTask extends TaskCommon {
     accepted: Partial<Record<ArtefactId, Copy>>
     /** Re-scanning an artefact that's already accepted: never an error. */
     already: Copy
+    /**
+     * `last-card`: the task completes on the last artefact's own card, with the task's `correct.cta`
+     * (mockup 05d: the second valid ID says NEXT CLUE). Default: the task's `correct` copy.
+     */
+    completion?: 'last-card'
   }
 }
 
@@ -532,6 +615,8 @@ export type ChequeArea =
 
 export interface ChequeTask extends TaskCommon {
   kind: 'cheque'
+  /** The clue screen before the cheque (09): the statement's two cheque rows. {chequeFigures} is filled in. */
+  clue: { heading: string; paragraphs: string[]; question: string; cta: string }
   areas: ChequeArea[]
   correct: Copy
 }
@@ -543,14 +628,18 @@ export interface HighlightTask extends TaskCommon {
 
 export interface PhishingTask extends TaskCommon {
   kind: 'phishing'
-  call: { caller: string; lines: CallLine[] }
+  /** Ananya's second call (mockups 11, 11b): played like the first, then the choice. */
+  call: { caller: string; steps: CallStep[] }
   choices: { id: PhishingChoice; label: string }[]
   /** Chose NO. */
   safe: Copy
   fakeSite: {
     title: string
+    subtitle: string
     urgency: string
+    message: string
     simulationNote: string
+    back: string
     /** Fields never accept typing: a tap fills an obviously fictional value (spec 6, Task 1). */
     fields: { id: FakeFieldId; label: string; autofill: string }[]
     submit: string
@@ -562,6 +651,18 @@ export interface PhishingTask extends TaskCommon {
 
 export interface StoryTask extends TaskCommon {
   kind: 'story'
+  /** The reveal (mockups 15, 15b, 12c), played as one sequence. */
+  reveal: {
+    heading: string
+    /** "CAM Service Tel" then "could this be?". */
+    question: [string, string]
+    /** The name as it appears, then as it rearranges. */
+    name: string
+    unscrambled: string
+    /** The newspaper that confirms it (12c). */
+    newspaper: { masthead: string; date: string; headline: string; body: string }
+  }
+  /** Read out with the reveal, for screen readers. */
   beats: string[]
   cta: string
   correct: Copy
@@ -569,6 +670,9 @@ export interface StoryTask extends TaskCommon {
 
 export interface PasskeyTask extends TaskCommon {
   kind: 'passkey'
+  /** The bank's computer (mockups 13, 13b, 16e). */
+  screenTitle: string
+  screenHint: string
   lockedLabel: string
   clueTitle: string
   clueInstruction: string
@@ -580,12 +684,19 @@ export interface PasskeyTask extends TaskCommon {
 
 export interface ReportTask extends TaskCommon {
   kind: 'report'
+  /** Mockup 15's heading. */
+  title: string
   fields: { label: string; value: string }[]
   evidenceTitle: string
   evidence: EvidenceSlot[]
   /** The task whose scans attach the evidence. */
   evidenceTaskId: TaskId
   cta: string
+  /** The button on the evidence screen once both are attached (14c). */
+  reviewCta: string
+  sending: string
+  /** What the monitor shows once the report is sent. */
+  receipt: { reference: string; checklist: string[] }
   submitted: Copy
   missingEvidence: Copy
   alreadySubmitted: Copy
@@ -612,6 +723,10 @@ export interface LevelDef {
   number: string
   title: string
   tasks: TaskId[]
+  /** The step tracker in the header (mockups): three steps per level, each covering one or more tasks. */
+  steps: { label: string; tasks: TaskId[] }[]
+  /** The title as it breaks over two lines on the Case Board card (mockup 21). */
+  boardLines: [string, string]
   complete: Copy
 }
 
@@ -637,6 +752,8 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
   const entries = figures.transactions.map((t) => ({
     ...t,
     amount: t.amount === CHEQUE_AMOUNT ? cheque.amountInFigures : t.amount,
+    /** The cheque's own rows: the payment and its return (highlighted on 09). */
+    isCheque: t.amount === CHEQUE_AMOUNT,
     suspicious: t.suspicious === true,
   }))
   const ledger = computeLedger(figures.openingBalance, entries)
@@ -663,6 +780,7 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       amount = ledger.closingBalance - signedAmount(row) * (card.kind === 'flips' ? 2 : 1)
     }
     const feedback: Copy = {
+      layout: { stampWidth: 340, ctaWidth: 321 },
       ...card.feedback,
       message: fillTemplate(card.feedback.message, values),
       ...(card.feedback.detail ? { detail: fillTemplate(card.feedback.detail, values) } : {}),
@@ -696,17 +814,20 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       drawerShortName: cheque.drawerShortName,
       suspiciousAmount: formatRupees(suspicious.amount),
       suspiciousLastDigit: lastDigit(suspicious.amount),
+      withdrawalAttempt: formatRupees(figures.withdrawalAttempt),
     })
 
   const artefacts = Object.fromEntries(
     ARTEFACT_IDS.map((id) => {
-      const { name, kind, printTask } = ARTEFACT_TABLE[id]
+      const { name, kind, printTask, cardLabel, detailLabel } = ARTEFACT_TABLE[id]
       const card = balanceCards.find((c) => c.id === id)
       const artefact: Artefact = {
         id,
         name,
         kind,
         printTask,
+        cardLabel: cardLabel ?? name,
+        detailLabel: detailLabel ?? cardLabel ?? name,
         qrUrl: artefactQrUrl(id),
         printFileName: printFileName(id, printTask),
         ...(card ? { printedAmount: card.amount } : {}),
@@ -728,6 +849,9 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
     throw new Error('The simulated phishing loss must be more than zero and less than the closing balance')
   }
   const balanceAfterLoss = ledger.closingBalance - figures.simulatedLoss
+  if (figures.withdrawalAttempt <= ledger.closingBalance) {
+    throw new Error("Ananya's withdrawal must be more than her balance: that's why it failed (mockup 06b)")
+  }
 
   const tasks: GameTasks = {
     L1T1: {
@@ -736,30 +860,49 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       kind: 'scan',
       label: 'Account type',
       prompt: 'WHAT TYPE OF BANK ACCOUNT DOES ANANYA HAVE?',
-      instruction: "Scan the card for Ananya's type of account.",
+      instruction: 'Scan the card in the file',
       hints: ['Think about an account a student would use to save pocket money and still take some out when needed.'],
       options: ['savings-account', 'current-account', 'fixed-deposit-account', 'recurring-deposit-account'],
       required: ['savings-account'],
+      // Mockups 04a–04d.
       correct: {
-        title: 'CORRECT!',
-        message:
-          'Ananya has a savings account. It lets her keep her money safe in the bank while still being able to take it out or make payments when she needs to.',
+        title: 'ACCOUNT IDENTIFIED',
+        layout: { stampWidth: 470, ctaWidth: 294 },
+        message: "YES, IT'S A SAVINGS ACCOUNT!",
+        paragraphs: ['Ananya uses her account to keep her pocket money.', 'A savings account lets her:'],
+        bullets: ['Put money in', 'Keep it safe', 'Take money out when needed'],
+        cta: 'NEXT',
       },
       incorrect: {
         'current-account': {
           title: 'NOT QUITE',
-          message:
-            'A current account is made for businesses that send and receive lots of payments every day. Ananya is a student saving her pocket money. Try another card!',
+          layout: { stampWidth: 370, ctaWidth: 321 },
+          message: 'A CURRENT ACCOUNT IS USED WHEN...',
+          paragraphs: [
+            'You need to make frequent payments and receive money regularly, especially for a business.',
+            'Ananya uses her account for pocket money, saving and occasional payments, not frequent business transactions.',
+          ],
+          cta: 'TRY AGAIN',
         },
         'fixed-deposit-account': {
           title: 'NOT QUITE',
-          message:
-            "A fixed deposit locks money away for a set time to earn extra interest, so Ananya couldn't take her pocket money out whenever she needed it. Try another card!",
+          layout: { stampWidth: 370, ctaWidth: 321 },
+          message: 'A FIXED DEPOSIT IS USED...',
+          paragraphs: [
+            'To keep your lump-sum money locked for a set period of time in exchange for an interest rate.',
+            "Ananya needs to access her pocket money when she needs it, so a fixed deposit (FD) doesn't fit her situation.",
+          ],
+          cta: 'TRY AGAIN',
         },
         'recurring-deposit-account': {
           title: 'NOT QUITE',
-          message:
-            "A recurring deposit means saving the same amount every month for a fixed time. It isn't meant for everyday withdrawals and payments. Try another card!",
+          layout: { stampWidth: 370, ctaWidth: 321 },
+          message: 'A RECURRING DEPOSIT IS USED WHEN...',
+          paragraphs: [
+            'You want to save a fixed amount regularly, every month, for a future goal.',
+            'Ananya deposits money whenever she receives her pocket money, rather than putting in a fixed amount regularly.',
+          ],
+          cta: 'TRY AGAIN',
         },
       },
       neutral: {},
@@ -772,23 +915,39 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       kind: 'scan',
       label: 'Verify identity',
       prompt: 'WHICH DOCUMENTS CAN ANANYA USE TO VERIFY HER IDENTITY?',
-      instruction: 'Scan both documents the bank will accept.',
+      instruction:
+        "KYC (Know Your Customer) is the process banks use to verify a customer's identity. Scan the documents Ananya likely used for her KYC.",
       hints: ['Look for official, valid identity documents issued by the government. Ananya needs two of them.'],
       options: ['expired-passport', 'library-card', 'pan-card', 'aadhaar-card'],
       required: KYC_SLOTS.map((slot) => slot.artefactId),
+      // Completes on the second valid ID's own card (mockup 05d), with this button.
       correct: {
         title: 'IDENTITY VERIFIED',
-        message:
-          'PAN and Aadhaar are official documents banks accept to check who a customer is. This check is called KYC: Know Your Customer.',
+        message: 'PAN and Aadhaar are official documents banks accept to check who a customer is.',
+        cta: 'NEXT CLUE',
+        layout: { ctaWidth: 411 },
       },
+      // Mockups 05b–05e.
       incorrect: {
         'expired-passport': {
-          title: 'NOT ACCEPTED',
-          message: "A passport is an official ID, but only while it's valid. This one has expired, so the bank can't accept it.",
+          title: 'NOT QUITE',
+          layout: { stampWidth: 370, ctaWidth: 321 },
+          message: 'Expired Passport — INVALID',
+          paragraphs: [
+            'The details match Ananya, but the passport is expired.',
+            'Banks need a current, valid document for identity verification.',
+          ],
+          cta: 'TRY AGAIN',
         },
         'library-card': {
-          title: 'NOT ACCEPTED',
-          message: "A library card shows Ananya is a library member, but it isn't an official identity document.",
+          title: 'NOT QUITE',
+          layout: { stampWidth: 370, ctaWidth: 321 },
+          message: 'Library Card: Invalid',
+          paragraphs: [
+            'The bank needs reliable identity details such as her name and date of birth.',
+            "Hence it doesn't provide enough information to verify her identity for Ananya's bank account.",
+          ],
+          cta: 'TRY AGAIN',
         },
       },
       neutral: {},
@@ -796,10 +955,29 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       collect: {
         slots: KYC_SLOTS,
         accepted: {
-          'pan-card': { title: 'PAN CARD VERIFIED', message: 'One more document to go.' },
-          'aadhaar-card': { title: 'AADHAAR VERIFIED', message: 'One more document to go.' },
+          'pan-card': {
+            title: 'VALID',
+            layout: { stampWidth: 301, ctaWidth: 355 },
+            message: 'PAN Card: Valid',
+            paragraphs: [
+              "The name and date of birth match Ananya's account details.",
+              'Banks accept a PAN card for KYC.',
+            ],
+            cta: 'SCAN NEXT',
+          },
+          'aadhaar-card': {
+            title: 'VALID',
+            layout: { stampWidth: 301, ctaWidth: 355 },
+            message: 'Aadhaar Card: Valid',
+            paragraphs: [
+              "The name and date of birth match Ananya's account details.",
+              'Banks accept Aadhaar for KYC.',
+            ],
+            cta: 'SCAN NEXT',
+          },
         },
         already: { message: 'Already verified' },
+        completion: 'last-card',
       },
     },
 
@@ -808,20 +986,34 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       level: 1,
       kind: 'scan',
       label: 'Withdrawal slip',
-      prompt: 'WHICH SLIP WOULD ANANYA NEED TO TAKE MONEY OUT OF HER ACCOUNT?',
-      instruction: 'Scan the right slip.',
+      // Mockup 06: the story line above the question.
+      intro: fill('Ananya went to the bank to withdraw {withdrawalAttempt}.'),
+      prompt: 'Which slip would she need to take the money out?',
+      instruction: "Scan a slip in Ananya's case file.",
       hints: ['Ananya wants to take money OUT of her account.'],
       options: ['deposit-slip', 'withdrawal-slip'],
       required: ['withdrawal-slip'],
+      // Mockups 06b, 06c.
       correct: {
-        title: 'CORRECT!',
-        message:
-          'A withdrawal slip is used to request money out of an account. A deposit slip is used when putting money into an account.',
+        title: 'CORRECT',
+        layout: { stampWidth: 285, ctaWidth: 426 },
+        message: 'Yes, a withdrawal slip is used to\ntake money OUT of a bank account.',
+        paragraphs: [
+          "But Ananya couldn't withdraw the money\nsince her balance was too low.",
+          'Why was her balance lower than expected?',
+        ],
+        cta: 'CHECK BALANCE',
       },
       incorrect: {
         'deposit-slip': {
           title: 'NOT QUITE',
-          message: "That's a deposit slip. It's used to put money INTO an account, but Ananya wants to take money out. Try the other slip!",
+          layout: { stampWidth: 299, ctaWidth: 449 },
+          message: 'A deposit slip is used to\nput money IN a bank account.',
+          paragraphs: [
+            'If Ananya wanted to put money into her\naccount using a cheque/cash, she would use\na deposit slip and submit the cheque/cash with it.',
+            fill('But Ananya wants to take {withdrawalAttempt} OUT.\nScan the other slip.'),
+          ],
+          cta: 'SCAN OTHER SLIP',
         },
       },
       neutral: {},
@@ -833,8 +1025,11 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       level: 2,
       kind: 'scan',
       label: 'Closing balance',
-      prompt: "HOW MUCH MONEY IS LEFT IN ANANYA'S ACCOUNT?",
-      instruction: 'Work through the bank statement, then scan the card with the closing balance.',
+      // Mockup 08.
+      prompt: 'How Much Money is\nin Ananya’s Account?',
+      instruction: 'Check the bank statement and calculate Ananya’s balance.\nScan the card with your answer.',
+      /** Mockup 08 prints running balances for the first rows only; the rest are left for the player. */
+      statementBalancesShown: 7,
       hints: [
         'Start with the opening balance. Add every credit (money in) and subtract every debit (money out).',
         "Go down the statement one row at a time and don't skip any, not even the returned cheque or payments Ananya doesn't remember.",
@@ -842,12 +1037,15 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       ],
       options: balanceCards.map((card) => card.id),
       required: [correctCards[0].id],
+      // Mockup 08c.
       correct: {
         title: 'CORRECT',
-        message: 'Great job! You read the statement and worked out the balance.',
+        message: 'Great job! You read the statement and\nworked out the balance.',
         detail: fill(
-          "Ananya has {closingBalance} left: money coming in (credits) increases the balance, and money going out (debits) decreases it. A bank statement keeps a record of the money moving in and out of an account over a period of time. Now, let's see if everything on Ananya's statement matches what she actually did.",
+          'A bank statement keeps a record of the money moving in and out of an account over a period of time.\nNow, let’s see if everything on Ananya’s statement matches what she actually did.',
         ),
+        cta: 'NEXT CLUE',
+        layout: { stampWidth: 300, ctaWidth: 366 },
       },
       incorrect: Object.fromEntries(balanceCards.flatMap((card) => (card.feedback ? [[card.id, card.feedback]] : []))),
       neutral: {},
@@ -859,22 +1057,33 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       level: 2,
       kind: 'cheque',
       label: 'Returned cheque',
-      prompt: 'WAIT — THE CHEQUE WAS RETURNED. CAN YOU FIND OUT WHY?',
-      instruction: 'Tap different parts of the cheque to investigate.',
+      // Mockups 09–09f.
+      prompt: 'CAN YOU SPOT WHAT’S WRONG IN HER CHEQUE?',
+      instruction: 'Tap on the area you think is wrong.',
       hints: [],
+      clue: {
+        heading: 'WAIT… LOOK AT THIS.',
+        paragraphs: [
+          fill('The same cheque number appears twice in Ananya’s statement. **{chequeFigures} went OUT.**\n**Then {chequeFigures} came BACK IN.**'),
+        ],
+        question: 'Why did the cheque bounce?',
+        cta: 'CHECK CHEQUE',
+      },
+      // Each "looks right" card breaks its lines where 09c, 09d and 09f do.
       areas: [
-        { id: 'bank', label: 'Bank name and branch', isDiscrepancy: false, feedback: { message: `The bank name and branch are printed by the bank. ${LOOKS_CORRECT}` } },
-        { id: 'date', label: 'Date', isDiscrepancy: false, feedback: { message: `The date is valid and matches the transaction. ${LOOKS_CORRECT}` } },
-        { id: 'payee', label: 'Pay', isDiscrepancy: false, feedback: { message: fill(`The payee name is correctly written as {payee}. ${LOOKS_CORRECT}`) } },
+        { id: 'bank', label: 'Bank name and branch', isDiscrepancy: false, feedback: { message: `The bank name and branch are printed by the bank.\n${LOOKS_CORRECT}`, cta: 'TRY AGAIN' } },
+        { id: 'date', label: 'Date', isDiscrepancy: false, feedback: { message: `The date is valid and matches the transaction.\n${LOOKS_CORRECT}`, cta: 'TRY AGAIN' } },
+        { id: 'payee', label: 'Pay', isDiscrepancy: false, feedback: { message: fill(`The payee name is correctly written\nas {payee}. ${LOOKS_CORRECT}`), cta: 'TRY AGAIN' } },
         { id: 'amount-words', label: 'Amount in words', isDiscrepancy: true },
         { id: 'amount-figures', label: 'Amount in figures', isDiscrepancy: true },
-        { id: 'account-number', label: 'Account number', isDiscrepancy: false, feedback: { message: `The account number is printed by the bank. ${LOOKS_CORRECT}` } },
-        { id: 'signature', label: 'Signature', isDiscrepancy: false, feedback: { message: fill(`The signature matches {drawerShortName}'s bank records. ${LOOKS_CORRECT}`) } },
-        { id: 'cheque-number', label: 'Cheque number', isDiscrepancy: false, feedback: { message: `The cheque number matches the one on the statement. ${LOOKS_CORRECT}` } },
+        { id: 'account-number', label: 'Account number', isDiscrepancy: false, feedback: { message: `The account number is printed by the bank.\n${LOOKS_CORRECT}`, cta: 'TRY AGAIN' } },
+        { id: 'signature', label: 'Signature', isDiscrepancy: false, feedback: { message: fill(`The signature matches {drawerShortName}’s bank records.\n${LOOKS_CORRECT}`), cta: 'TRY AGAIN' } },
+        { id: 'cheque-number', label: 'Cheque number', isDiscrepancy: false, feedback: { message: `The cheque number matches the one on the statement.\n${LOOKS_CORRECT}`, cta: 'TRY AGAIN' } },
       ],
       correct: {
-        title: 'YOU SPOTTED IT',
+        title: 'You spotted it:',
         message: "The amounts don't match.",
+        cta: 'BANK STATEMENT',
         detail: fill(
           "The cheque says {chequeFigures} in numbers but {chequeWordsAmount} in words. The amounts don't match, so the bank returned the cheque. But that still doesn't explain Ananya's missing money.",
         ),
@@ -886,10 +1095,11 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       level: 2,
       kind: 'highlight',
       label: 'Suspicious transaction',
-      prompt: 'ONE TRANSACTION TELLS A DIFFERENT STORY. CAN YOU FIND IT?',
-      instruction: 'Drag the highlighter onto the transaction that looks suspicious.',
+      // Mockups 10–10j.
+      prompt: 'Something in the statement doesn’t match\nAnanya’s week. Can you find it?',
+      instruction: 'Highlight the transaction Ananya doesn’t\nremember making. Drag the highlighter over it.',
       hints: [],
-      correct: { title: 'CLUE FOUND', message: suspicious.highlightFeedback },
+      correct: { title: 'CLUE FOUND', message: suspicious.highlightFeedback, cta: 'INVESTIGATE' },
     },
 
     L3T1: {
@@ -900,45 +1110,55 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       prompt: 'Should Ananya tap the link in the notification?',
       instruction: 'Decide what Ananya should do.',
       hints: [],
+      // Mockups 11, 11b.
       call: {
         caller: 'Ananya',
-        lines: [
-          { speaker: 'Ananya', text: "Hello! It's me, Ananya! My debit card has been blocked." },
-          { speaker: 'Ananya', text: 'I just got a message saying I can unblock it immediately by clicking a link.' },
+        steps: [
+          { mood: 'worried', signal: 'ok', status: 'Connected', text: "Hello! It's me, Ananya!\nMy debit card has been blocked" },
+          {
+            mood: 'worried',
+            signal: 'ok',
+            status: 'Connected',
+            text: 'I just got a message saying I\ncan unblock it immediately by\nclicking a link.',
+          },
         ],
       },
       choices: [
         { id: 'yes', label: 'YES' },
         { id: 'no', label: 'NO' },
       ],
+      // Mockup 11f (the file named "yes-chosen" shows the NO outcome).
       safe: {
         title: 'GOOD CALL',
-        message: 'You did the right thing by refusing to click the suspicious link!',
-        detail:
-          "Good job contacting the bank to help. Unexpected, urgent messages like this can be phishing: tricks to steal your details. Ananya should check her card status through official bank channels, like the bank's own app, the helpline number on the back of her card, or her branch.",
+        message: 'You did the right thing by refusing to\nclick the suspicious link!',
+        detail: 'Good job contacting the bank to help',
+        cta: 'SECURE',
       },
+      // Mockup 14 (the YES path's fake page).
       fakeSite: {
-        title: 'UNBLOCK YOUR CARD NOW',
-        urgency: 'Your card will be closed in 10 minutes!',
-        simulationNote: 'SIMULATION: this is a pretend website. Nothing here is real.',
+        title: phishingMessage.sender,
+        subtitle: 'Tele Services',
+        urgency: 'URGENT ACTION REQUIRED',
+        message: 'Your debit card has been blocked due to suspicious activity\non your account.',
+        simulationNote: 'SIMULATION: This is a pretend website. Nothing here is real.',
         fields: [
           { id: 'card-number', label: 'Debit card number', autofill: 'XXXX-XXXX-XXXX-0000' },
-          { id: 'expiry', label: 'Expiry date', autofill: '00/00' },
           { id: 'cvv', label: 'CVV', autofill: '000' },
           { id: 'otp', label: 'OTP (one-time password)', autofill: '000000' },
         ],
-        submit: 'UNBLOCK MY CARD',
+        back: 'GO BACK',
+        submit: 'UNBLOCK CARD',
         incomplete: { message: 'The fake page wants every box filled in. Tap each one to see what scammers try to collect.' },
       },
+      // Mockup 11d (the file named "no-correct" shows the YES outcome).
       consequence: {
-        title: 'UH HUH',
-        message:
-          "By clicking the link and sharing the OTP, you may have given the scammer access. Ananya's account has been compromised! Report immediately.",
-        detail:
-          "In this simulation, the money went only after her card details and OTP were typed into the fake page. Scammers build fake pages that look like a bank's to collect information like this. The safer choice: don't tap links in unexpected messages, check your card through official bank channels, and never share your card number, PIN, password or OTP. Try again.",
+        title: 'Uh Huh',
+        message: 'By clicking the link and sharing the OTP,\nyou may have given the scammer access.',
+        detail: 'Ananya’s account has been compromised!\nReport Immediately',
+        cta: 'TRY AGAIN',
         alert: {
-          sender: account.bankName,
-          text: `Dear Customer, ${formatRupees(figures.simulatedLoss)} was withdrawn from a/c no. XXXX${account.maskedNumber.slice(-4)}. Available balance is ${formatRupees(balanceAfterLoss)}.`,
+          sender: account.bankName.toUpperCase(),
+          text: `Dear Customer, ${formatRupees(figures.simulatedLoss)} was withdrawn from a/c no. XXXX${account.maskedNumber.slice(-4)}.\nAvailable balance is ${formatRupees(balanceAfterLoss)}.`,
         },
       },
     },
@@ -951,13 +1171,26 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       prompt: 'THE CAMS TEL CONNECTION',
       instruction: 'Connect the clues.',
       hints: [],
+      // Mockups 15, 15b, 12c.
+      reveal: {
+        heading: 'WAIT... LOOK AT THE NAME!',
+        question: ['CAM Service Tel', 'could this be?'],
+        name: phishingMessage.sender,
+        unscrambled: 'SCAM TEL',
+        newspaper: {
+          masthead: 'THE DAILY CHRONICLE',
+          date: '12 OCT 2026',
+          headline: '“SCAM TEL” MASQUERADES\nAS CAM SERVICE TEL',
+          body: 'Fraudsters are impersonating the company\nname CAMS TEL to make fake messages\nabout blocked debit cards appear genuine.\nCustomers are tricked into clicking\nsuspicious links and sharing OTPs and\nsensitive banking information.',
+        },
+      },
       beats: [
         fill('Remember the {suspiciousAmount} "mobile recharge" on Ananya\'s statement? It was paid to CAMS TEL.'),
         `Now look at the message offering to unblock her debit card. Who sent it? ${phishingMessage.sender}.`,
         "The same name turns up in both clues. CAMS TEL doesn't look like a real phone company. It looks like a scam operation that tricks people into handing over their card details.",
         "Nothing is proven yet, Officer, but these clues are strong enough to report.",
       ],
-      cta: 'CONTINUE',
+      cta: 'REPORT IT',
       correct: {
         title: 'SCAM UNCOVERED',
         message: 'You linked the CAMS TEL payment to the CAMS TEL message. That connection is the key to this case.',
@@ -971,6 +1204,9 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       label: 'Unlock evidence',
       prompt: 'EVIDENCE FILE LOCKED',
       instruction: 'Enter the three-digit passkey to unlock the evidence file.',
+      // Mockup 13 (its hint line, with the punctuation tidied).
+      screenTitle: 'ENTER PASSKEY',
+      screenHint: 'Find the last digit of each answer, in the order given, to unlock the case file.\nCLOSING BALANCE ; CHEQUE AMOUNT ; SUSPICIOUS TRANSACTION',
       lockedLabel: 'LOCKED',
       clueTitle: 'THREE CLUES HOLD THE PASSKEY',
       clueInstruction: 'Enter the last digit of each value, in this order:',
@@ -994,8 +1230,9 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       level: 3,
       kind: 'scan',
       label: 'Scan evidence',
+      // Mockups 14, 14c.
       prompt: 'SCAN EVIDENCE',
-      instruction: 'Scan the two pieces of evidence for the incident report.',
+      instruction: 'Scan the evidence that supports Ananya’s case from the file.',
       hints: [],
       options: ['bank-statement', 'phishing-message-card', 'cheque'],
       required: EVIDENCE_SLOTS.map((slot) => slot.artefactId),
@@ -1036,22 +1273,36 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       prompt: 'REVIEW INCIDENT REPORT',
       instruction: 'Check that both pieces of evidence are attached before submitting.',
       hints: [],
+      // Mockup 15. Dates and account follow the statement, not the mockup (review note 3).
+      title: 'INCIDENT REPORT',
       fields: [
         { label: 'Customer', value: account.holder },
-        { label: 'Transaction', value: formatRupees(suspicious.amount) },
-        { label: 'Concern', value: 'Suspected fraud' },
+        { label: 'Account Number', value: `XXXX ${account.maskedNumber.slice(-4)}` },
+        { label: 'Transaction Date', value: formatStatementDate(suspicious.date) },
+        { label: 'Transaction', value: `${formatRupees(suspicious.amount)} — ${phishingMessage.sender}` },
+        { label: 'Concern', value: `Suspected fraud: ${phishingMessage.sender}` },
       ],
-      evidenceTitle: 'Evidence attached',
+      // Mockup 14c: what each piece of evidence shows.
+      evidenceTitle: 'EVIDENCE ATTACHED',
       evidence: [
-        { artefactId: 'bank-statement', label: 'Bank statement — unrecognised CAMS TEL transaction' },
-        { artefactId: 'phishing-message-card', label: 'Suspicious message — link claiming to unblock debit card' },
+        { artefactId: 'bank-statement', label: 'Bank statement', detail: 'Unrecognised CAMS TEL\ntransaction' },
+        { artefactId: 'phishing-message-card', label: 'Suspicious Link', detail: 'Link claiming to unblock\ndebit card' },
       ],
       evidenceTaskId: 'L3T4',
-      cta: 'SUBMIT INCIDENT REPORT',
+      cta: 'SUBMIT REPORT',
+      /** Shown on the progress bar while the report sends. */
+      sending: 'SENDING REPORT TO FRAUD TEAM…',
+      reviewCta: 'REVIEW INCIDENT REPORT',
       submitted: {
-        title: 'REPORT SUBMITTED',
-        message: "Your incident report has been sent to the bank's fraud team for investigation.",
+        title: 'REPORT SENT',
+        message: "Your incident report is with the bank's fraud team for investigation.",
         detail: "They'll look into the suspected fraud and keep Ananya updated.",
+        cta: 'VIEW CERTIFICATE',
+      },
+      // The confirmation on the monitor after sending (not in 15).
+      receipt: {
+        reference: `Case reference: NB-${account.maskedNumber.slice(-4)}-${suspicious.date.slice(5).replace('-', '')}`,
+        checklist: ['Bank statement attached', 'Suspicious link attached', 'Ananya will be kept updated'],
       },
       missingEvidence: { message: 'Check that both pieces of evidence are attached before submitting.' },
       alreadySubmitted: { message: 'This report has already been submitted for investigation.' },
@@ -1063,17 +1314,32 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       id: 1,
       number: '01',
       title: 'Understand the Account',
+      boardLines: ['UNDERSTAND', 'THE ACCOUNT'],
       tasks: ['L1T1', 'L1T2', 'L1T3'],
+      steps: [
+        { label: 'Account', tasks: ['L1T1'] },
+        { label: 'KYC', tasks: ['L1T2'] },
+        { label: 'Bank Records', tasks: ['L1T3'] },
+      ],
+      // Mockup 07.
       complete: {
         title: 'LEVEL 1 COMPLETE',
-        message: "You identified Ananya's savings account, verified her identity and chose the right slip to take money out.",
+        message: 'Ananya reported something strange about her transactions. Her case file contains two important clues.',
+        detail: 'Look at both the documents carefully.',
+        cta: 'OPEN DOCS FILE',
       },
     },
     {
       id: 2,
       number: '02',
       title: 'Follow the Money',
+      boardLines: ['FOLLOW', 'THE MONEY'],
       tasks: ['L2T1', 'L2T2', 'L2T3'],
+      steps: [
+        { label: 'Bank Balance', tasks: ['L2T1'] },
+        { label: 'Cheque', tasks: ['L2T2'] },
+        { label: 'Transactions', tasks: ['L2T3'] },
+      ],
       complete: {
         title: 'LEVEL 2 COMPLETE',
         message:
@@ -1084,7 +1350,13 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       id: 3,
       number: '03',
       title: 'Secure & Report',
+      boardLines: ['SECURE &', 'REPORT'],
       tasks: ['L3T1', 'L3T2', 'L3T3', 'L3T4', 'L3T5'],
+      steps: [
+        { label: 'Phishing', tasks: ['L3T1'] },
+        { label: 'Uncover', tasks: ['L3T2'] },
+        { label: 'Report', tasks: ['L3T3', 'L3T4', 'L3T5'] },
+      ],
       complete: {
         title: 'LEVEL 3 COMPLETE',
         message: 'You stayed safe from the phishing link, uncovered the CAMS TEL connection and reported the suspected fraud.',
@@ -1124,61 +1396,80 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
 
     start: {
       title: 'SAVE THE SAVINGS ACCOUNT',
+      /** How the title breaks on the start screen (mockup 01). */
+      titleLines: ['SAVE THE', 'SAVINGS ACCOUNT'],
+      /** For screen readers; the badge on the desk says it visually. */
       intro: 'Welcome, Junior Bank Officer. Your first case is waiting.',
       cta: 'START TRAINING',
       resumeCta: 'RESUME CASE',
     },
 
+    /** Ananya's first call (mockups 02–02e). Each step plays after the one before; \n is a forced line break. */
     openingCall: {
       caller: 'Ananya',
-      // PLACEHOLDER dialogue until the Stage 1 mockup.
-      lines: [
-        { speaker: 'Ananya', text: 'Hello? Is this the bank? Please help, I think my pocket money has been stolen from my account!' },
-        { speaker: 'Ananya', text: "My balance is much lower than it should be and I don't know what happened. I—" },
-      ] satisfies CallLine[],
-      disconnected: 'CALL DISCONNECTED',
+      incomingTitle: 'INCOMING CALL..',
+      accept: 'ACCEPT',
+      steps: [
+        {
+          mood: 'talking',
+          signal: 'ok',
+          status: 'Connected',
+          text: 'Helloo? My name is Ananya...\nSomething is wrong with my bank account.',
+        },
+        {
+          mood: 'worried',
+          signal: 'weak',
+          status: 'Connected',
+          text: 'I think someone is trying to steal my pocket money....',
+          hint: 'Take note of clues',
+        },
+        { mood: 'worried', signal: 'lost', status: 'Connecting..', text: '... I was checking my account and then-' },
+      ] satisfies CallStep[],
+      disconnected: 'CONNECTION LOST',
+      /** Alternative text for the portraits. */
+      portraitAlt: 'Ananya',
     },
 
     caseAssigned: {
       title: 'NEW CASE ASSIGNED',
-      message: 'Ananya needs your help, Officer. Her case file contains the clues you need to investigate.',
+      message: 'Ananya needs your help.\nHer case file has everything you need to start investigating.',
+      nextStep: "Identify Ananya's account type.",
       cta: 'OPEN CASE FILE',
+      caseFileAlt: "Ananya's case file, marked confidential",
     },
 
     caseBoard: {
       title: 'CASE BOARD',
+      /** Stamped on a solved level's card. */
+      solved: 'SOLVED',
+      /** Shown over a level's card as it unlocks (the transition between levels). */
+      unlocked: 'UNLOCKED',
       statusLabels: { locked: 'LOCKED', available: 'AVAILABLE', 'in-progress': 'IN PROGRESS', completed: 'COMPLETED' },
     },
 
     certificate: {
-      title: 'MISSION COMPLETE',
+      title: 'MISSION COMPLETE!',
+      // Mockup 16 (line breaks as drawn).
       headline: 'GOOD JOB, OFFICER!',
-      notified: 'Ananya has been notified about the report.',
-      message:
-        "You didn't just help Ananya take action to protect her account. You also learned how a savings account works, how to track money coming in and going out, and how to keep your money safe.",
+      notified: 'Ananya has been notified about the report.\nYou didn’t just help Ananya take action to\nprotect her account.',
+      message: 'You also learned how a savings account works,\nhow to track money coming in and going out,\nand how to keep your money safe.',
       award: 'Junior Bank Officer',
       caseBoardCta: 'BACK TO CASE BOARD',
       replayCta: 'REPLAY MISSION',
     },
 
     scanner: {
-      permissionTitle: 'SWITCH ON THE CASE SCANNER',
-      permissionMessage:
-        'Every card in the case file has a code. Hold a card up to the camera and the scanner reads it. The camera picture is never shown or saved.',
-      permissionCta: 'TURN ON SCANNER',
       holdHint: 'Hold the card up to the scanner',
       unknownQr: { title: 'HMM…', message: "That's not part of the case file, Officer." } satisfies Copy,
       startingMessage: 'Starting the scanner…',
       fallbackTitle: 'SCANNER UNAVAILABLE',
-      fallbackMessage: "The camera isn't available, so choose the card you're holding from the list instead.",
+      fallbackMessage: "The camera isn't available, so tap the card on the screen instead.",
       deniedTitle: 'SCANNER BLOCKED',
       deniedMessage:
-        "The camera wasn't allowed, so choose the card you're holding from the list instead. To use the scanner, allow the camera in your browser settings, then try again.",
+        "The camera wasn't allowed, so tap the card on the screen instead. To scan cards, allow the camera in your browser settings, then try again.",
       errorTitle: 'SCANNER STOPPED',
-      errorMessage: 'Something went wrong with the camera. Try again, or choose the card from the list.',
+      errorMessage: 'Something went wrong with the camera. Try again, or tap the card on the screen.',
       retryCta: 'TRY AGAIN',
-      useListCta: 'USE THE LIST INSTEAD',
-      simulatedLabel: 'Simulated scan',
     },
 
     /** The page a normal phone camera opens from a printed QR code. */
@@ -1195,6 +1486,8 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       ok: 'OK',
       next: 'NEXT TASK',
       back: 'BACK',
+      soundOn: 'Turn sound on',
+      soundOff: 'Turn sound off',
       caseBoard: 'CASE BOARD',
       resume: 'RESUME CASE',
       viewCertificate: 'VIEW CERTIFICATE',
@@ -1204,16 +1497,8 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       taskStatus: { completed: 'Completed', current: 'Current task', locked: 'Locked' },
       slotWaiting: 'Waiting for scan',
       slotDone: 'Scanned',
-      simulatedScan: {
-        title: 'SIMULATED SCAN',
-        note: 'For testing without a camera. Choose the card you would hold up to the scanner.',
-        onTable: 'Cards for this task',
-        other: 'Another case-file card',
-        scanOther: 'SCAN',
-        unrelated: 'An unrelated QR code',
-        /** What the "unrelated QR code" button pretends to read. */
-        unrelatedQrText: 'https://example.com/lunch-menu',
-      },
+      /** "Level 1: Understand the Account" in the header. */
+      levelHeading: 'Level',
       statement: {
         title: 'BANK STATEMENT',
         period: 'Statement period',
@@ -1225,9 +1510,52 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
         openingBalance: 'Opening balance',
         closingBalance: 'Closing balance',
         unknown: '?',
+        /** The printed bank statement (mockup 08). */
+        printed: {
+          subtitle: 'SAVINGS ACCOUNT STATEMENT',
+          holder: 'ACCOUNT HOLDER',
+          number: 'ACCOUNT NUMBER',
+          type: 'ACCOUNT TYPE',
+          period: 'STATEMENT PERIOD',
+          opening: 'OPENING BALANCE',
+          credits: 'TOTAL CREDITS',
+          debits: 'TOTAL DEBITS',
+          closing: 'CLOSING BALANCE',
+          date: 'DATE',
+          description: 'DESCRIPTION',
+          type_: 'TYPE',
+          amount: 'AMOUNT (₹)',
+          balance: 'BALANCE (₹)',
+          openingRow: 'Opening Balance',
+          credit: 'Credit',
+          debit: 'Debit',
+          none: '--',
+        },
       },
-      cheque: { chequeNumber: 'Cheque No.', accountNumber: 'A/c No.' },
-      highlighter: { label: 'HIGHLIGHTER', hint: 'Drag the highlighter onto a transaction' },
+      /** The closing-balance answer cards (mockups 08b–08e). */
+      balanceCard: 'CLOSING BALANCE',
+      cheque: {
+        chequeNumber: 'Cheque No.',
+        accountNumber: 'A/c No.',
+        // Printed on the cheque (09b).
+        ifsc: 'IFSC:',
+        validity: 'Valid for three months only',
+        date: 'DATE',
+        pay: 'PAY',
+        bearer: 'OR BEARER',
+        rupees: 'RUPEES',
+        signHere: 'Please sign above',
+      },
+      highlighter: {
+        label: 'HIGHLIGHTER',
+        hint: 'Drag the highlighter onto a transaction',
+        // 10, 10b–10j.
+        dragMe: 'Drag me over\nthe transaction',
+        notSuspicious: 'NOT SUSPICIOUS:',
+        suspicious: 'SUSPICIOUS:',
+        account: `${account.holder.split(' ')[0].toUpperCase()}’S ACCOUNT`,
+        period: 'STATEMENT PERIOD',
+      },
       clue: 'CLUE',
       passkey: { enter: 'ENTER', clear: 'CLEAR', unlocked: 'UNLOCKED' },
       certificateAwarded: 'AWARDED THE RANK OF',

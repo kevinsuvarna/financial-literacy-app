@@ -1,0 +1,1280 @@
+/*
+ * Level 3 finale: the bank's computer (13, 13b, 16e, 14, 14c, 15) and the certificate (16).
+ * The computer is laid out in canvas pixels at its zoomed size; on the desk it's scaled down.
+ */
+
+:root {
+  --pc-bezel: #07121c; /* sampled: monitor bezel (15) */
+  --pc-camera: #456176;
+  --pc-screen-top: #0f354c; /* sampled: screen, top / middle / bottom */
+  --pc-screen-mid: #0d2e45;
+  --pc-screen-bottom: #09263b;
+  --pc-screen-edge: #1b3f56;
+  --pc-rule: #4c7082;
+  --pc-head: #f4e8cf; /* sampled: NATIONAL BANK */
+  --pc-sidebar: #0b2a40;
+  --pc-ring: #144356; /* sampled: ring round the report portrait */
+  --pc-sidebar-edge: #1a3c52;
+  --pc-icon: #8eafbf;
+  --pc-title: #d8c9a6; /* sampled: ENTER PASSKEY, SCAN EVIDENCE… */
+  --pc-label: #a8c6d8; /* sampled: report labels, evidence notes */
+  --pc-value: #edf5fa;
+  --pc-row-rule: #1b4157;
+  --pc-box: #0b2d43; /* sampled: passkey boxes */
+  --pc-box-edge: #e7c987;
+  --pc-dash: #627375;
+  --pc-hint: #e5dbc7;
+  --pc-button: #16d8c0; /* sampled: REVIEW INCIDENT REPORT */
+  --pc-button-light: #52e1c7;
+  --pc-button-ink: #032333;
+  --pc-neck: #83888b; /* sampled: stand */
+  --pc-neck-dark: #515456;
+  --pc-base: #91979b;
+  --kb-body: #696a69; /* sampled: keyboard (13) */
+  --kb-body-top: #4e4f4e;
+  --kb-key: #92979a;
+  --ev-slot-dash: #7c9ca8; /* sampled: evidence slots (14) */
+  --ev-slot-filled: #7c9ba7;
+  --ev-paper: #f4e7d0;
+  --ev-row: #ffd2c6;
+  --ev-row-edge: #fcc8bc;
+  --ev-msg: #f8edda;
+  --ev-ink: #405764;
+  --ev-icon: #1b596b;
+  --ev-link: #4a82af;
+  --ev-tick: #1ad6c2;
+  --ev-tick-ink: #053b3f;
+  --cert-navy: #0b2a40; /* sampled: certificate frame (16) */
+  --cert-gold: #d49a32;
+  --cert-gold-light: #ecbe63;
+  --cert-cream-high: #fbecc4; /* sampled: certificate, near the top */
+  --cert-cream: #f5e2b3;
+  --cert-cream-low: #efdba9;
+  --cert-banner: #094177;
+  --cert-banner-edge: #07223c;
+  --cert-banner-text: #ffedc4;
+  --cert-ink: #0c2a42;
+  --cert-body: #14324b;
+  --cert-star: #dea236;
+  --cert-leaf: #e5d2a1;
+}
+
+.screen--computer {
+  position: absolute;
+  inset: 0;
+}
+
+.desk-scene--computer .desk-scene-top,
+.desk-scene--certificate .desk-scene-top {
+  /* Measured on 15: dark to y 690, then a ramp to the near colour by y 950. */
+  background: linear-gradient(180deg, var(--desk-top) 0%, var(--desk-top) 70.3%, var(--hl-desk-near) 96.7%);
+}
+
+/* ─── The computer ─────────────────────────────────────────────────────── */
+
+.pc {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1512px;
+  height: 982px;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+
+.pc > * {
+  pointer-events: auto;
+}
+
+.pc p,
+.pc h1 {
+  position: absolute;
+  margin: 0;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.pc-bezel {
+  position: absolute;
+  left: 202px;
+  top: 165px;
+  width: 1113px;
+  height: 683px;
+  border-radius: 44px;
+  background: var(--pc-bezel);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--ink) 50%, transparent);
+}
+
+.pc-camera {
+  position: absolute;
+  left: 551px;
+  top: 9px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--pc-camera);
+}
+
+.pc-screen {
+  position: absolute;
+  left: 231px;
+  top: 194px;
+  width: 1056px;
+  height: 591px;
+  border: 1.5px solid var(--pc-screen-edge);
+  border-radius: 18px;
+  background: linear-gradient(180deg, var(--pc-screen-top) 0%, var(--pc-screen-mid) 45%, var(--pc-screen-bottom) 100%);
+}
+
+.pc-stand {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.pc-neck {
+  position: absolute;
+  left: 631px;
+  top: 846px;
+  width: 255px;
+  height: 84px;
+  clip-path: polygon(14px 0, 241px 0, 255px 84px, 0 84px);
+  background: linear-gradient(90deg, var(--pc-neck) 0%, var(--pc-neck) 40%, var(--pc-neck-dark) 100%);
+}
+
+.pc-base {
+  position: absolute;
+  left: 554px;
+  top: 927px;
+  width: 409px;
+  height: 31px;
+  border: 2px solid color-mix(in srgb, var(--pc-neck-dark) 70%, var(--ink));
+  border-radius: 8px 8px 4px 4px;
+  background: linear-gradient(90deg, var(--pc-base) 0%, var(--pc-base) 50%, var(--pc-neck-dark) 100%);
+}
+
+.pc-bank-icon {
+  position: absolute;
+  left: 318px;
+  top: 217px;
+  width: 43px;
+  height: 40px;
+}
+
+.pc-bank-icon path {
+  fill: none;
+  stroke: var(--pc-head);
+  stroke-width: 2.4;
+  stroke-linejoin: round;
+}
+
+.pc-bank-name {
+  left: 395px;
+  top: 226px;
+  color: var(--pc-head);
+  font-family: var(--font-print);
+  font-size: 22.6px;
+  font-weight: 700;
+}
+
+.pc-rule {
+  position: absolute;
+  left: 272px;
+  top: 271px;
+  width: 971px;
+  height: 2px;
+  background: var(--pc-rule);
+}
+
+.pc-sidebar {
+  position: absolute;
+  left: 296px;
+  top: 355px;
+  width: 84px;
+  height: 288px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  padding-top: 28px;
+  border: 1.5px solid var(--pc-sidebar-edge);
+  border-radius: 8px;
+  background: var(--pc-sidebar);
+}
+
+.pc-sidebar svg {
+  width: 30px;
+  height: 30px;
+  fill: none;
+  stroke: var(--pc-icon);
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+
+.pc-title {
+  left: 430px;
+  top: 366px;
+  color: var(--pc-title);
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 400;
+  -webkit-text-stroke: 0.4px var(--pc-title);
+}
+
+.pc-title--passkey {
+  left: 568px;
+}
+
+.pc-hint {
+  left: 328px;
+  top: 694px;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  color: var(--pc-hint);
+  font-family: var(--font-print);
+  font-size: 15px;
+  line-height: 18px !important;
+  white-space: pre-line !important;
+}
+
+.pc-hint svg {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  fill: none;
+  stroke: var(--pc-value);
+  stroke-width: 1.6;
+}
+
+.pc-hint .pc-hint-dot {
+  fill: var(--pc-value);
+  stroke: none;
+}
+
+.pc-button {
+  position: absolute;
+  left: 440px;
+  top: 681px;
+  width: 777px;
+  height: 50px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(90deg, var(--pc-button-light) 0%, var(--pc-button) 100%);
+  color: var(--pc-button-ink);
+  font-family: var(--font-print);
+  font-size: 23px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pc-button span {
+  position: absolute;
+  left: 370px;
+  top: 50%;
+  translate: -50% -50%;
+  white-space: nowrap;
+}
+
+.pc-button svg {
+  position: absolute;
+  left: 547px;
+  top: 13px;
+  width: 28px;
+  height: 24px;
+  fill: none;
+  stroke: var(--pc-button-ink);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pc-button:hover {
+  filter: brightness(1.06);
+}
+
+/* On the desk (13, 13b) the monitor shrinks but its text keeps its size: counter-scale it. */
+.pc--desk .pc-bank-name,
+.pc--desk .pc-title,
+.pc--desk .pc-hint span,
+.pc--desk .pc-denied {
+  transform-origin: 0 0;
+  scale: 1.3774 1.3966;
+}
+
+.pc--desk .pc-title--passkey {
+  left: 579px;
+}
+
+.pc--desk .pc-denied {
+  width: 650px;
+}
+
+/* ─── Passkey (13, 13b, 16e) ───────────────────────────────────────────── */
+
+.pc-passkey {
+  position: absolute;
+  left: 578px;
+  top: 467px;
+  display: flex;
+  gap: 25px;
+}
+
+.pc-passkey-box {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 117px;
+  height: 127px;
+  border: 2px solid var(--pc-box-edge);
+  border-radius: 6px;
+  background: var(--pc-box);
+}
+
+.pc-passkey.is-wrong .pc-passkey-box {
+  border-color: var(--thread-red);
+}
+
+.pc-passkey-digit {
+  color: var(--text-light);
+  font-family: var(--font-display);
+  font-size: 39px;
+  line-height: 1;
+}
+
+.pc-passkey-dash {
+  position: absolute;
+  left: 38px;
+  bottom: 33px;
+  width: 41px;
+  height: 2px;
+  background: var(--pc-dash);
+}
+
+.pc-denied {
+  left: 330px;
+  top: 680px;
+  width: 900px;
+  color: var(--pc-hint);
+  font-family: var(--font-print);
+  font-size: 17px;
+  line-height: 22px !important;
+  white-space: normal !important;
+}
+
+.pc-denied strong {
+  margin-right: 10px;
+  color: var(--thread-red);
+}
+
+.pk-newspaper {
+  pointer-events: none;
+}
+
+.pk-keyboard {
+  position: absolute;
+  left: 246px;
+  top: 789px;
+  width: 552px;
+  height: 85px;
+}
+
+.pk-keyboard-body {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 4px 6px color-mix(in srgb, var(--ink) 45%, transparent));
+}
+
+.pk-keyboard-body path {
+  fill: var(--kb-body);
+  stroke: var(--kb-body-top);
+  stroke-width: 2;
+}
+
+.pk-row {
+  position: absolute;
+  display: flex;
+  gap: 4px;
+}
+
+.pk-row--1 {
+  left: 32px;
+  top: 14px;
+}
+
+.pk-row--2 {
+  left: 39px;
+  top: 35px;
+}
+
+.pk-key {
+  width: 34px;
+  height: 15px;
+  padding: 0;
+  border: none;
+  border-radius: 3px;
+  background: var(--kb-key);
+  color: var(--ink);
+  font-family: var(--font-print);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 15px;
+  cursor: pointer;
+}
+
+.pk-row--2 .pk-key {
+  width: 41px;
+}
+
+.pk-key:disabled {
+  cursor: default;
+}
+
+.pk-key:not(:disabled):hover,
+.pk-key:active {
+  background: color-mix(in srgb, var(--kb-key) 70%, var(--text-light));
+}
+
+.pk-space {
+  position: absolute;
+  left: 87px;
+  top: 56px;
+  width: 307px;
+  height: 11px;
+  border-radius: 3px;
+  background: var(--kb-key);
+}
+
+.pk-unlocked {
+  position: absolute;
+  inset: 0;
+  /* Its own wall, so the desk's small monitor never shows behind the zoom. */
+  background-color: var(--bg-navy);
+  background-image:
+    linear-gradient(var(--bg-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+}
+
+.pk-slide {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* ─── Evidence (14, 14c) ───────────────────────────────────────────────── */
+
+.ev-slot {
+  position: absolute;
+  top: 438px;
+  height: 191px;
+  padding: 0;
+  border: 2px dashed var(--ev-slot-dash);
+  border-radius: 12px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.ev-slot--1 {
+  left: 439px;
+  width: 227px;
+}
+
+.ev-slot--2 {
+  left: 730px;
+  width: 242px;
+}
+
+.ev-slot.is-attached {
+  background: var(--ev-slot-filled);
+  cursor: default;
+}
+
+.ev-slot.is-attached .ev-doc {
+  opacity: 0.72;
+}
+
+.ev-doc {
+  position: absolute;
+  font-family: var(--font-print);
+  color: var(--ev-ink);
+  text-align: left;
+}
+
+.ev-doc p {
+  position: absolute;
+  margin: 0;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.ev-doc--statement {
+  left: 30px;
+  top: 19px;
+  width: 165px;
+  height: 150px;
+  border-radius: 3px;
+  background: var(--ev-paper);
+}
+
+.ev-doc-title {
+  left: 10px;
+  top: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.ev-doc-rule {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 30px;
+  height: 1px;
+  background: color-mix(in srgb, var(--ev-ink) 18%, transparent);
+}
+
+.ev-bars {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  height: 18px;
+  background:
+    linear-gradient(90deg, var(--ev-bar, #d9cfbd) 0 30%, transparent 30% 36%, var(--ev-bar, #d9cfbd) 36% 72%, transparent 72% 78%, var(--ev-bar, #d9cfbd) 78% 100%) 0 0 / 100% 3px no-repeat,
+    linear-gradient(90deg, var(--ev-bar, #d9cfbd) 0 22%, transparent 22% 36%, var(--ev-bar, #d9cfbd) 36% 60%, transparent 60% 78%, var(--ev-bar, #d9cfbd) 78% 100%) 0 12px / 100% 3px no-repeat;
+}
+
+.ev-bars--top {
+  top: 39px;
+}
+
+.ev-bars--bottom {
+  top: 93px;
+  height: 40px;
+  background:
+    linear-gradient(90deg, #d9cfbd 0 30%, transparent 30% 36%, #d9cfbd 36% 72%, transparent 72% 78%, #d9cfbd 78% 100%) 0 0 / 100% 3px no-repeat,
+    linear-gradient(90deg, #d9cfbd 0 30%, transparent 30% 36%, #d9cfbd 36% 72%, transparent 72% 78%, #d9cfbd 78% 100%) 0 12px / 100% 3px no-repeat,
+    linear-gradient(90deg, #d9cfbd 0 30%, transparent 30% 36%, #d9cfbd 36% 72%, transparent 72% 78%, #d9cfbd 78% 100%) 0 24px / 100% 3px no-repeat,
+    linear-gradient(90deg, #d9cfbd 0 34%, transparent 34% 100%) 0 36px / 100% 3px no-repeat;
+}
+
+.ev-doc-row {
+  left: 7px;
+  top: 64px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 151px;
+  height: 21px;
+  padding: 0 6px;
+  border: 1px solid var(--ev-row-edge);
+  border-radius: 3px;
+  background: var(--ev-row);
+  font-size: 8.5px;
+  box-sizing: border-box;
+}
+
+.ev-doc-row span:first-child {
+  opacity: 0.7;
+}
+
+.ev-doc-row strong {
+  font-weight: 700;
+}
+
+.ev-doc--message {
+  left: 44px;
+  top: 24px;
+  width: 156px;
+  height: 143px;
+  border-radius: 14px;
+  background: var(--ev-msg);
+}
+
+.ev-msg-from {
+  left: 10px;
+  top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.4px;
+  font-weight: 600;
+}
+
+.ev-msg-icon {
+  display: grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--ev-icon);
+  color: var(--ev-msg);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.ev-msg-text {
+  left: 14px;
+  top: 38px;
+  font-size: 11.2px;
+  line-height: 17px !important;
+}
+
+.ev-msg-link {
+  left: 14px;
+  top: 90px;
+  color: var(--ev-link);
+  font-size: 9.6px;
+  line-height: 12.5px !important;
+  text-decoration: underline;
+  white-space: pre-line !important;
+}
+
+.ev-tick {
+  position: absolute;
+  right: -10px;
+  top: -12px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--ev-tick);
+}
+
+.ev-tick svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: var(--ev-tick-ink);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ev-notes {
+  position: absolute;
+  left: 1026px;
+  top: 429px;
+  margin: 0;
+  font-family: var(--font-print);
+}
+
+.ev-notes div {
+  height: 127px;
+}
+
+.ev-notes dt {
+  color: var(--pc-value);
+  font-size: 18.4px;
+  font-weight: 600;
+  line-height: 22px;
+}
+
+.ev-notes dd {
+  margin: 8px 0 0;
+  color: var(--pc-label);
+  font-size: 17px;
+  line-height: 22px;
+  white-space: pre-line;
+}
+
+/* ─── Incident report (15) ──────────────────────────────────────────────── */
+
+.rp-portrait {
+  position: absolute;
+  left: 449px;
+  top: 430px;
+  width: 200px;
+  height: 200px;
+  overflow: hidden;
+  border: 9px solid var(--pc-ring);
+  border-radius: 50%;
+}
+
+.rp-portrait img {
+  position: absolute;
+  left: 2px;
+  top: -10px;
+  width: 180px;
+  height: 191px;
+}
+
+.rp-fields {
+  position: absolute;
+  left: 745px;
+  top: 426px;
+  width: 414px;
+  margin: 0;
+  border-top: 1.5px solid var(--pc-row-rule);
+  font-family: var(--font-print);
+  font-size: 17px;
+}
+
+.rp-fields div {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  border-bottom: 1.5px solid var(--pc-row-rule);
+}
+
+.rp-fields div:last-child {
+  border-bottom: none;
+}
+
+.rp-fields dt {
+  width: 190px;
+  padding-left: 20px;
+  color: var(--pc-label);
+}
+
+.rp-fields dd {
+  margin: 0;
+  color: var(--pc-value);
+  white-space: nowrap;
+}
+
+.rp-stamp {
+  position: absolute;
+  left: 760px;
+  top: 470px;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 30px 14px;
+  border: 5px solid var(--stamp-green-edge);
+  border-radius: 16px;
+  background: var(--stamp-green);
+  color: var(--title-cream);
+  font-family: var(--font-display);
+  font-size: 44px;
+  box-shadow: 0 10px 22px color-mix(in srgb, var(--ink) 50%, transparent);
+}
+
+.rp-stamp svg {
+  width: 40px;
+  height: 40px;
+  fill: none;
+  stroke: var(--title-cream);
+  stroke-width: 3.6;
+  stroke-linecap: round;
+}
+
+/* ─── Certificate (16) ──────────────────────────────────────────────────── */
+
+.screen--certificate {
+  display: block;
+  padding: 0;
+}
+
+.cert-newspaper {
+  position: absolute;
+  left: -10px;
+  top: 712px;
+  width: 600px;
+  height: 283px;
+  filter: blur(3px);
+  rotate: -6deg;
+  pointer-events: none;
+}
+
+.cert-badge {
+  position: absolute;
+  left: 1118px;
+  top: 509px;
+  width: 387px;
+  height: 472px;
+  filter: blur(1.5px);
+  pointer-events: none;
+}
+
+.cert {
+  position: absolute;
+  left: 202px;
+  top: 133px;
+  width: 1086px;
+  height: 686px;
+  transform-origin: 0 0;
+  translate: 0 0;
+}
+
+.cert-paper {
+  position: absolute;
+  inset: 0;
+  rotate: -1.69deg;
+  transform-origin: 0 0;
+  border: 3px solid var(--cert-gold-light);
+  border-radius: 6px;
+  background: var(--cert-navy);
+  box-shadow: 0 16px 30px color-mix(in srgb, var(--ink) 55%, transparent);
+  color: var(--cert-ink);
+  text-align: center;
+}
+
+.cert-paper::before {
+  content: '';
+  position: absolute;
+  inset: 15px;
+  border: 3px solid var(--cert-gold);
+  border-radius: 3px;
+  background: radial-gradient(ellipse 75% 70% at 45% 20%, var(--cert-cream-high) 0%, var(--cert-cream) 55%, var(--cert-cream-low) 100%);
+}
+
+.cert-paper > * {
+  position: absolute;
+}
+
+.cert-corner {
+  width: 60px;
+  height: 60px;
+  background: var(--cert-navy);
+}
+
+.cert-corner--tl {
+  left: 18px;
+  top: 18px;
+  border-bottom-right-radius: 100%;
+}
+
+.cert-corner--tr {
+  right: 18px;
+  top: 18px;
+  border-bottom-left-radius: 100%;
+}
+
+.cert-corner--bl {
+  left: 18px;
+  bottom: 18px;
+  border-top-right-radius: 100%;
+}
+
+.cert-corner--br {
+  right: 18px;
+  bottom: 18px;
+  border-top-left-radius: 100%;
+}
+
+.cert-star {
+  fill: var(--cert-star);
+}
+
+.cert-star--corner {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+}
+
+.cert-corner--tl .cert-star--corner {
+  left: 10px;
+  top: 10px;
+}
+
+.cert-corner--tr .cert-star--corner {
+  right: 10px;
+  top: 10px;
+}
+
+.cert-corner--bl .cert-star--corner {
+  left: 10px;
+  bottom: 10px;
+}
+
+.cert-corner--br .cert-star--corner {
+  right: 10px;
+  bottom: 10px;
+}
+
+.cert-leaves {
+  width: 120px;
+  height: 240px;
+  fill: var(--cert-leaf);
+  stroke: none;
+  opacity: 0.8;
+}
+
+.cert-leaves path {
+  fill: none;
+  stroke: var(--cert-leaf);
+  stroke-width: 4;
+}
+
+.cert-leaves--left {
+  left: 80px;
+  top: 300px;
+}
+
+.cert-leaves--right {
+  right: 70px;
+  top: 300px;
+  scale: -1 1;
+}
+
+.cert-rule {
+  top: 97px;
+  width: 207px;
+  height: 2px;
+  background: var(--cert-gold);
+}
+
+.cert-rule--left {
+  left: 220px;
+}
+
+.cert-rule--right {
+  left: 660px;
+}
+
+.cert-emblem {
+  left: 453px;
+  top: 35px;
+  width: 180px;
+  height: 80px;
+}
+
+.cert-bank {
+  fill: none;
+  stroke: var(--cert-ink);
+  stroke-width: 4;
+  stroke-linejoin: round;
+}
+
+.cert-laurel ellipse {
+  fill: var(--cert-star);
+}
+
+.cert-banner {
+  left: 164px;
+  top: 140px;
+  width: 756px;
+  height: 156px;
+}
+
+.cert-banner > svg:first-child {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.cert-banner-gold {
+  fill: var(--cert-gold);
+}
+
+.cert-banner-navy {
+  fill: url(#cert-banner-fill);
+  stroke: var(--cert-banner-edge);
+  stroke-width: 3;
+}
+
+.cert-banner-line {
+  fill: none;
+  stroke: color-mix(in srgb, var(--cert-banner-text) 55%, transparent);
+  stroke-width: 1.5;
+}
+
+.cert-banner h1 {
+  position: absolute;
+  /* Centred in the navy band (banner y 10–148), not just the box. */
+  left: 60px;
+  right: 60px;
+  top: 10px;
+  bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Special Elite caps ride high in the line box: nudge them to the optical middle. */
+  padding-top: 19px;
+  margin: 0;
+  color: var(--cert-banner-text);
+  font-family: var(--font-display);
+  font-size: 48px;
+  font-weight: 400;
+  line-height: 1;
+  -webkit-text-stroke: 0.6px var(--cert-banner-text);
+}
+
+.cert-star--banner-left,
+.cert-star--banner-right {
+  position: absolute;
+  top: 66px;
+  width: 30px;
+  height: 30px;
+}
+
+.cert-star--banner-left {
+  left: 50px;
+}
+
+.cert-star--banner-right {
+  right: 50px;
+}
+
+.cert-headline {
+  left: 0;
+  right: 0;
+  top: 320px;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 31px;
+  line-height: 1;
+  -webkit-text-stroke: 0.8px var(--cert-ink);
+}
+
+.cert-text {
+  left: 0;
+  right: 0;
+  margin: 0;
+  color: var(--cert-body);
+  font-family: var(--font-display);
+  font-size: 21px;
+  line-height: 27px;
+}
+
+.cert-line {
+  display: block;
+}
+
+.cert-text--notified {
+  top: 388px;
+}
+
+.cert-text--learned {
+  top: 532px;
+}
+
+.cert-divider {
+  left: 0;
+  right: 0;
+  top: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.cert-divider span {
+  width: 120px;
+  height: 2px;
+  background: var(--cert-gold);
+}
+
+.cert-star--divider {
+  width: 28px;
+  height: 28px;
+}
+
+.cert-actions {
+  position: absolute;
+  left: 560px;
+  top: 860px;
+  display: flex;
+  gap: 24px;
+}
+
+.cert-actions .cert-cta {
+  position: relative;
+  width: auto;
+  height: 66px;
+  padding: 0 30px 4px;
+  font-size: 26px;
+  white-space: nowrap;
+}
+
+/* The passkey's hint has two lines (13, 16e). */
+.pc-title--passkey ~ .pc-hint {
+  top: 685px;
+}
+
+/* ─── Report sent: the confirmation on the monitor (after 15) ──────────── */
+
+.rp-sent {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  font-family: var(--font-print);
+}
+
+.rp-sent > * {
+  position: absolute;
+  margin: 0;
+  pointer-events: auto;
+}
+
+/* The confirmation screen: covers the report (below the header, right of the sidebar). */
+.rp-sent-screen {
+  inset: 0;
+  pointer-events: none;
+}
+
+.rp-sent-screen > * {
+  position: absolute;
+  margin: 0;
+}
+
+/* The screen's own gradient, clipped to the report area. */
+.rp-sent-screen::before {
+  content: '';
+  position: absolute;
+  left: 231px;
+  top: 194px;
+  width: 1056px;
+  height: 591px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, var(--pc-screen-top) 0%, var(--pc-screen-mid) 45%, var(--pc-screen-bottom) 100%);
+  clip-path: inset(90px 21px 115px 167px);
+}
+
+/* While sending: a tick beside each field of the report. */
+.rp-field-tick {
+  left: 718px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--ev-tick);
+}
+
+.rp-field-tick::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  width: 7px;
+  height: 4px;
+  border: solid var(--ev-tick-ink);
+  border-width: 0 0 2px 2px;
+  rotate: -45deg;
+}
+
+/* The SUBMIT REPORT button turns into a progress bar. */
+.rp-progress {
+  left: 440px;
+  top: 681px;
+  width: 777px;
+  height: 50px;
+  overflow: hidden;
+  border: 1.5px solid var(--pc-button);
+  border-radius: 10px;
+  background: var(--pc-sidebar);
+}
+
+.rp-progress-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  overflow: hidden;
+  background: linear-gradient(90deg, var(--pc-button-light) 0%, var(--pc-button) 100%);
+}
+
+.rp-progress-label {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--pc-value);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.rp-progress-label--on-fill {
+  right: auto;
+  width: 774px;
+  color: var(--pc-button-ink);
+}
+
+/* The bright line that wipes down the screen. */
+.rp-scanline {
+  left: 398px;
+  width: 868px;
+  height: 3px;
+  background: var(--step-bright);
+  box-shadow: 0 0 18px 6px color-mix(in srgb, var(--step-bright) 55%, transparent);
+}
+
+.rp-sent-tick {
+  left: 432px;
+  top: 342px;
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: var(--ev-tick);
+}
+
+.rp-sent-tick svg {
+  width: 38px;
+  height: 38px;
+  fill: none;
+  stroke: var(--ev-tick-ink);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.rp-sent-title {
+  left: 516px;
+  top: 350px;
+  color: var(--pc-title);
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 400;
+  line-height: 1;
+  -webkit-text-stroke: 0.4px var(--pc-title);
+}
+
+.rp-sent-message {
+  left: 518px;
+  top: 406px;
+  color: var(--pc-value);
+  font-size: 18px;
+  line-height: 24px;
+}
+
+.rp-sent-reference {
+  left: 518px;
+  top: 438px;
+  color: var(--pc-label);
+  font-size: 15px;
+  letter-spacing: 0.04em;
+}
+
+.rp-sent-list {
+  left: 518px;
+  top: 478px;
+  padding: 0;
+  list-style: none;
+  color: var(--pc-value);
+  font-size: 17px;
+}
+
+.rp-sent-list li {
+  position: relative;
+  height: 30px;
+  padding-left: 30px;
+  line-height: 30px;
+}
+
+.rp-sent-list li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 8px;
+  width: 9px;
+  height: 5px;
+  border: solid var(--ev-tick);
+  border-width: 0 0 2.5px 2.5px;
+  rotate: -45deg;
+}
+
+.rp-sent-detail {
+  left: 518px;
+  top: 584px;
+  color: var(--pc-label);
+  font-size: 16px;
+}

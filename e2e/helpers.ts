@@ -4,8 +4,9 @@ import { STORAGE_KEY, STORAGE_VERSION, type GameProgress } from '../src/state/ga
 export const dialog = (page: Page) => page.getByRole('dialog')
 export const toast = (page: Page) => page.getByRole('status')
 
+/** Closes a feedback pop-up or a full feedback card (scene screens), checking its stamp or title. */
 export async function closeDialog(page: Page, title?: string) {
-  if (title) await expect(dialog(page).getByRole('heading')).toHaveText(title)
+  if (title) await expect(dialog(page)).toContainText(title)
   await dialog(page).getByRole('button').click()
   await expect(dialog(page)).toBeHidden()
 }

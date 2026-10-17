@@ -1,58 +1,71 @@
 import { useNavigate } from 'react-router'
 import { GAME, type TaskId } from '../content/gameData'
+import { routeBack } from '../app/navigation'
 import { SCREENS } from '../app/screens'
-import { getLevelStatus, getTaskStatus } from '../state/gameStore'
+import { BackButton } from './BackButton'
+import { isTaskCompleted, isTaskUnlocked } from '../state/gameStore'
 import { useProgress } from '../state/hooks'
-import { Icon } from './Icon'
+import caseFolder from '../assets/interim/case-folder.png'
 
-/** Top progress tracker (spec 8): three levels, the tasks of the level on screen, and the Case Board. */
-export function ProgressTracker({ viewing }: { viewing: TaskId }) {
+/**
+ * The header on every task screen (mockups 04–17): the Case Board folder, the level title,
+ * and the level's three-step tracker. Steps the player has reached are filled.
+ */
+export function ProgressTracker({ viewing, backTo }: { viewing: TaskId; backTo?: string }) {
   const progress = useProgress()
   const navigate = useNavigate()
-  const viewingLevel = GAME.levels.find((level) => level.id === GAME.tasks[viewing].level)!
+
+  const level = GAME.levels.find((l) => l.id === GAME.tasks[viewing].level)!
+  const viewingStep = level.steps.findIndex((step) => step.tasks.includes(viewing))
+  // As in the mockups: steps are filled up to the one on screen (04b: still step 1 after solving it).
+  // A step covering several tasks (Level 3's Report) is reached once its first task is solved, and
+  // then shows as a solid dot (13 → 13b, 14, 15).
+  const opensStep = (step: { tasks: TaskId[] }) =>
+    step.tasks.length > 1 && viewing === step.tasks[0] && !isTaskCompleted(progress, viewing)
+  const reached = level.steps.map(
+    (step, i) => i <= viewingStep && isTaskUnlocked(progress, step.tasks[0]) && !(i === viewingStep && opensStep(step)),
+  )
+  const allReached = reached.every(Boolean)
 
   return (
-    <nav className="tracker" aria-label={GAME.ui.level}>
-      <ol className="tracker-levels">
-        {GAME.levels.map((level) => {
-          const status = getLevelStatus(progress, level.id)
-          const isViewing = level.id === viewingLevel.id
-          return (
-            <li
-              key={level.id}
-              className={`tracker-level tracker-level--${status}${isViewing ? ' is-viewing' : ''}`}
-              aria-current={isViewing ? 'step' : undefined}
-            >
-              <span className="tracker-level-mark">
-                {status === 'completed' ? <Icon name="check" /> : status === 'locked' ? <Icon name="lock" /> : level.number}
-              </span>
-              <span className="tracker-level-title">{level.title}</span>
-              <span className="visually-hidden">{GAME.caseBoard.statusLabels[status]}</span>
-            </li>
-          )
-        })}
-      </ol>
-
-      <ol className="tracker-tasks">
-        {viewingLevel.tasks.map((id, index) => {
-          const status = getTaskStatus(progress, id)
-          return (
-            <li
-              key={id}
-              className={`tracker-task tracker-task--${status}${id === viewing ? ' is-viewing' : ''}`}
-              aria-current={id === viewing ? 'step' : undefined}
-            >
-              <span className="tracker-task-dot">{status === 'completed' ? <Icon name="check" size={14} /> : index + 1}</span>
-              <span className="tracker-task-label">{GAME.tasks[id].label}</span>
-              <span className="visually-hidden">{GAME.ui.taskStatus[status]}</span>
-            </li>
-          )
-        })}
-      </ol>
-
-      <button type="button" className="tracker-caseboard" onClick={() => navigate(SCREENS.caseBoard.path)}>
-        <Icon name="pin" /> {GAME.ui.caseBoard}
+    <nav className="level-header" aria-label={`${GAME.ui.levelHeading} ${level.id}`}>
+      <button
+        type="button"
+        className="level-header-folder"
+        aria-label={GAME.ui.caseBoard}
+        onClick={() => navigate(SCREENS.caseBoard.path)}
+      >
+        <img src={caseFolder} alt="" />
       </button>
+      <BackButton fallback={backTo ?? routeBack(viewing)} />
+      <h2 className="level-header-title">
+        {GAME.ui.levelHeading} {level.id}: {level.title}
+      </h2>
+      <ol className="stepper">
+        {level.steps.map((step, i) => (
+          <li
+            key={step.label}
+            className={`stepper-step${reached[i] ? ' is-reached' : ''}${reached[i] && step.tasks.length > 1 ? ' is-solid' : ''}`}
+            aria-current={i === viewingStep ? 'step' : undefined}
+          >
+            {i > 0 && (
+              <span
+                className={`stepper-line stepper-line--${allReached ? 'bright' : i === 1 ? 'medium' : 'dim'}`}
+                aria-hidden="true"
+              />
+            )}
+            <span className="stepper-dot">{i + 1}</span>
+            <span className="stepper-label">{step.label}</span>
+            <span className="visually-hidden">
+              {step.tasks.every((t) => isTaskCompleted(progress, t))
+                ? GAME.ui.taskStatus.completed
+                : reached[i]
+                  ? GAME.ui.taskStatus.current
+                  : GAME.ui.taskStatus.locked}
+            </span>
+          </li>
+        ))}
+      </ol>
     </nav>
   )
 }

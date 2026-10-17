@@ -1,0 +1,931 @@
+/*
+ * Level 1 scene screens: identity table (05), slips folder (06), Level 1 complete (07), and the
+ * feedback cards (04a–06c). Canvas pixels, measured from the mockups. Tokens only.
+ */
+
+.scene-content[hidden] {
+  display: block;
+  visibility: hidden;
+}
+
+/* ─── Desk variants ─────────────────────────────────────────────────────── */
+
+.desk-scene--feedback .desk-scene-top {
+  background: linear-gradient(180deg, var(--desk-top) 72%, var(--desk-near) 100%);
+}
+
+.desk-scene--folder .desk-scene-top {
+  background: linear-gradient(180deg, var(--desk-top) 55%, var(--desk-near) 100%);
+}
+
+/* ─── Panel ─────────────────────────────────────────────────────────────── */
+
+.panel {
+  position: absolute;
+  rotate: -0.95deg;
+  border-radius: 30px;
+  background:
+    var(--paper-grain),
+    linear-gradient(
+      180deg,
+      var(--mat-paper) 0%,
+      var(--mat-paper) 57%,
+      color-mix(in srgb, var(--mat-paper) 60%, var(--mat-shade-1)) 69%,
+      var(--mat-shade-1) 81%,
+      var(--mat-shade-2) 100%
+    );
+}
+
+/* Card layout (04a–05e). */
+.panel--card {
+  left: 166.5px;
+  top: 228.3px;
+  width: 1205px;
+  height: 618px;
+}
+
+/* Slip layout (06b, 06c). */
+.panel--slip {
+  left: 166.5px;
+  top: 197.9px;
+  width: 1204px;
+  height: 660px;
+}
+
+/* Level complete (07). */
+.panel--story {
+  left: 165.7px;
+  top: 226.9px;
+  width: 1206px;
+  height: 541px;
+}
+
+/* ─── Stamp ─────────────────────────────────────────────────────────────── */
+
+.stamp {
+  position: absolute;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  height: 142.5px;
+  transform-origin: 0 50%;
+  color: var(--title-cream);
+  font-family: var(--font-display);
+  font-size: 35px;
+  -webkit-text-stroke: 0.6px var(--title-cream);
+}
+
+.stamp::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 28px;
+  filter: url(#rough-edge-strong);
+}
+
+.stamp--bad::before {
+  background: radial-gradient(ellipse 60% 70% at 50% 45%, var(--stamp-red) 10%, var(--stamp-red-edge) 100%);
+}
+
+.stamp--good::before {
+  background: radial-gradient(ellipse 60% 70% at 50% 45%, var(--stamp-green) 10%, var(--stamp-green-edge) 100%);
+}
+
+.stamp-inner {
+  position: absolute;
+  inset: 18px;
+  /* Text sits a little left of and below centre (04a). */
+  padding: 10px 30px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  border: 2.5px dashed var(--title-cream);
+  border-radius: 14px;
+  filter: url(#rough-edge);
+}
+
+.stamp-icon {
+  width: 34px;
+  height: 34px;
+  flex: none;
+}
+
+.stamp-icon path {
+  fill: none;
+  stroke: var(--title-cream);
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Card layout stamps share a left-middle anchor at (72, 320), tilted -10°. */
+.feedback-scene--card .fb-stamp {
+  left: 72px;
+  top: 248.75px;
+  rotate: -10deg;
+}
+
+.feedback-scene--slip .fb-stamp {
+  rotate: -10deg;
+}
+
+.feedback-scene--withdrawal-slip .fb-stamp {
+  left: 93.7px;
+  top: 185.75px;
+  height: 113.5px;
+  font-size: 32px;
+}
+
+.feedback-scene--deposit-slip .fb-stamp {
+  left: 102.2px;
+  top: 202.8px;
+  height: 128px;
+  rotate: -11.25deg;
+  font-size: 33px;
+}
+
+/* ─── Glowing CTA on scene screens ──────────────────────────────────────── */
+
+.scene-cta {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  height: 96.5px;
+  padding: 0 0 4px;
+  border: none;
+  border-radius: 28px;
+  background: radial-gradient(
+    ellipse 62% 58% at 54% 50%,
+    color-mix(in srgb, var(--cta-turquoise) 85%, var(--text-light)) 0%,
+    var(--cta-turquoise) 45%,
+    var(--cta-turquoise-hover) 100%
+  );
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 45px;
+  -webkit-text-stroke: 1.4px var(--ink);
+  cursor: pointer;
+}
+
+.scene-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 6px solid var(--ink);
+  border-radius: 28px;
+  filter: url(#rough-edge-strong);
+  pointer-events: none;
+}
+
+.scene-cta-arrow {
+  width: 56px;
+  height: 24px;
+  flex: none;
+}
+
+.scene-cta-arrow path {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 3.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Card layout: right edge at 1281.5, centre y 830.5, tilted -2°. */
+.feedback-scene--card .fb-cta {
+  right: calc(1512px - 1290px);
+  top: 776.8px;
+  padding: 7px 6px 0 0;
+  rotate: -2deg;
+  transform-origin: 100% 50%;
+}
+
+.feedback-scene--card .fb-cta.scene-cta--back {
+  padding-top: 4px;
+}
+
+/* Slip layout: left edge at 265.4, smaller type. */
+.feedback-scene--slip .fb-cta {
+  left: 256.8px;
+  font-size: 40px;
+  transform-origin: 0 50%;
+}
+
+.feedback-scene--withdrawal-slip .fb-cta {
+  left: 262.8px;
+  top: 808.6px;
+  rotate: -2.25deg;
+}
+
+.feedback-scene--deposit-slip .fb-cta {
+  left: 248.8px;
+  top: 819.3px;
+  rotate: -2deg;
+}
+
+/* ─── Feedback text ─────────────────────────────────────────────────────── */
+
+.fb-text {
+  position: absolute;
+  inset: 0;
+}
+
+.fb-heading {
+  position: absolute;
+  left: 519px;
+  top: 80px;
+  width: 640px;
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--weight-display);
+  font-size: 40px;
+  line-height: 43px;
+  color: var(--fb-heading-ink);
+  -webkit-text-stroke: 1.5px var(--fb-heading-ink);
+}
+
+.fb-body {
+  position: absolute;
+  left: 516px;
+  top: 202px;
+  width: 600px;
+  font-family: var(--font-display);
+  font-size: 30px;
+  line-height: 38.5px;
+  color: var(--fb-body-ink);
+  -webkit-text-stroke: 0.3px var(--fb-body-ink);
+}
+
+.fb-body p {
+  margin: 0 0 37px;
+}
+
+.fb-bullets {
+  margin: -37px 0 0;
+  padding: 0 0 0 46px;
+}
+
+.fb-bullets li::marker {
+  font-size: 22px;
+}
+
+/* Where each card's body starts, measured per mockup (04b–05e). */
+.feedback-scene--savings-account .fb-body {
+  top: 161px;
+}
+.feedback-scene--fixed-deposit-account .fb-heading {
+  top: 74px;
+}
+.feedback-scene--fixed-deposit-account .fb-body {
+  top: 196px;
+}
+.feedback-scene--expired-passport .fb-body {
+  top: 182px;
+}
+.feedback-scene--library-card .fb-body {
+  top: 201px;
+}
+.feedback-scene--pan-card .fb-body {
+  top: 204px;
+}
+.feedback-scene--aadhaar-card .fb-body {
+  top: 210px;
+}
+
+/* Card labels, fine offsets per mockup. */
+.feedback-scene--current-account .fb-card .table-card-label {
+  left: -3px;
+}
+.feedback-scene--fixed-deposit-account .fb-card .table-card-label {
+  top: 127px;
+}
+
+/* Slip layout: heading top-left, big; body below it, smaller. */
+.feedback-scene--slip .fb-heading {
+  left: 86px;
+  top: 106px;
+  width: 900px;
+  white-space: pre-line;
+  font-size: 45px;
+  line-height: 50px;
+  -webkit-text-stroke: 0.8px var(--fb-heading-ink);
+}
+
+.feedback-scene--slip .fb-body {
+  left: 89px;
+  top: 355px;
+  width: 700px;
+  white-space: pre-line;
+  font-size: 25px;
+  line-height: 30px;
+}
+
+.feedback-scene--slip .fb-body p {
+  margin-bottom: 25px;
+}
+
+.feedback-scene--deposit-slip .fb-heading {
+  left: 93px;
+  top: 135px;
+  line-height: 49px;
+}
+
+.feedback-scene--deposit-slip .fb-body {
+  top: 295px;
+}
+
+/* ─── The scanned artefact on its card ──────────────────────────────────── */
+
+.fb-art,
+.fb-pin,
+.fb-card,
+.fb-art-label {
+  position: absolute;
+  z-index: 2;
+}
+
+.fb-card {
+  height: 215px;
+  border-radius: 3px;
+  background: radial-gradient(ellipse 70% 65% at 50% 35%, var(--card-glow) 0%, var(--card-paper) 85%);
+}
+
+.fb-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px dotted var(--card-edge);
+  border-radius: 3px;
+  filter: url(#rough-edge);
+}
+
+.feedback-scene--current-account .fb-card {
+  left: 287.9px;
+  top: 462.7px;
+  width: 234px;
+  rotate: -0.75deg;
+}
+.feedback-scene--current-account .fb-art {
+  left: 340px;
+  top: 472px;
+}
+
+.feedback-scene--savings-account .fb-card {
+  left: 292.5px;
+  top: 464.3px;
+  width: 233.5px;
+  rotate: -1.5deg;
+}
+.feedback-scene--savings-account .fb-art {
+  left: 350px;
+  top: 470px;
+}
+
+.feedback-scene--fixed-deposit-account .fb-card {
+  left: 283.9px;
+  top: 457.3px;
+  width: 260px;
+  rotate: -2.25deg;
+}
+.feedback-scene--fixed-deposit-account .fb-art {
+  left: 360px;
+  top: 458px;
+}
+
+.feedback-scene--recurring-deposit-account .fb-card {
+  left: 275.8px;
+  top: 457.3px;
+  width: 289.5px;
+  rotate: -1.25deg;
+}
+.feedback-scene--recurring-deposit-account .fb-art {
+  left: 434px;
+  top: 464px;
+}
+.feedback-scene--recurring-deposit-account .fb-card .table-card-label {
+  left: 17px;
+  top: 127px;
+  text-align: left;
+}
+
+.fb-pin {
+  left: 270px;
+  top: 438px;
+  z-index: 3;
+}
+
+.feedback-scene--recurring-deposit-account .fb-pin {
+  left: 262px;
+  top: 438px;
+}
+
+/* Identity documents (05b–05e): the document, its label underneath. */
+.feedback-scene--library-card .fb-art {
+  left: 238px;
+  top: 448px;
+}
+.feedback-scene--pan-card .fb-art {
+  left: 236px;
+  top: 436px;
+}
+.feedback-scene--aadhaar-card .fb-art {
+  left: 286px;
+  top: 368px;
+}
+.feedback-scene--expired-passport .fb-art {
+  left: 256px;
+  top: 396px;
+}
+
+.fb-art-label {
+  margin: 0;
+  translate: -50% 0;
+  rotate: 1.5deg;
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--ink);
+  -webkit-text-stroke: 0.4px var(--ink);
+  white-space: nowrap;
+}
+
+.feedback-scene--library-card .fb-art-label {
+  left: 406px;
+  top: 655px;
+}
+.feedback-scene--pan-card .fb-art-label {
+  left: 340px;
+  top: 642px;
+}
+.feedback-scene--aadhaar-card .fb-art-label {
+  left: 368px;
+  top: 735px;
+}
+.feedback-scene--expired-passport .fb-art-label {
+  left: 385px;
+  top: 709px;
+}
+
+/* Slips (06b, 06c), clipped to their fitted outline plus rim and shadow. */
+.feedback-scene--withdrawal-slip .fb-art {
+  left: 852px;
+  top: 405px;
+  clip-path: polygon(41px 5px, 547px 39px, 525px 398px, 13px 362px);
+}
+.feedback-scene--deposit-slip .fb-art {
+  left: 905px;
+  top: 392px;
+  clip-path: polygon(30px 6px, 505px 36px, 479px 366px, 9px 330px);
+}
+
+/* ─── 05: identity documents on the mat (flat mat coordinates) ──────────── */
+
+.id-docs {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.id-doc-art,
+.id-doc-label {
+  position: absolute;
+}
+
+.id-doc--expired-passport .id-doc-art {
+  left: 90px;
+  top: 254px;
+}
+.id-doc--library-card .id-doc-art {
+  left: 300px;
+  top: 286px;
+}
+.id-doc--pan-card .id-doc-art {
+  left: 593px;
+  top: 298px;
+}
+.id-doc--aadhaar-card .id-doc-art {
+  left: 865px;
+  top: 174px;
+}
+
+.id-doc-label {
+  translate: -50% -50%;
+  font-family: var(--font-display);
+  font-size: 21px;
+  color: var(--mat-ink);
+  -webkit-text-stroke: 0.4px var(--mat-ink);
+  white-space: nowrap;
+}
+
+.id-doc--expired-passport .id-doc-label {
+  left: 158px;
+  top: 497px;
+}
+.id-doc--library-card .id-doc-label {
+  left: 441px;
+  top: 461px;
+  rotate: -3deg;
+}
+.id-doc--pan-card .id-doc-label {
+  left: 697px;
+  top: 487px;
+  rotate: 4deg;
+}
+.id-doc--aadhaar-card .id-doc-label {
+  left: 940px;
+  top: 533px;
+  rotate: 3deg;
+}
+
+.mat--verifyIdentity .mat-hint {
+  top: 562px;
+  width: 760px;
+  font-size: 19px;
+  line-height: 24px;
+}
+
+/* ─── 06: slips folder ──────────────────────────────────────────────────── */
+
+.slips-intro,
+.slips-prompt {
+  position: absolute;
+  left: 143px;
+  margin: 0;
+  color: var(--title-cream);
+  font-family: var(--font-display);
+  font-weight: var(--weight-display);
+  white-space: nowrap;
+}
+
+.slips-intro {
+  top: 207px;
+  font-size: 25px;
+}
+
+.slips-prompt {
+  top: 250px;
+  font-size: 45px;
+  -webkit-text-stroke: 1px var(--title-cream);
+}
+
+.slips-folder {
+  position: absolute;
+  left: 196px;
+  top: 416px;
+  clip-path: polygon(
+    142px 10px,
+    352px 10px,
+    370px 39px,
+    936px 39px,
+    954px 54px,
+    996px 212px,
+    1066px 434px,
+    1072px 454px,
+    1059px 474px,
+    19px 474px,
+    9px 460px,
+    72px 224px,
+    109px 134px,
+    135px 44px
+  );
+}
+
+.slips-hint {
+  position: absolute;
+  left: 838px;
+  top: 906px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 0;
+  color: var(--hint-text-light);
+  font-family: var(--font-display);
+  font-size: 20px;
+}
+
+/* ─── 07: Level 1 complete ──────────────────────────────────────────────── */
+
+.story-text {
+  position: absolute;
+  left: 91px;
+  top: 129px;
+  width: 960px;
+  font-family: var(--font-display);
+  font-size: 40px;
+  line-height: 50px;
+  color: var(--mat-ink);
+  -webkit-text-stroke: 1px var(--mat-ink);
+}
+
+.story-text p {
+  margin: 0 0 50px;
+}
+
+.story-alert {
+  position: absolute;
+  left: 140px;
+  top: 204px;
+  z-index: 3;
+  width: 116px;
+  height: 116px;
+}
+
+.story-alert svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.story-cta {
+  left: 274.9px;
+  top: 724.3px;
+  width: 503.4px;
+  height: 119.5px;
+  rotate: -1.75deg;
+  transform-origin: 0 50%;
+}
+
+/* Stamp text offsets per mockup (the default suits NOT QUITE and VALID). */
+.feedback-scene--savings-account .stamp-inner {
+  padding-right: 8px;
+}
+.feedback-scene--withdrawal-slip .stamp-inner {
+  padding-right: 12px;
+  padding-top: 4px;
+}
+.feedback-scene--deposit-slip .stamp-inner {
+  padding-right: 2px;
+  padding-top: 6px;
+}
+
+/* 06c sets its body tighter, with a wider gap before the second paragraph. */
+.feedback-scene--deposit-slip .fb-body {
+  line-height: 28px;
+}
+.feedback-scene--deposit-slip .fb-body p {
+  margin-bottom: 57px;
+}
+.feedback-scene--deposit-slip .fb-body {
+  top: 358px;
+}
+.feedback-scene--deposit-slip .fb-body p + p {
+  padding-left: 9px;
+}
+/* The slip cards print their heading in black (06b, 06c). */
+.feedback-scene--slip .fb-heading {
+  color: var(--mat-ink);
+  -webkit-text-stroke-color: var(--mat-ink);
+}
+.feedback-scene--deposit-slip .fb-heading {
+  left: 87px;
+  top: 137px;
+}
+
+/* 05: fine offsets measured in the un-warped mat. */
+.mat--verifyIdentity .mat-title {
+  left: 67px;
+  top: 88px;
+}
+.mat--verifyIdentity .mat-hint {
+  top: 568px;
+  align-items: flex-start;
+}
+.mat--verifyIdentity .mat-hint-icon {
+  margin-top: -4px;
+}
+.id-doc--expired-passport .id-doc-label {
+  top: 493px;
+}
+.id-doc--library-card .id-doc-label {
+  left: 442px;
+  top: 455px;
+}
+.id-doc--pan-card .id-doc-label {
+  left: 698px;
+  top: 483px;
+}
+.id-doc--aadhaar-card .id-doc-label {
+  left: 932px;
+  top: 531px;
+}
+
+/* 06 */
+.slips-intro {
+  top: 209px;
+}
+.slips-prompt {
+  top: 258px;
+}
+.slips-hint {
+  top: 908px;
+}
+.mat--verifyIdentity .mat-hint {
+  left: 84px;
+  top: 571px;
+  width: 760px;
+  gap: 22px;
+  font-size: 18px;
+  line-height: 22px;
+}
+.mat--verifyIdentity .mat-hint-icon {
+  width: 40px;
+  height: 40px;
+  margin-top: -1px;
+}
+.mat--verifyIdentity .mat-hint {
+  left: 82px;
+  top: 569px;
+  gap: 32px;
+}
+.mat--verifyIdentity .mat-hint-icon {
+  margin-top: -3px;
+}
+
+/* Round bullets as in 04b (Special Elite has a tiny bullet glyph). */
+.fb-bullets {
+  list-style: none;
+}
+.fb-bullets li {
+  position: relative;
+}
+.fb-bullets li::before {
+  content: '';
+  position: absolute;
+  left: -23px;
+  top: 17px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--fb-body-ink);
+}
+
+/* ─── Tap targets: tapping an artefact counts like scanning it ──────────── */
+
+button.table-card,
+button.id-doc-art {
+  padding: 0;
+  border: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+button.table-card {
+  transition: filter 0.15s;
+}
+
+button.id-doc-art {
+  display: block;
+  background: none;
+  transition: filter 0.15s, translate 0.15s;
+}
+
+button.id-doc-art img {
+  display: block;
+}
+
+button.table-card:hover,
+button.id-doc-art:hover {
+  filter: brightness(1.06);
+}
+
+button.table-card:active,
+button.id-doc-art:active {
+  filter: brightness(0.95);
+}
+
+.id-doc-label {
+  cursor: pointer;
+}
+
+.slip-tap {
+  position: absolute;
+  top: 520px;
+  height: 148px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.slip-tap:hover {
+  background: color-mix(in srgb, var(--text-light) 8%, transparent);
+}
+
+.slip-tap--deposit-slip {
+  left: 324px;
+  width: 412px;
+}
+
+.slip-tap--withdrawal-slip {
+  left: 745px;
+  width: 406px;
+}
+
+/* The feedback card fills the canvas (under the level header). */
+.feedback-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+}
+
+/* ─── Already scanned: greyed out, marked, and no longer tappable ───────── */
+
+button.id-doc-art:disabled,
+button.desk-card:disabled,
+button.table-card:disabled,
+button.answer-card:disabled,
+button.slip-tap:disabled {
+  cursor: default;
+  filter: none;
+}
+
+.slip-tap:disabled:hover {
+  background: transparent;
+}
+
+.id-doc.is-scanned .id-doc-art img,
+.table-card-art.is-scanned,
+.desk-card.is-scanned > :not(.scanned-tag) {
+  filter: grayscale(0.85) brightness(0.92);
+  opacity: 0.55;
+}
+
+.id-doc.is-scanned .id-doc-label {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.answer-card,
+.desk-card {
+  position: relative;
+}
+
+/* Greys out whatever the button covers (card paper, slip art under a tap area). */
+.scanned-wash {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--mat-shade-2) 55%, transparent);
+  pointer-events: none;
+}
+
+/* On the slips, only the part of each slip showing above the folder's pocket. */
+.slip-tap--deposit-slip .scanned-wash {
+  clip-path: polygon(21px 2px, 406px 2px, 406px 148px, 21px 117px);
+}
+
+.slip-tap--withdrawal-slip .scanned-wash {
+  clip-path: polygon(3px 2px, 400px 2px, 400px 108px, 3px 148px);
+}
+
+/* The closing-balance answer cards are small: a smaller tag. */
+.answer-card .scanned-tag {
+  gap: 3px;
+  padding: 4px 8px 3px;
+  border-width: 2px;
+  font-size: 14px;
+}
+
+.answer-card .scanned-tag svg {
+  width: 14px;
+  height: 14px;
+}
+
+.scanned-tag {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 2;
+  translate: -50% -50%;
+  rotate: -6deg;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px 5px 10px;
+  border: 3px solid var(--stamp-green-edge);
+  border-radius: 999px;
+  background: var(--stamp-green);
+  color: var(--text-light);
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--ink) 35%, transparent);
+  pointer-events: none;
+}
+
+/* A wrong answer already tried: navy, no tick, so it never reads as right. */
+.scanned-tag--tried {
+  padding-left: 14px;
+  border-color: var(--ink);
+  background: var(--step-future);
+  color: var(--text-on-dark);
+}

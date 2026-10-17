@@ -8,7 +8,7 @@ import { writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { GAME } from '../src/content/gameData'
-import { AFTER_INTRO, closeDialog, closeToast, dialog, seedProgress, toast } from './helpers'
+import { AFTER_INTRO, closeDialog, dialog, seedProgress, toast } from './helpers'
 
 /** Writes a Y4M video of a card with this QR code, held in front of the camera. */
 function writeFakeCamera(text: string, file: string) {
@@ -48,19 +48,18 @@ test.use({
 
 const scanner = (page: import('@playwright/test').Page) => page.getByTestId('scanner')
 
-test('reads a card held up to the hidden camera, once', async ({ page }) => {
+test('scans from the start: no in-game request, a card held up is read once', async ({ page }) => {
+  // Camera access is asked for on the first tap of the game.
+  await page.goto('/')
+  await page.getByRole('button', { name: GAME.start.cta }).click()
   await seedProgress(page, AFTER_INTRO)
   await page.goto('/level-1/account-type')
 
-  // The camera waits for the in-story explanation and a tap.
-  await expect(scanner(page)).toHaveAttribute('data-status', 'off')
-  await expect(scanner(page)).toContainText(GAME.scanner.permissionMessage)
-  await expect(page.locator('video.camera-feed')).toHaveCount(0)
-  await scanner(page).getByRole('button', { name: GAME.scanner.permissionCta }).click()
-
   // The card in front of the camera is read and checked: Savings Account is the answer.
-  await expect(dialog(page).getByRole('heading')).toHaveText(GAME.tasks.L1T1.correct.title!, { timeout: 15_000 })
-  await expect(scanner(page)).toHaveAttribute('data-status', 'active')
+  await expect(dialog(page)).toContainText(GAME.tasks.L1T1.correct.title!, { timeout: 15_000 })
+  // No request or failure card on the desk; the lamp pulses while scanning.
+  await expect(scanner(page)).toHaveCount(0)
+  await expect(page.locator('.desk-lamp')).toHaveClass(/is-scanning/)
 
   // The feed is never shown, but stays in the DOM: tiny, transparent, inline and muted.
   const video = page.locator('video.camera-feed')
@@ -74,11 +73,10 @@ test('reads a card held up to the hidden camera, once', async ({ page }) => {
 
   await closeDialog(page)
 
-  // Next table scene: the scanner comes back on by itself, and the card still being held
+  // Next table scene: scanning carries on by itself, and the card still being held
   // doesn't count again (spec 10.2: repeats within a short window count once).
   await expect(page).toHaveURL(/\/level-1\/verify-identity$/)
-  await expect(scanner(page)).toHaveAttribute('data-status', 'active')
-  await expect(scanner(page)).toContainText(GAME.scanner.holdHint)
+  await expect(page.locator('.desk-lamp')).toHaveClass(/is-scanning/)
   await page.waitForTimeout(1500)
   await expect(toast(page)).toHaveCount(0)
   await expect(dialog(page)).toHaveCount(0)
@@ -96,15 +94,14 @@ test('falls back to the card list when the camera is blocked', async ({ page }) 
     navigator.mediaDevices.getUserMedia = () => Promise.reject(new DOMException('Blocked', 'NotAllowedError'))
   })
   await page.goto('/level-1/account-type')
-  await scanner(page).getByRole('button', { name: GAME.scanner.permissionCta }).click()
   await expect(scanner(page)).toHaveAttribute('data-status', 'denied')
   await expect(scanner(page)).toContainText(GAME.scanner.deniedTitle)
+  await expect(scanner(page).getByRole('button', { name: GAME.scanner.retryCta })).toBeVisible()
 
-  const list = page.getByTestId('simulated-scan')
-  await list.getByLabel(GAME.ui.simulatedScan.other).selectOption('library-card')
-  await list.getByRole('button', { name: GAME.ui.simulatedScan.scanOther }).click()
-  await closeToast(page, GAME.tasks.L1T1.notAnOption.message)
-  await page.getByTestId('simulated-scan').getByRole('button', { name: GAME.artefacts['savings-account'].name }).click()
+  // Tapping the card on screen still works.
+  await page.locator('[data-artefact="current-account"]').click()
+  await closeDialog(page, GAME.tasks.L1T1.incorrect['current-account']!.title)
+  await page.locator('[data-artefact="savings-account"]').click()
   await closeDialog(page, GAME.tasks.L1T1.correct.title)
 })
 
@@ -114,8 +111,7 @@ test('falls back to the card list when there is no camera', async ({ page }) => 
     Object.defineProperty(navigator, 'mediaDevices', { value: undefined })
   })
   await page.goto('/level-1/account-type')
-  await scanner(page).getByRole('button', { name: GAME.scanner.permissionCta }).click()
   await expect(scanner(page)).toHaveAttribute('data-status', 'unavailable')
   await expect(scanner(page)).toContainText(GAME.scanner.fallbackMessage)
-  await expect(page.getByTestId('simulated-scan')).toBeVisible()
+  await expect(page.locator('[data-artefact="savings-account"]')).toBeVisible()
 })

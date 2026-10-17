@@ -361,8 +361,8 @@ Do not allow the player to skip required tasks or access locked future levels.
 
 The mockups in `/design/screens/` are the source of truth for all visuals and override any previously built screens. Section 13 maps each mockup to its route and game state.
 
-- **Target viewport (design canvas):** 1280 × 831 `[GUESSED, now contradicted: the Figma frames are 1512 × 982. Every screen except 01 is exported at that size, and 01-start.png (6048 × 3928) is exactly 4 × 1512 × 982. Same aspect ratio, so only the canvas constant changes. Switch to 1512 × 982 when Stage 1 starts matching mockups.]`
-- **Scaling:** every screen is built on a fixed 1280 × 831 canvas, scaled proportionally to fit the device (letterboxed with the background colour if the aspect ratio differs). This keeps layouts identical to the mockups on every iPad and laptop.
+- **Target viewport (design canvas):** 1512 × 982 `[GUESSED: the Figma frame size; every mockup except 01 is exported at it, and 01-start.png is exactly 4×. Switched from 1280 × 831 in Stage 1]`
+- **Scaling:** every screen is built on a fixed 1512 × 982 canvas, scaled proportionally to fit the device (letterboxed with the background colour if the aspect ratio differs). This keeps layouts identical to the mockups on every iPad and laptop.
 - **Filled-in typography and colour tokens are exact and locked.** Never substitute or approximate them. A token still marked `[FILL]` is guessed following Section 12.5.
 - Components use tokens only, never raw hex values or font names, so replacing a guessed value updates every screen at once.
 
@@ -370,7 +370,7 @@ The mockups in `/design/screens/` are the source of truth for all visuals and ov
 
 | Token | Use | Hex |
 |---|---|---|
-| `--bg-navy` | Main background | `[GUESSED: #052039]` |
+| `--bg-navy` | Main background | `[GUESSED: #0C253C]` |
 | `--bg-grid` | Background grid lines | `[GUESSED: #112C46]` |
 | `--paper-cream` | Panels, cards | `[GUESSED: #BEB292]` |
 | `--paper-aged` | Aged-paper documents | `[GUESSED: #A6987D]` |
@@ -392,7 +392,7 @@ Colour guesses (Stage 0): sampled from flat areas of `01-start.png` at canvas sc
 
 | Token | Use | Font family | Weights | Sizes |
 |---|---|---|---|---|
-| `--font-display` | Distressed typewriter headings | `[GUESSED: Special Elite]` | `[GUESSED: 400]` | `[GUESSED: 64px title, 30px task headings]` |
+| `--font-display` | Distressed typewriter headings | `[GUESSED: Special Elite]` | `[GUESSED: 400 + text stroke]` | `[measured, Stage 1: start title 98px, INCOMING CALL 60px, CTAs 45px, speech 35px, case text 38px, stamp 35px]` |
 | `--font-body` | Body text, instructions | `[GUESSED: Nunito]` | `[GUESSED: 500, 800 strong]` | `[GUESSED: 19px, 15px small]` |
 | `--font-ui` | Buttons, tracker labels | `[GUESSED: Special Elite]` | `[GUESSED: 400]` | `[GUESSED: 20px]` |
 | `--font-mono` | Statement figures, terminal | `[GUESSED: Courier Prime]` | `[GUESSED: 400, 700]` | `[GUESSED: 15px]` |
@@ -419,11 +419,11 @@ Do not replace the design with a generic financial dashboard or conventional edu
 
 When a screen is built, record its measured values here (or in its Section 13 row) so later screens stay consistent: layout grid, spacing scale, border radii, shadows.
 
-- Spacing scale: `[to be recorded from first mockup]`
-- Border radii: `[GUESSED from 01-start.png: panels 18px, CTAs 24px]`
-- Outlines: `[GUESSED from 01-start.png: 4px --ink on panels and CTAs]`
+- Spacing scale: `[measured, Stage 1: elements are placed at measured canvas positions rather than on a spacing scale; see src/styles/opening.css]`
+- Border radii: `[measured, Stage 1: paper panels 26px, glowing CTAs 32px, ACCEPT 30px, speech bubble 32px, status pill 24px]`
+- Outlines: `[measured, Stage 1: 6px --ink on panels, 7px on CTAs, roughened with an SVG displacement filter (#rough-edge); 3px on speech bubbles]`
 - Shadows: `[GUESSED: panels 0 8px 0 --ink at 45%; CTAs 0 5px 0 --ink]`
-- Background grid: `[GUESSED from 01-start.png: 1px --bg-grid lines every 37px]`
+- Background grid: `[GUESSED from 02: 1px --bg-grid lines every 42px]`
 
 ## 10. Functional and Technical Requirements
 
@@ -458,7 +458,7 @@ Use fictional banking data throughout. Do not collect real banking credentials o
 - **iPad (primary):**
   - In landscape, players hold cards up to the front camera (centred on the long edge on newer iPads).
   - Safari, served over HTTPS (also required for LAN testing).
-  - Request the camera with `facingMode: "user"`, triggered by a user tap, after an in-story explanation.
+  - Request the camera with `facingMode: "user"`, triggered by a user tap. **Owner decision (2026-10-15):** there is no in-game request or explanation card. Access is asked for on the game's first tap (START TRAINING, or RESUME CASE / OPEN CASE FILE), and every table scene then starts scanning by itself. The browser's own one-time permission prompt still appears.
   - The video element must be `playsinline` and `muted`, and kept in the DOM (tiny and transparent, never `display: none`).
   - Must work in both Safari tabs and Home Screen mode.
   - Recover automatically when the app returns from the background or the tab becomes visible again.
@@ -549,76 +549,78 @@ Export each Figma frame with the file name below. The friendly name is what prom
 
 | # | Image file (in `/design/screens/`) | Friendly name | Spec section | Scene type | Route | Status |
 |---|---|---|---|---|---|---|
-| 01 | `01-start.png` | Start screen ("Save the Savings Account") | 3 | screen | `/` | Placeholder (Stage 0) |
-| 02 | `02-call-ananya-1.png` | Ananya's first phone call | 3 | call | `/call/ananya` | Placeholder (Stage 0) |
-| 02b | `02b-call-ananya-1-talking.png` | First call: "Something is wrong with my bank account" | 3 | call | same route, call step 2 | Mockup received |
-| 02c | `02c-call-ananya-1-talking.png` | First call: "someone is trying to steal my pocket money" + "Take note of clues" | 3 | call | same route, call step 3 | Mockup received |
-| 02d | `02d-call-ananya-1-connecting.png` | First call breaking up: "…I was checking my account and then-" | 3 | call | same route, call step 4 | Mockup received |
-| 02e | `02d-call-ananya-1-disconnected.png` | First call: CONNECTION LOST (file is named 02d; rename to 02e-…) | 3 | call | same route, call step 5 | Mockup received |
-| 03 | `03-case-assigned.png` | Case assigned ("Open Case File") | 3 | cinematic | `/case-assigned` | Placeholder (Stage 0) |
-| 04 | `04-L1T1-account-type.png` | Account type cards on table | 4, Task 1 | table | `/level-1/account-type` | Placeholder (Stage 0) |
-| 04a | `04a-L1T1-account-type-current-wrong.png` | Account type: Current scanned (NOT QUITE) | 4, Task 1 | table | same route, feedback | Mockup received |
-| 04b | `04b-L1T1-account-type-savings-correc.png` | Account type: Savings scanned (ACCOUNT IDENTIFIED) | 4, Task 1 | table | same route, feedback | Mockup received |
-| 04c | `04c-L1T1-account-type-fixed-wrong.png` | Account type: Fixed Deposit scanned (NOT QUITE) | 4, Task 1 | table | same route, feedback | Mockup received |
-| 04d | `04d-L1T1-account-type-recurring-wrong.png` | Account type: Recurring Deposit scanned (NOT QUITE) | 4, Task 1 | table | same route, feedback | Mockup received |
-| 05 | `05-L1T2-verify-identity.png` | Verify Identity (KYC cards on table) | 4, Task 2 | table | `/level-1/verify-identity` | Placeholder (Stage 0) |
-| 05b | `05b-L1T2-verify-identity-library-scanned.png` | KYC: Library card scanned (NOT QUITE) | 4, Task 2 | table | same route, feedback | Mockup received |
-| 05c | `05c-L1T2-verify-identity-pan-scanned.png` | KYC: PAN scanned first (VALID, SCAN NEXT) | 4, Task 2 | table | same route, feedback | Mockup received |
-| 05d | `05d-L1T2-verify-identity-aadhaar-scanned.png` | KYC: Aadhaar scanned, both done (VALID, NEXT CLUE) | 4, Task 2 | table | same route, feedback | Mockup received |
-| 05e | `05e-L1T2-verify-identity-passport-scanned.png` | KYC: Expired passport scanned (NOT QUITE) | 4, Task 2 | table | same route, feedback | Mockup received |
-| 06 | `06-L1T3-withdrawal-slip.png` | Deposit vs withdrawal slips on table | 4, Task 3 | table | `/level-1/withdrawal-slip` | Placeholder (Stage 0) |
-| 07 | `07-L1-complete.png` | Level 1 complete | 4 | cinematic | `/level-1/complete` | Placeholder (Stage 0) |
+| 01 | `01-start.png` | Start screen ("Save the Savings Account") | 3 | screen | `/` | Built (Stage 1) |
+| 02 | `02-call-ananya-1.png` | Ananya's first phone call | 3 | call | `/call/ananya` | Built (Stage 1) |
+| 02b | `02b-call-ananya-1-talking.png` | First call: "Something is wrong with my bank account" | 3 | call | same route, call step 2 | Built (Stage 1) |
+| 02c | `02c-call-ananya-1-talking.png` | First call: "someone is trying to steal my pocket money" + "Take note of clues" | 3 | call | same route, call step 3 | Built (Stage 1) |
+| 02d | `02d-call-ananya-1-connecting.png` | First call breaking up: "…I was checking my account and then-" | 3 | call | same route, call step 4 | Built (Stage 1) |
+| 02e | `02d-call-ananya-1-disconnected.png` | First call: CONNECTION LOST (file is named 02d; rename to 02e-…) | 3 | call | same route, call step 5 | Built (Stage 1) |
+| 03 | `03-case-assigned.png` | Case assigned ("Open Case File") | 3 | cinematic | `/case-assigned` | Built (Stage 1) |
+| 04 | `04-L1T1-account-type.png` | Account type cards on table | 4, Task 1 | table | `/level-1/account-type` | Built (Stage 2) |
+| 04a | `04a-L1T1-account-type-current-wrong.png` | Account type: Current scanned (NOT QUITE) | 4, Task 1 | table | same route, feedback | Built (Stage 2) |
+| 04b | `04b-L1T1-account-type-savings-correc.png` | Account type: Savings scanned (ACCOUNT IDENTIFIED) | 4, Task 1 | table | same route, feedback | Built (Stage 2) |
+| 04c | `04c-L1T1-account-type-fixed-wrong.png` | Account type: Fixed Deposit scanned (NOT QUITE) | 4, Task 1 | table | same route, feedback | Built (Stage 2) |
+| 04d | `04d-L1T1-account-type-recurring-wrong.png` | Account type: Recurring Deposit scanned (NOT QUITE) | 4, Task 1 | table | same route, feedback | Built (Stage 2) |
+| 05 | `05-L1T2-verify-identity.png` | Verify Identity (KYC cards on table) | 4, Task 2 | table | `/level-1/verify-identity` | Built (Stage 2) |
+| 05b | `05b-L1T2-verify-identity-library-scanned.png` | KYC: Library card scanned (NOT QUITE) | 4, Task 2 | table | same route, feedback | Built (Stage 2) |
+| 05c | `05c-L1T2-verify-identity-pan-scanned.png` | KYC: PAN scanned first (VALID, SCAN NEXT) | 4, Task 2 | table | same route, feedback | Built (Stage 2) |
+| 05d | `05d-L1T2-verify-identity-aadhaar-scanned.png` | KYC: Aadhaar scanned, both done (VALID, NEXT CLUE) | 4, Task 2 | table | same route, feedback | Built (Stage 2) |
+| 05e | `05e-L1T2-verify-identity-passport-scanned.png` | KYC: Expired passport scanned (NOT QUITE) | 4, Task 2 | table | same route, feedback | Built (Stage 2) |
+| 06 | `06-L1T3-withdrawal-slip.png` | Deposit vs withdrawal slips on table | 4, Task 3 | table | `/level-1/withdrawal-slip` | Built (Stage 2) |
+| 06b | `06b-L1T3-withdrawal-slip-correct.png` | Withdrawal slip scanned (CORRECT, CHECK BALANCE) | 4, Task 3 | table | same route, feedback | Built (Stage 2) |
+| 06c | `06c-L1T3-withdrawal-slip-deposit-wrong.png` | Deposit slip scanned (NOT QUITE, SCAN OTHER SLIP) | 4, Task 3 | table | same route, feedback | Built (Stage 2) |
+| 07 | `07-L1-complete.png` | Level 1 complete | 4 | cinematic | `/level-1/complete` | Built (Stage 2) |
 | 08 | `08-L2T1-closing-balance.png` | Closing balance (statement + answer cards) | 5, Task 1 | table | `/level-2/closing-balance` | Placeholder (Stage 0) |
-| 08 (base) | `L3-T4_bank-statement.png` | Closing balance: statement on the desk (misnamed; rename to 08-L2T1-closing-balance.png) | 5, Task 1 | table | same route | Mockup received |
-| 08b | `08b-L2T1-closing-balance-statement-wrong.png` | Closing balance: ₹5,452 scanned (NOT QUITE) | 5, Task 1 | table | same route, feedback | Mockup received |
-| 08c | `08c-L2T1-closing-balance-statement-right.png` | Closing balance: correct card (CORRECT). Shows ₹3,502, which contradicts the statement; see 13.3 | 5, Task 1 | table | same route, feedback | Mockup received |
-| 08d | `08d-L2T1-closing-balance-statement-wrong.png` | Closing balance: ₹2,402 scanned (NOT QUITE, forgot interest) | 5, Task 1 | table | same route, feedback | Mockup received |
-| 08e | `08e-L2T1-closing-balance-statement-wrong.png` | Closing balance: ₹3,502 scanned (NOT QUITE). Same amount 08c marks correct | 5, Task 1 | table | same route, feedback | Mockup received |
-| 09 | `09-L2T2-cheque.png` | Cheque investigation | 5, Task 2 | screen | `/level-2/cheque` | Placeholder (Stage 0) |
-| 09 (clue) | `09-L2T2-cheque-clue.png` | "WAIT… LOOK AT THIS": statement with the cheque rows highlighted, CHECK CHEQUE (new screen before the cheque) | 5, Task 2 | screen | new route needed | Mockup received |
-| 09b | `09b-L2T2-cheque.png` | Cheque investigation: "CAN YOU SPOT WHAT'S WRONG IN HER CHEQUE?" | 5, Task 2 | screen | `/level-2/cheque` | Mockup received |
-| 09c | `09c-L2T2-cheque-name-tapped.png` | Cheque: payee tapped ("looks right", TRY AGAIN) | 5, Task 2 | screen | same route, feedback | Mockup received |
-| 09d | `09d-L2T2-cheque-date-tapped.png` | Cheque: date tapped ("looks right", TRY AGAIN) | 5, Task 2 | screen | same route, feedback | Mockup received |
-| 09e | `09e-L2T2-cheque-amount-mismatch-found.png` | Cheque: amount row tapped (mismatch found, BANK STATEMENT) | 5, Task 2 | screen | same route, feedback | Mockup received |
-| 09f | `09f-L2T2-cheque-signature.png` | Cheque: signature tapped ("looks right", TRY AGAIN) | 5, Task 2 | screen | same route, feedback | Mockup received |
-| 10 | `10-L2T3-highlighter.png` | Highlight the suspicious transaction | 5, Task 3 | screen | `/level-2/highlighter` | Placeholder (Stage 0) |
-| 10b | `10b-L2T3-highlighter-cafe-express.png` | Highlighter: Cafe Express (NOT SUSPICIOUS). Outlier header "Step 2: Bank Statment" and tracker Call/Case/Solve | 5, Task 3 | screen | same route, feedback | Mockup received |
-| 10c | `10c-L2T3-highlighter-playzone.png` | Highlighter: PlayZone (NOT SUSPICIOUS) | 5, Task 3 | screen | same route, feedback | Mockup received |
-| 10d | `10d-L2T3-highlighter-stylehub.png` | Highlighter: StyleHub (NOT SUSPICIOUS). Heading says ₹499, should be ₹1,200 | 5, Task 3 | screen | same route, feedback | Mockup received |
-| 10e | `10e-L2T3-highlighter-cinemax.png` | Highlighter: CineMax (NOT SUSPICIOUS) | 5, Task 3 | screen | same route, feedback | Mockup received |
-| 10f | `10f-L2T3-highlighter-quickbite.png` | Highlighter: QuickBite (NOT SUSPICIOUS). Heading says "Quick Bites" | 5, Task 3 | screen | same route, feedback | Mockup received |
-| 10g | `10g-L2T3-highlighter-interest-credit.png` | Highlighter: Interest credit (NOT SUSPICIOUS, "Ananya's weekly log accounts for this") | 5, Task 3 | screen | same route, feedback | Mockup received |
-| 10h | `10h-L2T3-highlighter-cams-tel-suspicious-found.png` | Highlighter: CAMS TEL row (SUSPICIOUS, INVESTIGATE). Heading says "FastTel", should be CAMS TEL | 5, Task 3 | screen | same route, feedback | Mockup received |
-| 10i | `10i-L2T3-highlighter-cheque-music-fees.png` | Highlighter: cheque returned row (NOT SUSPICIOUS, "Music Class") | 5, Task 3 | screen | same route, feedback | Mockup received |
-| 10j | `10j-L2T3-highlighter-grandparents-gift.png` | Highlighter: Gift from Grandparents (NOT SUSPICIOUS) | 5, Task 3 | screen | same route, feedback | Mockup received |
+| 08 (base) | `L3-T4_bank-statement.png` | Closing balance: statement on the desk (misnamed; rename to 08-L2T1-closing-balance.png) | 5, Task 1 | table | same route | Built (Stage 4, part) |
+| 08b | `08b-L2T1-closing-balance-statement-wrong.png` | Closing balance: ₹5,452 scanned (NOT QUITE) | 5, Task 1 | table | same route, feedback | Built (Stage 4, part) |
+| 08c | `08c-L2T1-closing-balance-statement-right.png` | Closing balance: correct card (CORRECT). Shows ₹3,502, which contradicts the statement; see 13.3 | 5, Task 1 | table | same route, feedback | Built (Stage 4, part) |
+| 08d | `08d-L2T1-closing-balance-statement-wrong.png` | Closing balance: ₹2,402 scanned (NOT QUITE, forgot interest) | 5, Task 1 | table | same route, feedback | Built (Stage 4, part) |
+| 08e | `08e-L2T1-closing-balance-statement-wrong.png` | Closing balance: ₹3,502 scanned (NOT QUITE). Same amount 08c marks correct | 5, Task 1 | table | same route, feedback | Built (Stage 4, part) |
+| 09 | `09-L2T2-cheque.png` | Cheque investigation | 5, Task 2 | screen | `/level-2/cheque` | Built (2026-10-16): see 09b |
+| 09 (clue) | `09-L2T2-cheque-clue.png` | "WAIT… LOOK AT THIS": statement with the cheque rows highlighted, CHECK CHEQUE (new screen before the cheque) | 5, Task 2 | screen | `/level-2/cheque-clue` | Built (2026-10-16), score 9.83 |
+| 09b | `09b-L2T2-cheque.png` | Cheque investigation: "CAN YOU SPOT WHAT'S WRONG IN HER CHEQUE?" | 5, Task 2 | screen | `/level-2/cheque` | Built (2026-10-16), score 9.95 |
+| 09c | `09c-L2T2-cheque-name-tapped.png` | Cheque: payee tapped ("looks right", TRY AGAIN) | 5, Task 2 | screen | same route, feedback | Built (2026-10-16), score 12.43 |
+| 09d | `09d-L2T2-cheque-date-tapped.png` | Cheque: date tapped ("looks right", TRY AGAIN) | 5, Task 2 | screen | same route, feedback | Built (2026-10-16), score 11.85 |
+| 09e | `09e-L2T2-cheque-amount-mismatch-found.png` | Cheque: amount row tapped (mismatch found, BANK STATEMENT) | 5, Task 2 | screen | same route, feedback | Built (2026-10-16), score 12.48 |
+| 09f | `09f-L2T2-cheque-signature.png` | Cheque: signature tapped ("looks right", TRY AGAIN) | 5, Task 2 | screen | same route, feedback | Built (2026-10-16), score 11.81 |
+| 10 | `10-L2T3-highlighter.png` | Highlight the suspicious transaction | 5, Task 3 | screen | `/level-2/highlighter` | Built (2026-10-16), score 6.51 (mockup saved from chat) |
+| 10b | `10b-L2T3-highlighter-cafe-express.png` | Highlighter: Cafe Express (NOT SUSPICIOUS). Outlier header "Step 2: Bank Statment" and tracker Call/Case/Solve | 5, Task 3 | screen | same route, feedback | Built (2026-10-16), score 7.27 |
+| 10c | `10c-L2T3-highlighter-playzone.png` | Highlighter: PlayZone (NOT SUSPICIOUS) | 5, Task 3 | screen | same route, feedback | Built (2026-10-16), score 6.22 |
+| 10d | `10d-L2T3-highlighter-stylehub.png` | Highlighter: StyleHub (NOT SUSPICIOUS). Heading says ₹499, should be ₹1,200 | 5, Task 3 | screen | same route, feedback | Built (2026-10-16), score 6.38 |
+| 10e | `10e-L2T3-highlighter-cinemax.png` | Highlighter: CineMax (NOT SUSPICIOUS) | 5, Task 3 | screen | same route, feedback | Built (2026-10-16), score 6.11 |
+| 10f | `10f-L2T3-highlighter-quickbite.png` | Highlighter: QuickBite (NOT SUSPICIOUS). Heading says "Quick Bites" | 5, Task 3 | screen | same route, feedback | Built (2026-10-16), score 6.59 |
+| 10g | `10g-L2T3-highlighter-interest-credit.png` | Highlighter: Interest credit (NOT SUSPICIOUS, "Ananya's weekly log accounts for this") | 5, Task 3 | screen | same route, feedback | Built (2026-10-16), score 6.70 |
+| 10h | `10h-L2T3-highlighter-cams-tel-suspicious-found.png` | Highlighter: CAMS TEL row (SUSPICIOUS, INVESTIGATE). Heading says "FastTel", should be CAMS TEL | 5, Task 3 | screen | same route, feedback | Built (2026-10-16), score 6.88 |
+| 10i | `10i-L2T3-highlighter-cheque-music-fees.png` | Highlighter: cheque returned row (NOT SUSPICIOUS, "Music Class") | 5, Task 3 | screen | same route, feedback | Built (2026-10-16), score 6.46 |
+| 10j | `10j-L2T3-highlighter-grandparents-gift.png` | Highlighter: Gift from Grandparents (NOT SUSPICIOUS) | 5, Task 3 | screen | same route, feedback | Built (2026-10-16), score 6.47 |
 | 11 | `11-L2-complete.png` | Level 2 complete | 5 | cinematic | `/level-2/complete` | Placeholder (Stage 0) |
 | 12 | `12-call-ananya-2.png` | Ananya's second phone call | 6, Task 1 | call | `/level-3/call-ananya` | Placeholder (Stage 0) |
-| 12a | `11-call-ananya-2.png` | Second call: "Hello! It's me, Ananya! My debit card has been blocked" | 6, Task 1 | call | same route, call step 1 | Mockup received |
-| 12b | `11b-call-ananya-2-talking.png` | Second call: "I just got a message saying I can unblock it immediately by clicking a link." | 6, Task 1 | call | same route, call step 2 | Mockup received |
+| 12a | `11-call-ananya-2.png` | Second call: "Hello! It's me, Ananya! My debit card has been blocked" | 6, Task 1 | call | same route, call step 1 | Built (2026-10-17), score 4.44 |
+| 12b | `11b-call-ananya-2-talking.png` | Second call: "I just got a message saying I can unblock it immediately by clicking a link." | 6, Task 1 | call | same route, call step 2 | Built (2026-10-17), score 4.86 |
 | 13 | `13-L3T1-phishing-choice.png` | Should Ananya click the link? | 6, Task 1 | screen | `/level-3/phishing` | Placeholder (Stage 0) |
-| 13a | `11c-call-ananya-2-card-blocked-choice.png` | Phishing choice: CAMS TEL notification + YES / NO ("Should Ananya tap the link in the notification?") | 6, Task 1 | screen | `/level-3/phishing` | Mockup received |
-| 13b | `11f-L3T1-phishing-choice-yes-chosen.png` | Phishing: **NO** outcome (GOOD CALL, SECURE). File name says "yes-chosen", which is swapped | 6, Task 1 | screen | same route, feedback | Mockup received |
-| 14 | `14-L3T1-fake-website.png` | Fake bank website (YES path) | 6, Task 1 | screen | `/level-3/fake-website` | Placeholder (Stage 0) |
-| 14a | `11d-L3T1-phishing-choice-no-correct.png` | Phishing: **YES** outcome ("Uh Huh", simulated ₹3,000 loss, TRY AGAIN). File name says "no-correct", which is swapped. Replaces the fake website: see 13.3 | 6, Task 1 | screen | see 13.3 | Mockup received |
+| 13a | `11c-call-ananya-2-card-blocked-choice.png` | Phishing choice: CAMS TEL notification + YES / NO ("Should Ananya tap the link in the notification?") | 6, Task 1 | screen | `/level-3/phishing` | Built (2026-10-17), score 5.11 |
+| 13b | `11f-L3T1-phishing-choice-yes-chosen.png` | Phishing: **NO** outcome (GOOD CALL, SECURE). File name says "yes-chosen", which is swapped | 6, Task 1 | screen | same route, feedback | Built (2026-10-17), score 6.74 |
+| 14 | `14-L3T1-fake-website.png` | Fake bank website (YES path) | 6, Task 1 | screen | `/level-3/fake-website` | Built (2026-10-17), score 3.90 (mockup saved from chat) |
+| 14a | `11d-L3T1-phishing-choice-no-correct.png` | Phishing: **YES** outcome ("Uh Huh", simulated ₹3,000 loss, TRY AGAIN). File name says "no-correct", which is swapped. Replaces the fake website: see 13.3 | 6, Task 1 | screen | see 13.3 | Built (2026-10-17), score 6.63 |
 | 15 | `15-L3T2-scam-reveal.png` | CAMS TEL scam reveal | 6, Task 2 | cinematic | `/level-3/scam-reveal` | Placeholder (Stage 0) |
-| 15a | `15-L3T2-scam-reveal-statement-clue.png` | Scam reveal 1: "WAIT… LOOK AT THE NAME!" notification + statement row, "CAM Service Tel could this be?" | 6, Task 2 | cinematic | same route, step 1 | Mockup received |
-| 15b | `15b-L3T2-scam-reveal-connection.png` | Scam reveal 2: "CAMS TEL" appears | 6, Task 2 | cinematic | same route, step 2 | Mockup received |
-| 15c | `12c-L3T2-scam-reveal-scam-exposed.png` | Scam reveal 3: CAMS TEL rearranges to "SCAM TEL", plus the Daily Chronicle article | 6, Task 2 | cinematic | same route, step 3 | Mockup received |
+| 15a | `15-L3T2-scam-reveal-statement-clue.png` | Scam reveal 1: "WAIT… LOOK AT THE NAME!" notification + statement row, "CAM Service Tel could this be?" | 6, Task 2 | cinematic | same route, step 1 | Built (2026-10-17), score 4.58 |
+| 15b | `15b-L3T2-scam-reveal-connection.png` | Scam reveal 2: "CAMS TEL" appears | 6, Task 2 | cinematic | same route, step 2 | Built (2026-10-17), score 5.21 |
+| 15c | `12c-L3T2-scam-reveal-scam-exposed.png` | Scam reveal 3: CAMS TEL rearranges to "SCAM TEL", plus the Daily Chronicle article | 6, Task 2 | cinematic | same route, step 3 | Built (2026-10-17), score 12.48 |
 | 16 | `16-L3T3-passkey-computer.png` | Passkey on the on-screen computer | 6, Task 3 | screen | `/level-3/passkey` | Placeholder (Stage 0) |
-| 16a | `13-L3T3-passkey-computer.png` | Passkey: ENTER PASSKEY on the bank computer, newspaper on the desk | 6, Task 3 | screen | `/level-3/passkey` | Mockup received |
-| 16b | `13b-L3T3-passkey-computer-typing.png` | Passkey: 2-0-9 typed (matches the derived passkey) | 6, Task 3 | screen | same route | Mockup received |
-| 16c | `16e-L3T3-passkey-computer-unlocked.png` | Passkey: unlocked (zoomed computer) | 6, Task 3 | screen | same route | Mockup received |
+| 16a | `13-L3T3-passkey-computer.png` | Passkey: ENTER PASSKEY on the bank computer, newspaper on the desk | 6, Task 3 | screen | `/level-3/passkey` | Built (2026-10-17), score 7.69 |
+| 16b | `13b-L3T3-passkey-computer-typing.png` | Passkey: 2-0-9 typed (matches the derived passkey) | 6, Task 3 | screen | same route | Built (2026-10-17), score 7.66 |
+| 16c | `16e-L3T3-passkey-computer-unlocked.png` | Passkey: unlocked (zoomed computer) | 6, Task 3 | screen | same route | Built (2026-10-17), score 4.90 |
 | 17 | `17-L3T4-scan-evidence.png` | Scan evidence (statement + phishing card) | 6, Task 4 | table | `/level-3/scan-evidence` | Placeholder (Stage 0) |
-| 17a | `14-L3T4-scan-evidence.png` | Scan evidence: two empty slots (statement, CAMS TEL message) on the bank computer | 6, Task 4 | table | `/level-3/scan-evidence` | Mockup received |
-| 17b | `14-L3T4-scan-evidence-statement-attached.png` | Scan evidence: statement attached (file shares the "14" number with 17a) | 6, Task 4 | table | same route | Mockup received |
-| 17c | `14c-L3T4-scan-evidence-message-attached.png` | Scan evidence: both attached (EVIDENCE ATTACHED, labels, REVIEW INCIDENT REPORT) | 6, Task 4 | table | same route | Mockup received |
+| 17a | `14-L3T4-scan-evidence.png` | Scan evidence: two empty slots (statement, CAMS TEL message) on the bank computer | 6, Task 4 | table | `/level-3/scan-evidence` | Built (2026-10-17), score 5.24 |
+| 17b | `14-L3T4-scan-evidence-statement-attached.png` | Scan evidence: statement attached (file shares the "14" number with 17a) | 6, Task 4 | table | same route | Built (2026-10-17), score 5.09 |
+| 17c | `14c-L3T4-scan-evidence-message-attached.png` | Scan evidence: both attached (EVIDENCE ATTACHED, labels, REVIEW INCIDENT REPORT) | 6, Task 4 | table | same route | Built (2026-10-17), score 5.97 |
 | 18 | `18-L3T5-review-report.png` | Review incident report | 6, Task 5 | screen | `/level-3/review-report` | Placeholder (Stage 0) |
-| 18a | `15-L3T5-review-report.png` | Incident report: customer, account, date, ₹5,999 — CAMS TEL, concern, SUBMIT REPORT | 6, Task 5 | screen | `/level-3/review-report` | Mockup received |
+| 18a | `15-L3T5-review-report.png` | Incident report: customer, account, date, ₹5,999 — CAMS TEL, concern, SUBMIT REPORT | 6, Task 5 | screen | `/level-3/review-report` | Built (2026-10-17), score 4.58 |
 | 19 | `19-report-submitted.png` | Report submitted | 6, Task 5 | cinematic | `/report-submitted` | Placeholder (Stage 0) |
 | 20 | `20-certificate.png` | Mission complete certificate | 7 | cinematic | `/certificate` | Placeholder (Stage 0) |
-| 20a | `16-certificate.png` | Certificate: MISSION COMPLETE!, badge on the desk. No Case Board / replay buttons | 7 | cinematic | `/certificate` | Mockup received |
+| 20a | `16-certificate.png` | Certificate: MISSION COMPLETE!, badge on the desk. No Case Board / replay buttons | 7 | cinematic | `/certificate` | Built (2026-10-17), score 13.14 |
 | 21 | `21-case-board.png` | Case Board (level select) | 8 | screen | `/case-board` | Placeholder (Stage 0) |
-| 21a | `21-case-board.png` | Case Board: cork board, three pinned level cards with 3-dot progress, red thread | 8 | screen | `/case-board` | Mockup received |
+| 21a | `21-case-board.png` | Case Board: cork board, three pinned level cards with 3-dot progress, red thread | 8 | screen | `/case-board` | Built (2026-10-16), score 9.07 |
 | 22 | `22-feedback-popups.png` | Correct / incorrect feedback pop-ups | 2 | overlay | overlay (no route) | Placeholder (Stage 0) |
 
 Routes are defined in `src/app/screens.ts`. A phone camera opening a printed QR code lands on `/a/<artefact-id>`, a friendly page outside the game canvas (10.3).
@@ -632,9 +634,9 @@ Scene types: `call` (phone call), `table` (cards on a table: camera active), `sc
 | Stage | What gets built | Images needed | Status |
 |---|---|---|---|
 | 0 | Full game logic, scanning, QR printing, placeholder UI for every screen | `01-start.png` (overall theme and mood only, not layout) | Built, awaiting owner confirmation (see 13.3). Real-iPad camera checks (Section 11) still to be done by the owner. |
-| 1 | Opening sequence | `01-start.png`, `02-call-ananya-1.png`, `03-case-assigned.png` | Not started |
-| 2 | Level 1 + progress tracker + feedback pop-ups | `04` to `07`, `22-feedback-popups.png` | Not started |
-| 3 | Case Board | `21-case-board.png` | Not started |
+| 1 | Opening sequence | `01-start.png`, `02-call-ananya-1.png`, `03-case-assigned.png` | Built, awaiting owner confirmation (see 13.3) |
+| 2 | Level 1 + progress tracker + feedback pop-ups | `04` to `07`, `22-feedback-popups.png` | Built, awaiting owner confirmation: Level 1 (04–07 and all their feedback cards) matched to the mockups (see 13.3). No separate 22 mockup: Level 1's feedback is the full-screen card design. |
+| 3 | Case Board | `21-case-board.png` | Done (2026-10-16) |
 | 4 | Level 2 | `08` to `11` | Not started |
 | 5 | Level 3, part 1 | `12` to `15` | Not started |
 | 6 | Level 3, part 2 | `16` to `19` | Not started |
@@ -706,7 +708,7 @@ More game-logic guesses (confirm or correct):
 
 More guesses: 16–20 confirmed by the owner (2026-10-14).
 
-16. After the first TURN ON SCANNER tap, later table scenes switch the scanner on by themselves until the page is reloaded. The camera stays on for 1.5 s between back-to-back table scenes and is off everywhere else.
+16. Superseded by the 2026-10-15 owner decision in 10.2: the camera is asked for on the game's first tap, and every table scene scans by itself. The camera stays on for 1.5 s between back-to-back table scenes and is off everywhere else.
 17. A card held in view counts once, and counts again after 2 s out of view. A card read while a pop-up is open counts as soon as the pop-up closes.
 18. The chime and flash play on every read the game accepts, right or wrong; correctness is shown by the pop-up.
 19. In production, the card list appears only when the camera is blocked or missing, or after USE THE LIST INSTEAD. In development it's always shown, for testing.
@@ -807,3 +809,359 @@ Needs a decision or a mockup fix (item 1 decided above):
   - GOOD CALL (NO), keeping the spec's "check through official bank channels" advice;
   - "Uh Huh" (YES), plus a line making clear the money went only after details were typed in.
 - The message link is `https://cams-tel-debit/unblock-card`, which has no domain ending and can't open a real site. CAMS TEL is kept everywhere.
+
+**Stage 1 (2026-10-14): opening sequence.** Images used: `01-start.png`, `02-call-ananya-1.png`, `02b-call-ananya-1-talking.png`, `02c-call-ananya-1-talking.png`, `02d-call-ananya-1-connecting.png`, `02d-call-ananya-1-disconnected.png`, `03-case-assigned.png`.
+
+- Canvas switched to 1512 × 982, the Figma frame size. `--bg-navy` is #0C253C, the value in every 1512-px export; the 4× start screen reads darker. Stage 1 tokens were added in `src/styles/tokens.css`.
+- 01 Start: tilted paper panel with an alert badge, bank icon, two-line title, glowing START TRAINING, laurels, newspaper and badge on the desk. RESUME CASE appears for returning players, small and underlined, since the mockup has no resume control.
+- 02–02e Ananya's call (`OpeningCallScreen`):
+  - INCOMING CALL with pulsing rings, a ring tone and ACCEPT.
+  - Then three typed-out lines in a speech bubble, with a running call timer and a signal dot (green, amber, red).
+  - "Take note of clues" appears on the second line. The breaking-up line has a pink bubble, glitch bars and an alert, then CONNECTION LOST with falling beeps, then Case Assigned.
+  - Owner decision: it plays by itself, and a tap finishes the current line or moves on.
+- 03 Case assigned: stamp drops in, paper panel with the mockup copy, case file on the desk, OPEN CASE FILE.
+- Copy is from the mockups, word for word, including "Helloo?". `GAME.openingCall` now has steps (mood, signal, status, text, hint).
+- Sounds: the ring, line blip and disconnect beeps are synthesised in `src/audio/sounds.ts`, like the scanner chime.
+- Verification loop (12.4): 5 iterations at 1512 × 982, diffed against each mockup. Remaining differences: letter shapes (the heading font is a guess), the badge, newspaper and case-file art being cut from mockups, and sub-pixel noise.
+- Tests: 110 unit, 8 Playwright. The new test checks that the opening call plays by itself to Case Assigned.
+
+Guesses (confirm or correct):
+
+21. The heading font stays Special Elite, the closest free match. The mockups' face is a heavier, more distressed typewriter font. If you know its name, I'll self-host it.
+22. Timing: lines type at 38 ms per character and stay 2.2 s once typed, and CONNECTION LOST shows for 2.8 s.
+23. RESUME CASE (returning players) is a small underlined link under START TRAINING.
+24. With reduced motion turned on, the text appears at once, and the pulsing rings and entrance motion are off.
+
+Assets received (2026-10-14): `face smile.png`, `face talk.png`, `face worried.png`, `Badge.png`, `Newspaper.png`. They're copied to `src/assets/art/` and placed at positions fitted to the mockups. The talking and worried faces are 1:1, clipped by the portrait circle, with a cream paper disc drawn behind them because those exports are transparent.
+
+Missing assets (interim versions are cut from the mockups into `src/assets/interim/`):
+- Ananya's alarmed portrait (02e, CONNECTION LOST), as a PNG like the others.
+- The case file (03), as a PNG with a transparent background.
+- The heading font file, if licensed.
+- Real call sounds (ring, blip, disconnect) and the scanner chime.
+
+**Stage 2, screen 04 (2026-10-15): account type cards on the table, and the level header.** Image used: `04-L1T1-account-type.png`.
+
+- **Level header** (`ProgressTracker`, used on every task screen):
+  - the folder icon, which opens the Case Board;
+  - "Level N: title" in Special Elite 20px;
+  - the three-step tracker from the mockups. The steps are in `GAME.levels[].steps`: Level 3's "Report" step covers Tasks 3–5.
+  - Step labels are Titillium Web 15px `[GUESSED]`, self-hosted, which fits all three labels.
+  - Reached steps are filled turquoise; later steps are navy with a white ring. The lines are medium then dim, and all bright once the level's last step is reached (04, 05, 09b, 10h).
+- **Table scene:**
+  - The desk and the desk lamp are drawn in CSS/SVG, with the lamp head and light fitted to the mockup.
+  - The paper mat is laid out flat (1200 × 614) and projected onto the desk with a fitted homography (`matrix3d`). Its aspect ratio comes from the round "i" icon.
+  - The title (Special Elite 50px), the four cards (measured positions, sizes and tilts), their labels (32px) and the hint (20px) all sit in flat mat coordinates, so they take on the mockup's perspective.
+  - Card illustrations are lifted from the un-warped mockup as interim art.
+- **Scanner on scene screens:**
+  - It starts by itself (see the owner decision in 10.2), with no request card.
+  - While scanning, the desk lamp's light pulses (guess 25). This is the in-world scanning signal, since the mockup has no reticle.
+  - If the camera is blocked, missing or stops, a small note under the mat explains and offers TRY AGAIN, and the simulated card list opens by itself.
+  - In development, the list is a drawer tab at the bottom right.
+- **Verification (12.4):** 5 iterations at 1512 × 982. Each text block was aligned to the mockup in un-warped mat space, ending within 0–3 px. Mean absolute difference: 7.5 → 6.0 per channel. The rest is glyph anti-aliasing, paper grain and the deliberate spelling fix below.
+- **Mockup copy kept:** "Scan the card in the file". **Not kept:** "Reccuring", which is spelled Recurring on screen.
+- **Tests:** 110 unit and 8 Playwright, all passing. The Playwright timeout is now 90 s for the full-mission journeys. Two bugs found and fixed: the revisit bar and the simulated-scan drawer covered other controls on scene screens.
+
+Missing assets (interim cuts in `src/assets/interim/`):
+- the four account-card illustrations (piggy bank, briefcase, padlock with coins, calendar with coins), as transparent PNGs;
+- the folder icon.
+
+**Stage 2, Level 1 completed (2026-10-15).** Images used: `04a`–`04d`, `05`, `05b`–`05e`, `06`, `06b`, `06c`, and `07-L1-complete.png` (attached in chat and saved to `design/screens/`).
+
+- **Feedback cards** (`FeedbackScene`), replacing the pop-up on scene screens. Each card has:
+  - the feedback desk, and a paper panel tilted −0.95° (three measured sizes: card, slip, story);
+  - a rubber stamp tilted −10° (red NOT QUITE, green VALID / ACCOUNT IDENTIFIED / CORRECT);
+  - the scanned artefact: the pinned account card, the ID with its label, or the slip;
+  - the heading, paragraphs and bullets, and one glowing button: TRY AGAIN, NEXT, SCAN NEXT, NEXT CLUE, CHECK BALANCE or SCAN OTHER SLIP.
+- Neutral notes (Already verified, not part of this task, unknown QR) stay a small toast over the table. No mockup shows them.
+- **Content model:** feedback copy now has `paragraphs`, `bullets`, `cta`, and `layout` (stamp and button widths measured from each mockup, since they don't follow text length). Scans record which artefact they were about.
+- **KYC** completes on the second valid ID's own card with NEXT CLUE (05d); the first valid ID says SCAN NEXT (05c).
+- **Level header:** steps are filled up to the step on screen (04b still shows only step 1). The lines are all bright when step 3 is on screen.
+- **05:** a second mat homography (1200 × 671, aspect calibrated against 04). The lamp is 04's, at `translate(32.2 30.8) scale(0.876)`.
+- **06:** the story line and question on the navy, the folder of slips (interim art), and the hint.
+- **07:** the alert badge, the story text, and OPEN DOCS FILE into Level 2.
+- **Case figure added:** `withdrawalAttempt` ₹3,000. It must exceed the closing balance (₹2,452), which is why the withdrawal failed (06b).
+- **Verification (12.4):** 9 rounds over 14 states at 1512 × 982, with each region aligned to 0–3 px. Final mean difference per channel:
+  - 04: 6.0; 04a–04d: 7.0–8.1;
+  - 05: 5.5; 05b–05e: 6.4–7.3;
+  - 06: 3.2; 06b: 7.4; 06c: 8.8; 07: 7.8.
+  - The rest is glyph shapes, since the heading font is a guess, plus paper grain and the copy fixes below.
+- **Tests:** 110 unit and 8 Playwright, passing twice in a row.
+
+**Copy fixes vs the mockups:**
+- "YES ; IT'S" → "YES, IT'S".
+- "A FIXED DEPOSIT IS USED." → "A FIXED DEPOSIT IS USED...", "To keeps … for a interest rate" → "To keep … for an interest rate".
+- "regularly ; every month for" → "regularly, every month, for".
+- "payments not frequent" → "payments, not frequent".
+- "Aadhar" → "Aadhaar".
+- "as an document" → "as a document".
+- "Yes, A withdrawal" → "Yes, a withdrawal".
+- "put money In  a bank" → "put money IN a bank".
+- "Scan the other slip" gains a full stop.
+- "Reccuring" → "Recurring".
+
+**Guesses (confirm or correct):**
+
+26. Feedback for neutral events (re-scan, wrong task, unknown QR) is a toast, not a full card.
+27. Stamps on 05b/05e use the same NOT QUITE size as 04a.
+
+**Missing assets** (interim cuts in `src/assets/interim/`):
+- the pin;
+- the four ID document illustrations (passport, library card, PAN, Aadhaar), flat;
+- both slips, flat;
+- the bank docs folder, including its tab label;
+- the four account-card illustrations, in a crisp version.
+
+**Owner decisions (2026-10-15): tap or scan, no list, fresh start.**
+- Every artefact on a table screen (cards, IDs, slips; the placeholder tables for Levels 2–3 too) is a tap target. Tapping counts exactly like scanning it. Scanning stays the main way to play.
+- The simulated-scan list is removed everywhere, in development too. Tapping is the fallback when the camera can't be used (spec 10.1 "simulated artefact selection"). The camera-failure note says to tap the card.
+- START TRAINING starts a new game from Level 1, Task 1 (account → KYC → slips) and clears saved progress. RESUME CASE continues where the player left off.
+- Tests: 110 unit and 9 Playwright. The e2e journeys now tap artefacts, and a new test checks that START TRAINING starts fresh. The Level 1 screens' mockup scores are unchanged.
+
+**Level 2, Task 1 built, and a back button added (2026-10-15).** Images used: `08-L2T1-closing-balance.png` (copied from `L3-T4_bank-statement.png`), `08b`–`08e` (also attached in chat; same designs).
+
+- **Back button:** a "← BACK" pill under the folder icon on every task screen, in the level header. It goes to the previous screen in play order: the previous task, the level-complete screen between levels, or Case Assigned from the first task. Level 1 complete goes back to the slips. Not in the mockups (owner request).
+- **08:**
+  - The desk has no outline here and a darker front edge.
+  - The mat is a homography (1200 × 425); its aspect comes from the title's glyph proportions, calibrated on 04, because the "i" icon method fails at this shallow angle.
+  - The printed statement is built from case data in flat coordinates (1000 × 650) and projected onto the mockup's top-sheet corners, over two warm sheets underneath. Fonts: Ubuntu Mono for the body, Roboto Slab 800 for the bank name (`[GUESSED]`, self-hosted).
+  - Statement values follow the owner decisions, not the mockup: CAMS TEL (not FastTel); totals worked out as ₹5,050 / ₹10,798 (not ₹4,500 / ₹7,850). Running balances show for the first 7 rows (`statementBalancesShown`), as in the mockup, and the closing balance stays blank.
+  - Four closing-balance answer cards sit on the mat as tap targets, a neutral colour so they don't hint (guess 28). Not in the mockup, which assumes physical cards only.
+- **08b–08e:** a balance feedback layout. No desk; a tilted panel; NOT QUITE / CORRECT stamps; heading and hint; and the closing-balance card in red (wrong) or green (right) with a ₹ watermark, at each mockup's measured position; TRY AGAIN / NEXT CLUE.
+  - Copy from the mockups, except: the ₹5,452 hint names the cheque payment (owner decision), the correct card shows ₹2,452 (owner decision), and the correct card adds the spec's line "Money coming in (credits) increases the balance; money going out (debits) decreases it."
+- **Verification (12.4):** 8 rounds. 08 is at 10.4 (the extra answer cards and the statement totals and name changes account for most of it). 08b 6.5, 08c 7.8, 08d 6.6, 08e 6.5. Text blocks are aligned to 0–3 px; statement text sizes matched by measured ink widths.
+- **Tests:** 110 unit and 10 Playwright, including a new BACK test across the level boundary. The full mission passes twice in a row.
+
+Guess 28: the answer cards on the 08 mat (for tapping) use neutral paper colours, so red and green appear only on the feedback cards.
+
+Level header title: the mockups write "Follow the money"; the game keeps the spec's "Follow the Money" (8, Case Board).
+
+**Owner requests (2026-10-16): back button and level transition.**
+- Back button: a round button in the top bar's left corner, styled like the tracker's step circles (navy with a white ring; turquoise on hover). The folder icon and level title move right to make room (folder x 86, title x 164), departing from the mockups' header by owner request. BACK first closes a feedback card if one is showing, then goes to the previous screen actually visited (browser history). With nothing visited yet in this page load, it goes to the screen before in play order.
+- Level transition: Level 1 complete (07) plays a rising fanfare. Continuing (OPEN DOCS FILE) shows a full-screen "LEVEL 2 · FOLLOW THE MONEY" card: the title stamps in, the three steps pop up, then it lifts away (2.6 s; a tap skips it) with an upward-sweep chime. The same transition is used going into Level 3. No mockup (guess 29); both sounds are synthesised in `src/audio/sounds.ts`.
+- Tests: 110 unit and 11 Playwright (new: BACK closes a card, then steps back through history; the Level 1 → 2 transition).
+
+**Case Board and the board transition (2026-10-16).** Image used: `21-case-board.png` (also attached in chat; same design).
+- **Case Board (21):** built to the mockup. The wall, a wooden frame with a dotted cork board, three hand-cut level cards (bank, statement-and-magnifier and shield icons; titles as on 21), green / blue / red pins, the red thread (two beziers fitted to the mockup), and the desk with the blurred newspaper and badge. Colours are sampled tokens (`--wood-*`, `--cork-*`, `--board-*`, `--pin-*`, `--thread`).
+- **Statuses (spec 8; 21 has none, review note 6):**
+  - Each card's three dots are its tracker steps: filled when solved or current, with the current one pulsing.
+  - The current level's card glows turquoise.
+  - Locked levels are greyed, with a padlock disc in the corner.
+  - Solved levels get a green SOLVED stamp.
+  - The status words stay as hidden text for screen readers and tests.
+- **Access:**
+  - Tapping a card resumes its current task, or revisits a solved level from its first task.
+  - Tapping a dot opens that step.
+  - Locked cards and dots are disabled.
+  - The round BACK button (shared with the task header) sits in the top-left corner. It goes back to the screen the board was opened from, or to the resume point.
+  - This replaces the old RESUME CASE button and the task list.
+- **Level transition (replaces guess 29's title card):** continuing from a level-complete screen plays the Case Board itself, about 3.6 s (a tap skips it):
+  1. The board settles in.
+  2. SOLVED stamps onto the finished level (thud).
+  3. A glowing trace runs along the thread to the next pin.
+  4. The next card's padlock drops off, its pin pushes in, and a "LEVEL 2 UNLOCKED" tag pops up (chime).
+  5. The view zooms into the new card and fades onto its first task (whoosh). Level 2 → 3 uses the same transition.
+  The sounds are synthesised placeholders.
+- **Verification (12.4):** 2 rounds against 21, with locks and pulses hidden because 21 shows no statuses: 15.9 → 9.07. Regions align within 0–3 px (icons, titles, dots, pins, newspaper heading). Transition frames were checked at 0.3, 0.9, 1.5, 2.3, 3.0, 3.4 and 4.2 s.
+- **Tests:** 110 unit and 11 Playwright. The Case Board test now uses the cards and dots and covers BACK; the transition test checks the UNLOCKED tag and the SOLVED stamp.
+
+Guess 30: the Case Board statuses (glow, padlock, SOLVED stamp, pulsing dot) and the board-based level transition are not in any mockup.
+
+**Owner request (2026-10-16): step names on the Case Board.** Each card now shows its three step names under the dots (the same labels as the top-bar tracker: Account / KYC / Bank Records, Bank Balance / Cheque / Transactions, Phishing / Uncover / Report; Titillium Web 15 px bold, dimmed while locked). To fit them, the dots are 82 px apart (50 in 21) and 7–13 px higher. The status marks moved beside each card's icon so they don't cover the names: a padlock disc for locked levels, and a green tick disc (replacing the SOLVED stamp) for solved ones. During the level transition the tick stamps in and the padlock drops off.
+
+**Owner decisions (2026-10-16): scanned state, shorter copy, BACK.**
+- **Scanned documents:** once a document is accepted (KYC IDs; evidence on the placeholder scan tables), it is greyed out with a green "SCANNED ✓" tag and can't be tapped again. Its printed label dims too. Scanning the physical card again still gives the "Already verified" toast.
+- **KYC VALID cards (05c/05d):** the second line is shortened to "Banks accept a PAN card for KYC." / "Banks accept Aadhaar for KYC." (it was "… subject to the applicable requirements").
+- **Bank balance, correct answer (08c):** the line "Money coming in (credits) increases the balance; money going out (debits) decreases it." is removed (owner decision; this overrides the spec 5, Task 1 explanation noted under 08b–08e).
+- **BACK:** always goes to the previous screen visited, even with a feedback card open (the card closes as the task is left). It no longer closes the card first.
+- **Tests:** 110 unit and 11 Playwright. The e2e tests check that scanned IDs are disabled and marked, and that BACK leaves a screen while its card is open.
+
+**Owner request (2026-10-16): scanned look on every scan screen.** Account cards (04), ID documents (05), slips (06) and closing-balance cards (08) all show what's been scanned. A scanned card is greyed out with a grey wash (on the slips, only the part above the pocket) and a SCANNED tag, and it can't be tapped again.
+- Right answers (KYC IDs as they're collected; the answer of a solved task when revisiting) get a green tag with a tick.
+- Wrong answers already tried get a navy tag with no tick, so they never read as right.
+- Wrong answers are remembered for the session only (store `tried`, not saved), so a reload clears them. Physical cards can still be scanned again and get their usual feedback.
+- Tests: 111 unit (new: tried cards are remembered and cleared on a new game) and 11 Playwright.
+
+**Level 2, Task 2 built: the cheque (2026-10-16).** Images used: `09-L2T2-cheque-clue.png`, `09b-L2T2-cheque.png`, `09c`–`09f` (also attached in chat; same designs).
+- **Flow:** NEXT CLUE on the closing balance → **09 clue** (`/level-2/cheque-clue`, the task's new entry screen) → CHECK CHEQUE → **09b cheque** (`/level-2/cheque`). Tap a part:
+  - parts that are fine lift out enlarged with a red outline and their "This looks right." line, with TRY AGAIN (09c, 09d, 09f);
+  - the amount row (words and figures, one tap target) lifts out in green with "You spotted it: The amounts don't match." and BANK STATEMENT (09e), which moves on to the highlighter.
+  - BACK on the cheque falls back to the clue.
+- **09 clue:**
+  - The tan panel with WAIT… LOOK AT THIS. and the clue copy, built from the case figures (₹1,500 went OUT / came BACK IN).
+  - The 08 statement, re-posed (the sheet's corners fitted from 09: a 2.8° turn at 0.758 scale) with its own 09 layout, measured on the un-warped sheet. 09 is sharp where 08 was blurred, so this one uses Inter and typed column heads.
+  - The two cheque rows are highlighted (`isCheque` on the statement rows).
+  - The closing balance is now printed (₹2,452), since Level 2, Task 1 is solved.
+  - A highlighter pen drawn in SVG (it will also serve Level 2, Task 3).
+- **Cheque (09b–09f):** built in HTML/CSS at 1195 × 431 from the case data, flat at (150, 197) on the feedback screens and tilted in 09b (homography from the measured corners; about 5.2°). Each tappable part has its area on the cheque and its enlarged box on the canvas, measured from 09c (payee), 09d (date), 09e (amount row) and 09f (signature). The bank, account number and MICR line use the same two zoom sizes (guess 32). The zoom outlines are semi-transparent (red rgb(231 82 64) / green rgb(89 156 114) at 54%), worked out from how they read over paper and over navy.
+- **Fonts (self-hosted in `design/fonts`):** Inter for the printed text (single-storey "g", as in "sign" and "Aug" on 09); Edu VIC WA NT Beginner (500) for the handwriting (guess 31). The MICR line is drawn as simplified E-13B glyphs in SVG, since there's no free MICR font (guess 33).
+- **Copy (from 09–09f):**
+  - prompt "CAN YOU SPOT WHAT'S WRONG IN HER CHEQUE?", hint "Tap on the area you think is wrong.";
+  - each "looks right" line breaks where the mockups do;
+  - success heading "You spotted it: The amounts don't match.", CTA BANK STATEMENT.
+  - The MICR codes (500012345, 123456, 10) are now case figures.
+- **Departures from the mockups:**
+  - 09b's blank patch over the date is an editing artifact, so the date shows;
+  - the 09 statement shows the decided figures (CAMS TEL, ₹10,798 debits, ₹2,452 closing), not the mockup's FastTel / ₹7,850 / ₹3,502;
+  - the header has the round BACK button (owner request), so the folder and title sit further right;
+  - the handwriting is a font, not the illustrator's lettering.
+- **Verification (12.4):** 8 rounds. 09: 17.3 → 9.83; 09b: 15.8 → 9.95; 09c: 17.4 → 12.43; 09d: 17.0 → 11.85; 09e: 18.2 → 12.48; 09f: 16.9 → 11.81. Text blocks align to within 0–5 px. What remains is mostly the handwriting glyph shapes, the security strip's texture and the header shift.
+- **Tests:** 111 unit (the cheque feedback records the tapped area; resume opens the clue) and 11 Playwright (the mission now goes through the clue: highlighted rows, the printed closing balance, a "looks right" zoom, then the green mismatch).
+
+Guess 31: the cheque handwriting is Edu VIC WA NT Beginner, the closest free match. Guess 32: the zoom boxes for the bank block, account number and MICR line (no mockups) follow the 09d/09f size. Guess 33: MICR digits are drawn shapes, not a font. Guess 34: the clue screen shows the closing balance, since 09 prints one.
+
+**Level 2, Task 3 built: the highlighter (2026-10-16).** Images used: `10-L2T3-highlighter.png` (attached in chat; saved to `design/screens`), `10b`–`10j` (also attached; same as the files).
+- **Interaction:** the player drags the highlighter pen from the desk and puts its **tip** on a row. The row under the tip on release is the answer; a drop that misses glides the pen back. Then:
+  - an ordinary row turns the screen into 10b–10j: the row is highlighted, the pen lies on it, the heading reads "NOT SUSPICIOUS: ₹ amount / name", the note beside the statement explains it, and TRY AGAIN puts the pen back;
+  - the CAMS TEL row gives 10h: "SUSPICIOUS:" in red, INVESTIGATE moves on to Level 2 complete.
+  - Every one of the 11 rows works this way.
+- **Layout:**
+  - The desk (a new `highlighter` variant) and its gradient are measured from 10.
+  - The statement is laid out flat at 900 × 720 and projected onto the sheet's corners in 10. Rows sit every 47.85 flat px, so the perspective spacing matches the mockup.
+  - The pen tip's resting point on each row is computed from the same projection.
+  - Text is Special Elite throughout (title 45 px, notes and hint 20 px, all fitted from ink widths).
+  - The pen is redrawn in SVG and shared with the 09 clue screen.
+- **Copy (from 10b–10j):**
+  - The question, hint and "Drag me over the transaction" come from 10.
+  - Each row has a short name for the heading (`highlightLabel`) and the mockup's note (`highlightFeedback`).
+  - Pocket Money and the cheque payment have no mockup, so their notes are written to match (guess 35).
+- **Departures from the mockups:**
+  - 10b's outlier header ("Step 2: Bank Statment", Call/Case/Solve) uses the normal Level 2 header.
+  - 10d says "₹ 499" for StyleHub; the game shows its real ₹1,200.
+  - "FastTel" / "Cams tel" become CAMS TEL; "Quick Bites" becomes QuickBite.
+  - Amounts keep their decimals (+50.00).
+  - 10h shows no note, so the CAMS TEL explanation is read to screen readers only.
+  - The note on 10g sits at x 1043 in the mockup; the game keeps every note at x 958.
+  - The header has the round BACK button.
+- **Verification (12.4):** 7 rounds. 10: 12.15 → 6.51. 10b–10j: 11.2–12.2 → 6.11–7.27. Regions align to 0–5 px. The last big gain came from the desk gradient (dark to y 480, near colour by y 760) and its right edge (1360,349)–(1512,958).
+- **Tests:** 111 unit (the highlight feedback records its row; every row has a label) and 11 Playwright. The mission now drags the pen by its tip onto an ordinary row (checks the label, note and highlighted row), then onto CAMS TEL. Fixed along the way: the pen glided home after a hit too, so a quick second drag missed; it now glides only after a miss.
+
+Guess 35: notes for the two rows without mockups (Pocket Money: "Ananya gets her pocket money from her parents every month."; the cheque payment: "This is the music class cheque you already checked.").
+
+**Level 3 opening built: second call, phishing choice, scam reveal (2026-10-17).** Images used: `11`, `11b`, `11c`, `11d` (YES outcome), `11f` (NO outcome), `15`, `15b`, `12c` (also attached in chat; same designs).
+- **Flow (owner request):**
+  1. INVESTIGATE on the CAMS TEL row goes straight to the Case Board transition (Level 2 ticked, thread to Level 3, padlock off).
+  2. Then Ananya's second call (11, 11b): already connected, it plays by itself (a tap skips), starting once the transition lifts.
+  3. Then the choice (11c).
+  - The old "Level 2 complete" placeholder is skipped (`levelIntroAfter` / `STRAIGHT_ON` in navigation.ts). Level 1 keeps its 07 screen.
+- **Choice (11c):** Ananya's worried portrait and running call timer, the CAMS TEL notification (the link is text only), YES / NO.
+  - NO → 11f: GOOD CALL stamp, Ananya smiling, the mockup copy; SECURE moves on.
+  - YES → the fake website (owner decision 2026-10-14, still an unstyled placeholder: no mockup) → submitting it brings the player back to the choice with 11d: "Uh Huh" stamp, the bank's withdrawal alert, the mockup copy, TRY AGAIN. Only NO completes the task.
+- **Reveal (15 → 15b → 12c)**, played as one sequence (a tap skips a beat):
+  1. WAIT... LOOK AT THE NAME! with the CAMS TEL notification and the highlighted statement row, then "CAM Service Tel could this be?".
+  2. CAMS TEL appears.
+  3. Its letters slide into SCAM TEL, a red circle is drawn round it, and The Daily Chronicle slides up.
+  - The newspaper is HTML, flat 1060 × 720, projected onto the corners measured in 12c.
+  - A REPORT IT button then moves on (not in 12c, guess 36).
+- **Copy:** from the mockups, with these exceptions:
+  - The alert uses the decided figures: ₹2,000 withdrawn, ₹452 left, sender FIRST NATIONAL BANK (11d shows Rs 3000 / Rs 502 / FIRST BANK).
+  - The newspaper's link is the same unusable address as the message (`https://cams-tel-debit/unblock-card`), not "http://cams-tel.in" (review note 8).
+  - GOOD CALL and Uh Huh now carry only the mockup lines. The earlier extra advice (official bank channels; card details never shared) is dropped to match 11d/11f.
+- **Verification (12.4):** 5 rounds. 11: 4.44; 11b: 4.86; 11c: 5.11; 11d: 6.63; 11f: 6.74; 15: 4.58; 15b: 5.21; 12c: 15.1 → 12.48 (the masthead, emblem and torn edges are illustrated in the mockup). The rough-edge filter now sits on a background layer so it never distorts text.
+- **Tests:** 111 unit (Level 2 goes straight on with the board transition) and 11 Playwright. The mission now checks the LEVEL 3 UNLOCKED transition and the call playing by itself into the choice, the loss shown back on the choice screen, and the reveal reaching SCAM TEL.
+
+Guess 36: the REPORT IT button after the reveal (12c has none). Guess 37: the call timer runs on from the call into the choice screens (11c–11f show 00:05).
+
+
+**Owner request (2026-10-17): the SCAM TEL reveal, and button / chat spacing.**
+- **Reveal animation:** the unscramble is now its own beat (the reveal has 5 beats). In about 1.3 s:
+  1. The letters of CAMS TEL shiver.
+  2. The S glows red and lifts out of the word (whoosh), while the other letters slide right to make room.
+  3. The S slams down at the front with a thud: the word jolts, a red flash bursts behind it, and the desk shakes.
+  4. A moment later the clue cards clear, the words rise, the circle is drawn, the S turns back to cream, and the newspaper slides in.
+  - Taps still skip ahead. When revisiting a solved reveal, it opens on the end state with no animation.
+- **Chat bubble (11b):** the text box was 3 px narrower than the mockup's line, so "by" wrapped alone and the text overflowed the bubble. It is now 570 px wide, and the second call's lines sit in the middle of the bubble.
+- **Buttons:**
+  - YES / NO now share the notification's width evenly (309 px each, 40 px apart, 40 px below it).
+  - TRY AGAIN and SECURE are 350 × 88 with even inner padding and never wrap. They sit 56 px in from the panel's right edge and overlap its bottom edge by about 40 px.
+  - The outcome text has 56 px padding on both sides.
+  - These are departures from the mockups' slightly uneven positions (11c 5.11 → 7.09, 11d 6.63 → 8.61, 11f 6.74 → 8.04).
+
+**Fix (2026-10-17): revisiting a solved task.** When a player revisited a solved task (e.g. Level 3, Task 1 after an earlier session), a right answer's button (SECURE, NEXT CLUE…) only closed the card. It now moves on to the next task, as it does the first time; progress is unchanged. The scam reveal also always plays its animation, revisiting too (it used to open on the last frame); taps still skip ahead.
+
+**Fake website built (2026-10-17).** Image used: `14-L3T1-fake-website.png` (attached in chat; saved to `design/screens`).
+- YES on the choice screen opens it. Ananya stays on the call beside it (portrait and timer). The page has:
+  - a CAMS TEL / Tele Services header with a cube logo and an URGENT ACTION REQUIRED pill;
+  - the blocked-card message;
+  - three boxes: debit card number, CVV, OTP. The expiry date is dropped to match 14.
+  - GO BACK, UNBLOCK CARD, and the red SIMULATION note.
+- Nothing can be typed. Tapping a box fills an obviously fictional value. UNBLOCK CARD with empty boxes gives the "fill every box" note; with all three filled it shows the loss (11d) back on the choice screen. GO BACK returns to the choice.
+- Verification: 2 rounds, 4.54 → 3.90. 11 Playwright tests pass (the mission fills all three boxes).
+
+
+**Owner request (2026-10-17):** the link in the CAMS TEL message (11c) is tappable and does exactly what YES does: it opens the pretend page (14) inside the game, never a real site. Test added (12 Playwright).
+
+**Level 3 finale built: passkey, evidence, report, certificate (2026-10-17).** Images used: `13`, `13b`, `16e`, `14`, `14` (statement attached), `14c`, `15`, `16` (also attached in chat; same designs).
+- **One computer for every screen:** the bank's computer (`BankComputer`) is laid out at its zoomed size (16e–15: bezel 202–1315 × 165–848). On the desk (13, 13b) the same layout is scaled 0.726 × 0.716 onto the desk's monitor. Its text keeps its size, as in the mockup.
+- **Passkey (13 → 13b → 16e):**
+  - The desk carries the monitor, a keyboard and the Daily Chronicle (the 12c newspaper projected onto the corners measured in 13).
+  - The keyboard's top row types digits 1–0, and its last key deletes. These labels are not in 13, which has blank keys (guess 38). A physical keyboard also works.
+  - The third digit is checked straight away (no ENTER key).
+  - A wrong code shakes the boxes, turns them red and shows ACCESS DENIED with the next hint on the monitor, then clears.
+  - The right code zooms the view into the monitor (16e: keyboard and newspaper slide away, chime), then goes on to the evidence.
+  - Fixed: the passkey was submitted twice under React's development double-render.
+- **Evidence (14 → 14c):** two dashed slots with a statement thumbnail (the CAMS TEL row, 30 Aug 26) and the CAMS TEL message.
+  - Scanning or tapping one fills its slot grey-teal with a tick (no pop-up).
+  - The hint shows only before anything is attached.
+  - With both attached the title becomes EVIDENCE ATTACHED, notes appear on the right, and REVIEW INCIDENT REPORT shows.
+  - The cheque, scanned here, still gets the "not needed" note.
+- **Report (15):**
+  - Ananya's portrait and the five fields: Customer, Account Number XXXX 3210, Transaction Date 30 Aug 2026, ₹5,999 — CAMS TEL, Suspected fraud: CAMS TEL. Account and date follow the statement, not the mockup's 7812 / 12 Oct (review note 3).
+  - SUBMIT REPORT stamps REPORT SUBMITTED on the monitor (fanfare), then goes to the certificate.
+  - The old report-submitted screen (19) is no longer in the flow (`LEVEL_COMPLETE[3]` is now the certificate).
+- **Certificate (16):** built in HTML/CSS: navy frame with gold lines, corner stars, bank emblem with laurels, a MISSION COMPLETE! banner, the mockup copy and line breaks, a star divider and faint leaves. The blurred newspaper and badge sit on the desk; the card drops in and the badge pops.
+  - BACK TO CASE BOARD and REPLAY MISSION sit below it. They are not in 16, but spec 7 needs them (review note 7).
+- **Tracker (Level 3's Report step covers three tasks):** it shows "3" un-reached on the passkey until it's solved, then a solid dot with no number (13b, 14, 15).
+- **Verification (12.4):** 5 rounds. 13: 8.32 → 7.69; 13b: 7.66; 16e: 4.90; 14: 5.24; 14 attached: 5.09; 14c: 5.97; 15: 5.19; 16: 15.88 → 13.14 (illustrated certificate details and the blurred props).
+- **Tests:** 111 unit and 12 Playwright. The mission now covers the desk keyboard (wrong code on the monitor), the zoom, attaching evidence, REVIEW INCIDENT REPORT, the report fields, the submit stamp and the certificate.
+
+Guess 38: digit labels on the desk keyboard's top row (needed to type on an iPad). Guess 39: the solid tracker dot for Level 3's Report step once reached.
+
+
+**Owner requests (2026-10-17): BACK, centred buttons, the certificate title, music.**
+- **BACK** always goes to the screen before the current one in the game's order (`SCREEN_FLOW` / `previousScreenPath` in navigation.ts), whatever was tapped or opened before. This replaces browser-history back.
+  - Side screens go back to where they open from (fake website → phishing choice).
+  - Only the Case Board, which is off the main line, still returns to where it was opened from.
+- **Buttons:** every button's words sit exactly in its middle. The arrow hangs off the side of the label without taking space, and earlier per-mockup paddings are overridden (`polish.css`).
+  - Arrows are 10 px shorter and closer to the words so they stay inside.
+  - The narrow TRY AGAIN cards (04a–05e) are at least 360 px wide.
+  - This covers the glowing buttons, the computer's buttons and the fake site's buttons.
+- **MISSION COMPLETE!** is centred in the banner's navy band: the glyphs' middle is at y 342, against the band's 341 (it was 331).
+- **Sound:**
+  - A background music loop (A minor detective tune, 96 bpm, 20 s; synthesised, 89 ms to build) starts on the first tap.
+  - Every button clicks. Right answers get a rising arpeggio, wrong answers a soft "uh-oh", and progress (an ID or evidence accepted) the chime. These come from one `SoundDirector`.
+  - Screens keep their own moments (ring, stamps, reveal, fanfare).
+  - A speaker button in the top-right corner mutes everything; the choice is remembered on the device.
+  - The real sound design still replaces all of this later.
+- **Tests:** 113 unit (2 new for the BACK order) and 12 Playwright.
+
+**Owner request (2026-10-17): updated 07, BACK to the start.**
+- `07-L1-complete.png` is replaced by the owner's update, which adds a magnifying glass on the panel's lower-right corner. It is cut from the mockup by differencing the two versions (`src/assets/interim/magnifier.png`, interim until exported). It sits at (1095, 490) and slides in. Score 8.52 (the centred button text accounts for most of the difference).
+- BACK reaches the start screen: Case Assigned and the opening call now have the round BACK button too, and go back to the start, where RESUME CASE carries on. The chain from any task therefore runs all the way home. Tests: unit (case/call → start) and the e2e BACK journey ending on the start screen with RESUME CASE.
+
+**Owner request (2026-10-17): equal padding on every button.** Each button is now as wide as its words (plus arrow) with the same padding on both sides: 44 px on the glowing buttons, 32 px on the certificate's and the fake site's. The label and arrow are centred together. Measured on 16 screens: start, case, 04a, 04b, 06c, 07, 08b, 09, 09c, 09e, 11c, 11f, fake site, 15, 16; left and right padding match within 1 px.
+- YES / NO stay an equal-width pair (309 px).
+- The full-width computer button keeps its width, with the group centred.
+- Buttons that line up with a panel edge are anchored to it: the phishing outcomes, 56 px in from the panel's right; the feedback cards, as before.
+- These are departures from the mockups' fixed button widths (`polish.css`).
+
+**Owner request (2026-10-17): BACK on every screen.** The second call (12), the certificate (16) and the two side screens only reachable by URL (Level 2 complete, report submitted) now have the round BACK button too. Every screen except the start (home) has one.
+- BACK sits above the level transition (z 45), so it also works while that plays.
+- On the second call it doesn't count as a tap on the call.
+- Test added: BACK from the certificate, the second call, the reveal, the cheque clue and the first call each land on the screen before; the start has none (13 Playwright).
+
+**Owner request (2026-10-17): a more relevant report step.**
+- ~~The button now says SEND TO FRAUD TEAM~~: reverted by the owner the same day; it stays **SUBMIT REPORT** (15).
+- After sending, the monitor shows a confirmation in place of the report, instead of the two-second stamp:
+  - a tick and REPORT SENT;
+  - "Your incident report is with the bank's fraud team for investigation.";
+  - a case reference built from the case data (NB-3210-0830: account ending, transaction date);
+  - a checklist: bank statement attached, suspicious link attached, Ananya will be kept updated.
+  - VIEW CERTIFICATE moves on when the player is ready. It no longer auto-advances.
+- Not in any mockup (guess 40). The wording keeps the spec's "for investigation; nothing proven".
+
+**Owner request (2026-10-17): sending the report as a screen animation.** SUBMIT REPORT stays. Pressing it plays on the monitor (about 2.3 s):
+1. The button becomes a progress bar ("SENDING REPORT TO FRAUD TEAM…"), filling over 1.6 s, while each of the five fields gets a tick (whoosh).
+2. A bright scan line wipes down the screen (thud), revealing the REPORT SENT confirmation: the reference and checklist from before (fanfare).
+3. VIEW CERTIFICATE then fades in over the full bar.
+

@@ -1,0 +1,676 @@
+/*
+ * Stage 1: opening sequence, matched to mockups 01, 02–02e and 03 on the 1512 × 982 canvas.
+ * Positions are canvas pixels measured from the mockups (spec 12.3). Tokens only.
+ */
+
+.svg-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+/* ─── Shared paper, outlines and CTAs ───────────────────────────────────── */
+
+:root {
+  /* Fine paper grain; alpha only, so it darkens whatever paper colour sits under it. */
+  --paper-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -0.4 0.22'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Thick, hand-cut ink outline drawn over a panel (rough edges from the SVG filter). */
+.paper-outline {
+  position: absolute;
+  inset: 0;
+  border: 6px solid var(--ink);
+  border-radius: 26px;
+  filter: url(#rough-edge);
+  pointer-events: none;
+}
+
+.icon-ink {
+  fill: var(--ink);
+}
+
+.icon-light {
+  fill: var(--text-light);
+}
+
+.icon-stroke {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.alert-disc {
+  fill: var(--alert-red-dark);
+  stroke: var(--ink);
+  stroke-width: 4;
+}
+
+.alert-triangle {
+  fill: var(--thread-red);
+  stroke: color-mix(in srgb, var(--ink) 55%, transparent);
+  stroke-width: 2;
+}
+
+/* Glowing turquoise CTA (START TRAINING, OPEN CASE FILE). */
+.glow-cta {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 0 0 4px;
+  border: none;
+  border-radius: 32px;
+  background: radial-gradient(
+    ellipse 62% 58% at 54% 50%,
+    color-mix(in srgb, var(--cta-turquoise) 85%, var(--text-light)) 0%,
+    var(--cta-turquoise) 45%,
+    var(--cta-turquoise-hover) 100%
+  );
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 45px;
+  -webkit-text-stroke: 1.4px var(--ink);
+  letter-spacing: 0.01em;
+  cursor: pointer;
+}
+
+.glow-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 7px solid var(--ink);
+  border-radius: 32px;
+  filter: url(#rough-edge-strong);
+  pointer-events: none;
+}
+
+.glow-cta-arrow {
+  width: 58px;
+  height: 24px;
+  flex: none;
+}
+
+/* ─── 01: Start ─────────────────────────────────────────────────────────── */
+
+.screen--start,
+.screen--call-opening,
+.screen--case-assigned {
+  display: block;
+  padding: 0;
+}
+
+.start-desk {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(0 582px, 1468px 582px, 1512px 640px, 1512px 982px, 0 982px);
+  background: linear-gradient(180deg, var(--desk-top) 59%, var(--desk-near) 100%);
+}
+
+.start-newspaper {
+  position: absolute;
+  left: -7px;
+  top: 707px;
+  width: 621px;
+  height: 293px;
+}
+
+.start-badge {
+  position: absolute;
+  left: 1087px;
+  top: 485px;
+  width: 424px;
+  height: 501px;
+  pointer-events: none;
+}
+
+.start-panel {
+  position: absolute;
+  left: 166px;
+  top: 158px;
+  width: 1189px;
+  height: 592px;
+  border-radius: 26px;
+  background:
+    var(--paper-grain),
+    linear-gradient(
+      180deg,
+      var(--paper-cream) 0%,
+      var(--paper-cream) 52%,
+      var(--paper-aged) 76%,
+      color-mix(in srgb, var(--paper-cream) 55%, var(--ink)) 100%
+    );
+}
+
+.start-laurel {
+  position: absolute;
+  height: 236px;
+  pointer-events: none;
+}
+
+.laurel {
+  fill: color-mix(in srgb, var(--paper-cream) 72%, var(--gold));
+  stroke: color-mix(in srgb, var(--paper-cream) 72%, var(--gold));
+  opacity: 0.75;
+}
+
+.start-laurel--left {
+  left: 22px;
+  top: 224px;
+  width: 160px;
+}
+
+.start-laurel--right {
+  left: 1020px;
+  top: 214px;
+  width: 150px;
+}
+
+.start-bank {
+  position: absolute;
+  left: 249px;
+  top: 92px;
+  width: 105px;
+  height: 92px;
+  filter: url(#rough-edge);
+}
+
+.start-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--weight-display);
+  font-size: 98px;
+  line-height: 1;
+  color: var(--ink);
+  -webkit-text-stroke: 3px var(--ink);
+}
+
+.start-title-line {
+  position: absolute;
+  white-space: nowrap;
+}
+
+.start-title-line--1 {
+  left: 392px;
+  top: 99px;
+}
+
+.start-title-line--2 {
+  left: 196px;
+  top: 193px;
+}
+
+.start-cta {
+  left: 331px;
+  top: 381px;
+  width: 525px;
+  height: 126px;
+}
+
+.start-resume {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 528px;
+  margin: 0 auto;
+  width: max-content;
+  border: none;
+  background: none;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 24px;
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+
+.start-alert {
+  position: absolute;
+  left: 140px;
+  top: 143px;
+  width: 114px;
+  height: 114px;
+}
+
+.start-alert svg,
+.call-alert svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* ─── 02–02e: Ananya's first call ───────────────────────────────────────── */
+
+.screen--call-opening {
+  cursor: pointer;
+}
+
+.call-incoming-title {
+  position: absolute;
+  left: 497px;
+  top: 190px;
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--weight-display);
+  font-size: 60px;
+  color: var(--title-cream);
+  -webkit-text-stroke: 0.6px var(--title-cream);
+}
+
+/* The portrait is positioned by its centre; everything inside is laid out around (0, 0). */
+.call-portrait {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.call-portrait-ring,
+.call-portrait-pulse {
+  position: absolute;
+  left: -190px;
+  top: -190px;
+  width: 380px;
+  height: 380px;
+  border: 7px solid var(--ring-teal);
+  border-radius: 50%;
+}
+
+.call-portrait--trouble .call-portrait-ring {
+  border-color: var(--ring-trouble);
+}
+
+.call-portrait-frame {
+  position: absolute;
+  left: -141px;
+  top: -148px;
+  width: 282px;
+  height: 296px;
+  border-radius: 50%;
+  background: var(--portrait-maroon);
+}
+
+/* The cream paper disc behind the portrait (the talking/worried exports are transparent). */
+.call-portrait-paper {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  width: 258px;
+  height: 272px;
+  border-radius: 50%;
+  background: var(--paper-grain), var(--portrait-paper);
+}
+
+/* The portrait art is slightly taller than wide (mockups 02–02e). */
+.call-portrait-art {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  width: 258px;
+  height: 272px;
+  clip-path: ellipse(128px 135px);
+}
+
+/*
+ * The talking and worried exports are 290 × 307 at 1:1 and overflow the circle, which clips them.
+ * Positions fitted to mockups 02b and 02c; the ellipse is the paper disc, in the image's coordinates.
+ */
+.call-portrait-art--talking {
+  left: -4px;
+  top: -20px;
+  width: 290px;
+  height: 307px;
+  clip-path: ellipse(128px 135px at 145px 168px);
+}
+
+.call-portrait-art--worried {
+  left: -6px;
+  top: -23px;
+  width: 290px;
+  height: 307px;
+  clip-path: ellipse(128px 135px at 147px 171px);
+}
+
+.call-glitch {
+  position: absolute;
+  height: 14px;
+  background: var(--glitch-red);
+}
+
+.call-glitch--top {
+  left: 75px;
+  top: -87px;
+  width: 108px;
+}
+
+.call-glitch--bottom {
+  left: -168px;
+  top: 78px;
+  width: 108px;
+}
+
+.call-alert {
+  position: absolute;
+  left: -158px;
+  top: -157px;
+  width: 76px;
+  height: 76px;
+}
+
+.call-accept {
+  position: absolute;
+  left: 565px;
+  top: 765px;
+  width: 385px;
+  height: 125px;
+  display: flex;
+  align-items: center;
+  gap: 52px;
+  padding: 0 0 0 50px;
+  border: none;
+  border-radius: 30px;
+  background: radial-gradient(ellipse 70% 70% at 40% 45%, var(--call-green) 20%, var(--call-green-edge) 100%);
+  color: var(--text-light);
+  font-family: var(--font-display);
+  font-size: 44px;
+  -webkit-text-stroke: 0.6px var(--text-light);
+  cursor: pointer;
+}
+
+.call-accept::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 7px solid var(--ink);
+  border-radius: 30px;
+  filter: url(#rough-edge-strong);
+}
+
+.call-accept-icon {
+  width: 64px;
+  height: 64px;
+  flex: none;
+}
+
+.call-status {
+  position: absolute;
+  left: 240px;
+  top: 652px;
+  width: 253px;
+  height: 48px;
+  border-radius: 24px;
+  background: var(--pill-navy);
+  color: var(--title-cream);
+  font-family: var(--font-display);
+  font-size: 20px;
+}
+
+.call-status-dot {
+  position: absolute;
+  left: 21px;
+  top: 16px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--status-ok);
+}
+
+.call-status[data-signal='weak'] .call-status-dot {
+  background: var(--status-weak);
+}
+
+.call-status[data-signal='lost'] .call-status-dot {
+  background: var(--thread-red);
+}
+
+.call-status-time,
+.call-status-label {
+  position: absolute;
+  top: 15px;
+}
+
+.call-status-time {
+  left: 50px;
+}
+
+.call-status-label {
+  left: 128px;
+}
+
+/* 02d: the label sits right after the timer. */
+.call-status[data-signal='lost'] .call-status-label {
+  left: 110px;
+}
+
+.speech-bubble {
+  position: absolute;
+  left: 613px;
+  top: 356px;
+  width: 684px;
+  height: 199px;
+}
+
+.speech-bubble-shape {
+  position: absolute;
+  inset: 0;
+  border: 3px solid var(--ink);
+  border-radius: 32px;
+  background: var(--bubble-cream);
+}
+
+.speech-bubble--trouble .speech-bubble-shape {
+  background: var(--bubble-pink);
+}
+
+.speech-bubble-tail {
+  position: absolute;
+  left: -14px;
+  top: 172px;
+  width: 80px;
+  height: 50px;
+  overflow: visible;
+}
+
+.speech-bubble-tail path {
+  fill: var(--bubble-cream);
+  stroke: var(--ink);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+.speech-bubble--trouble .speech-bubble-tail path {
+  fill: var(--bubble-pink);
+}
+
+.speech-bubble-text {
+  position: absolute;
+  left: 84px;
+  top: 47px;
+  width: 570px;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 35px;
+  line-height: 38px;
+  color: var(--bubble-ink);
+  -webkit-text-stroke: 0.5px var(--bubble-ink);
+  white-space: pre-line;
+}
+
+.speech-bubble-rest {
+  visibility: hidden;
+}
+
+.call-hint {
+  position: absolute;
+  left: 1085px;
+  top: 864px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 0;
+  color: var(--text-light);
+  font-family: var(--font-display);
+  font-size: 29px;
+}
+
+.call-hint-icon {
+  width: 40px;
+  height: 40px;
+  flex: none;
+}
+
+.icon-ring {
+  fill: var(--ink);
+  stroke: var(--text-light);
+  stroke-width: 2.5;
+}
+
+.icon-dot {
+  fill: var(--text-light);
+}
+
+.icon-stroke-thin {
+  fill: none;
+  stroke: var(--text-light);
+  stroke-width: 3;
+}
+
+.call-lost {
+  position: absolute;
+  left: 487px;
+  top: 737px;
+  width: 516px;
+  height: 125px;
+  margin: 0;
+  padding-right: 22px;
+  display: grid;
+  place-items: center;
+  color: var(--text-light);
+  font-family: var(--font-display);
+  font-size: 45px;
+  -webkit-text-stroke: 0.6px var(--text-light);
+}
+
+.call-lost::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 26px;
+  background: radial-gradient(ellipse 60% 60% at 50% 50%, var(--alarm-red) 25%, var(--alarm-red-edge) 100%);
+  filter: url(#rough-edge-strong);
+}
+
+/* ─── 03: Case assigned ─────────────────────────────────────────────────── */
+
+.case-desk {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(58px 148px, 1433px 148px, 1512px 520px, 1512px 982px, 0 982px, 0 520px);
+  background: linear-gradient(180deg, var(--desk-top) 15%, var(--desk-near) 100%);
+}
+
+.case-panel {
+  position: absolute;
+  left: 170px;
+  top: 230px;
+  width: 1200px;
+  height: 618px;
+  border-radius: 26px;
+  background:
+    var(--paper-grain),
+    linear-gradient(
+      180deg,
+      var(--paper-cream) 0%,
+      var(--paper-cream) 45%,
+      var(--paper-aged) 75%,
+      color-mix(in srgb, var(--paper-cream) 60%, var(--ink)) 100%
+    );
+}
+
+.case-message,
+.case-next-step {
+  position: absolute;
+  left: 86px;
+  width: 850px;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 38px;
+  line-height: 52px;
+  color: var(--ink);
+  -webkit-text-stroke: 0.7px var(--ink);
+  white-space: pre-line;
+}
+
+.case-message {
+  top: 128px;
+}
+
+.case-next-step {
+  top: 340px;
+}
+
+.case-stamp {
+  position: absolute;
+  left: 72px;
+  top: 190px;
+  width: 462px;
+  height: 132px;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-weight: var(--weight-display);
+  font-size: 35px;
+  color: var(--title-cream);
+  -webkit-text-stroke: 0.6px var(--title-cream);
+}
+
+.case-stamp::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 22px;
+  background: radial-gradient(ellipse 70% 80% at 50% 40%, color-mix(in srgb, var(--stamp-navy) 75%, var(--text-light) 8%) 0%, var(--stamp-navy) 100%);
+  filter: url(#rough-edge-strong);
+}
+
+.case-stamp::after {
+  content: '';
+  position: absolute;
+  inset: 16px;
+  border: 2px dashed var(--title-cream);
+  border-radius: 14px;
+  filter: url(#rough-edge);
+}
+
+.case-file {
+  position: absolute;
+  left: 990px;
+  top: 524px;
+  width: 356px;
+  height: 420px;
+  /* The folder's outline inside the cut-out, so the desk behind it is ours. */
+  clip-path: polygon(28px 10px, 300px 8px, 320px 40px, 338px 58px, 330px 400px, 296px 414px, 24px 400px, 4px 364px, 22px 30px);
+}
+
+.case-cta {
+  left: 248px;
+  top: 772px;
+  width: 512px;
+  height: 130px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .call-portrait-pulse {
+    display: none;
+  }
+}
+
+/* The second call (11, 11b): its lines sit in the middle of the bubble, however many there are. */
+.screen--call-second .speech-bubble-text {
+  top: calc(50% - 6px);
+  translate: 0 -50%;
+}

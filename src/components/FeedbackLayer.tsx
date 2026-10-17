@@ -10,7 +10,7 @@ const TOAST_MS = 2800
  * Correct / incorrect / progress feedback as a pop-up (screen 22), neutral notes as a toast.
  * Scans stay locked in the store until the feedback is closed.
  */
-export function FeedbackLayer({ onClose }: { onClose?: () => void }) {
+export function FeedbackLayer({ onClose, toastsOnly = false }: { onClose?: () => void; toastsOnly?: boolean }) {
   const feedback = useGameStore((s) => s.feedback)
   const dismiss = useGameStore((s) => s.dismissFeedback)
   const isToast = feedback?.tone === 'neutral'
@@ -47,7 +47,7 @@ export function FeedbackLayer({ onClose }: { onClose?: () => void }) {
           </button>
         </motion.div>
       )}
-      {feedback && !isToast && (
+      {feedback && !isToast && !toastsOnly && (
         <motion.div
           key={feedback.id}
           className="modal-backdrop"

@@ -19,7 +19,7 @@ const TASK_ENTRY: Record<TaskId, ScreenKey> = {
   L1T2: 'verifyIdentity',
   L1T3: 'withdrawalSlip',
   L2T1: 'closingBalance',
-  L2T2: 'cheque',
+  L2T2: 'chequeClue',
   L2T3: 'highlighter',
   L3T1: 'callAnanya2',
   L3T2: 'scamReveal',
@@ -31,7 +31,8 @@ const TASK_ENTRY: Record<TaskId, ScreenKey> = {
 const LEVEL_COMPLETE: Record<LevelId, ScreenKey> = {
   1: 'level1Complete',
   2: 'level2Complete',
-  3: 'reportSubmitted',
+  // The report is submitted on the monitor (15), then straight to the certificate (16).
+  3: 'certificate',
 }
 
 export function taskEntryRoute(taskId: TaskId): string {
@@ -43,12 +44,78 @@ export function nextTaskId(taskId: TaskId): TaskId | null {
   return TASK_ORDER[TASK_ORDER.indexOf(taskId) + 1] ?? null
 }
 
+/**
+ * Levels that go straight on to the next level when finished, through the Case Board transition,
+ * instead of a level-complete screen (owner request: Level 2 → the board → Ananya's second call).
+ */
+const STRAIGHT_ON: readonly LevelId[] = [2]
+
+/** The level whose board transition plays after this action, if any. */
+export function levelIntroAfter(result: ActionResult): LevelId | undefined {
+  const level = result.completedLevel
+  return level && STRAIGHT_ON.includes(level) ? ((level + 1) as LevelId) : undefined
+}
+
 /** Where to go once the player closes the feedback for an action; null if the action completed nothing. */
 export function routeAfterCompleting(result: ActionResult): string | null {
   if (!result.completedTask) return null
+  if (result.completedLevel && STRAIGHT_ON.includes(result.completedLevel)) return routeAfterLevel(result.completedLevel)
   if (result.completedLevel) return SCREENS[LEVEL_COMPLETE[result.completedLevel]].path
   const next = nextTaskId(result.completedTask)
   return next ? taskEntryRoute(next) : SCREENS.certificate.path
+}
+
+/** The screen before this task's: the previous task, or the level-complete screen between levels. */
+export function routeBack(taskId: TaskId): string {
+  const index = TASK_ORDER.indexOf(taskId)
+  if (index === 0) return SCREENS.caseAssigned.path
+  const previous = TASK_ORDER[index - 1]
+  const previousLevel = GAME.tasks[previous].level
+  if (previousLevel !== GAME.tasks[taskId].level) return SCREENS[LEVEL_COMPLETE[previousLevel]].path
+  return taskEntryRoute(previous)
+}
+
+/**
+ * The screens in the order the game shows them. BACK always goes to the screen before the one on
+ * show, in this order, whatever was tapped or opened before (owner request).
+ */
+const SCREEN_FLOW: ScreenKey[] = [
+  'start',
+  'callAnanya1',
+  'caseAssigned',
+  'accountType',
+  'verifyIdentity',
+  'withdrawalSlip',
+  'level1Complete',
+  'closingBalance',
+  'chequeClue',
+  'cheque',
+  'highlighter',
+  'callAnanya2',
+  'phishingChoice',
+  'scamReveal',
+  'passkey',
+  'scanEvidence',
+  'reviewReport',
+  'certificate',
+]
+
+/** Screens off the main line, and the screen BACK takes them to. */
+const BACK_TO: Partial<Record<ScreenKey, ScreenKey>> = {
+  // The case and the call go back to the start screen, where RESUME CASE carries on (owner request).
+  caseAssigned: 'start',
+  callAnanya1: 'start',
+  fakeWebsite: 'phishingChoice',
+  level2Complete: 'highlighter',
+  reportSubmitted: 'reviewReport',
+}
+
+/** Where BACK goes from a screen: the one before it in the game's order; null if it has none. */
+export function previousScreenPath(key: ScreenKey): string | null {
+  const back = BACK_TO[key]
+  if (back) return SCREENS[back].path
+  const index = SCREEN_FLOW.indexOf(key)
+  return index > 0 ? SCREENS[SCREEN_FLOW[index - 1]].path : null
 }
 
 /** Continue from a level-complete screen. */

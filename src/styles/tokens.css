@@ -5,7 +5,7 @@
  */
 :root {
   /* Colour (9.2) */
-  --bg-navy: #052039; /* sampled: background */
+  --bg-navy: #0c253c; /* sampled: background of every 1512-px mockup (01's 4x export reads darker) */
   --bg-grid: #112c46; /* sampled: background grid lines */
   --paper-cream: #beb292; /* sampled: start panel, flat upper area */
   --paper-aged: #a6987d; /* sampled: start panel, darker band */
@@ -22,12 +22,117 @@
   --desk-wood: #8e644f; /* sampled: desk */
   --desk-edge: #472117; /* sampled: desk top edge */
   --highlighter: #f5e663; /* not in mockup: guessed */
+  --call-green: #417d59; /* sampled: ACCEPT face (02) */
+  --call-green-edge: #285038; /* sampled: ACCEPT edge (02) */
+  --alarm-red: #7e232b; /* sampled: CONNECTION LOST face (02e) */
+  --alarm-red-edge: #52161b; /* sampled: CONNECTION LOST edge (02e) */
+  --glitch-red: #6d2729; /* sampled: signal glitch bars (02d) */
+  --bubble-cream: #fae4be; /* sampled: speech bubble (02b) */
+  --bubble-pink: #fdcebf; /* sampled: breaking-up speech bubble (02d) */
+  --bubble-ink: #200303; /* sampled: speech bubble text */
+  --title-cream: #f5e9c9; /* sampled: INCOMING CALL title (02) */
+  --pill-navy: #133649; /* sampled: call status pill */
+  --ring-teal: #143a4e; /* sampled: outer ring around the caller */
+  --portrait-maroon: #452631; /* sampled: portrait border */
+  --portrait-paper: #e4cba6; /* sampled: paper disc behind the portrait (face smile.png) */
+  --ring-trouble: #272535; /* sampled: outer ring while the call breaks up (02d) */
+  --status-ok: #62b879; /* sampled: Connected dot */
+  --status-weak: #d8a94b; /* sampled: weak-signal dot (02c) */
+  --stamp-navy: #0c2941; /* sampled: NEW CASE ASSIGNED stamp (03) */
+  --desk-top: #49261d; /* sampled: desk, far edge (03) */
+  --desk-near: #996f5a; /* sampled: desk, near edge (03) */
+  --text-light: #ffffff; /* sampled: ACCEPT and CONNECTION LOST lettering */
+  --step-bright: #01e5e0; /* sampled: reached step / bright tracker line (04, 10h) */
+  --step-medium: #02b9b9; /* sampled: tracker line after the first step (04) */
+  --step-dim: #026870; /* sampled: tracker line to a later step (04) */
+  --step-future: #042b44; /* sampled: fill of a step not yet reached (04) */
+  --step-label: #01ddd7; /* sampled: tracker labels (04) */
+  --header-text: #fdfdfd; /* sampled: "Level 1: Understand the Account" (04) */
+  --mat-paper: #bdb091; /* sampled: mat, upper half (04, flattened) */
+  --mat-shade-1: #8a816b; /* sampled: mat at 4/5 height */
+  --mat-shade-2: #665f4f; /* sampled: mat at its near edge */
+  --mat-outline: #161a21; /* sampled: mat outline */
+  --mat-ink: #0c0c0b; /* sampled: text printed on the mat (04) */
+  --card-paper: #ccc2a9; /* sampled: account cards on the mat */
+  --card-glow: #e2d9c2; /* sampled: light behind the card illustrations */
+  --card-edge: #5c5446; /* sampled: dotted card edge */
+  --hint-text: #dddbd6; /* sampled: "Scan the card in the file" */
+  --hint-disc: #042b44; /* sampled: the hint's "i" disc */
+  --lamp-body: #17364b; /* sampled: desk lamp arm */
+  --lamp-base: #132d3e; /* sampled: desk lamp base */
+  --lamp-joint: #426277; /* sampled: desk lamp joint */
+  --lamp-light: #d5b566; /* sampled: desk lamp light */
+  --stamp-red: #b63636; /* sampled: NOT QUITE stamp centre (04a) */
+  --stamp-red-edge: #52161b; /* sampled: NOT QUITE stamp edge (04a) */
+  --stamp-green: #4a8e65; /* sampled: VALID / CORRECT stamp centre (04b) */
+  --stamp-green-edge: #285038; /* sampled: stamp edge (04b) */
+  --fb-heading-ink: #0a131f; /* sampled: feedback heading (04a) */
+  --fb-body-ink: #101e32; /* sampled: feedback body text (04a) */
+  --hint-text-light: #fdfdfd; /* sampled: hint on the desk (06) */
+  --desk-front-left: #412f1c; /* sampled: desk front edge, left (08) */
+  --desk-front-right: #714516; /* sampled: desk front edge, right (08) */
+  --statement-paper: #fbf5e6; /* sampled: printed statement (08, un-warped) */
+  --statement-under: #f1d8b0; /* sampled: sheets under the statement (08) */
+  --statement-head: #022a4c; /* sampled: table band, bank name */
+  --statement-ink: #2c3a57; /* guessed: statement body text (blurred in the mockup) */
+  --statement-box: #cbe3f8; /* sampled: summary box */
+  --statement-credit: #1f9a6a; /* guessed from the blurred green figures */
+  --statement-debit: #e0353f; /* guessed from the blurred red figures */
+  --statement-pill-credit: #b8dcc8; /* sampled: Credit pill */
+  --statement-pill-debit: #fdc7bf; /* sampled: Debit pill */
+  --statement-rule: #ebe4d3; /* sampled: row separator */
+  --balance-label: #4b171c; /* sampled: CLOSING BALANCE label (08b) */
+  --balance-wrong-frame: #d08d88; /* sampled: wrong card frame (08b) */
+  --balance-wrong-window: #e5b8a5; /* sampled: wrong card window edge */
+  --balance-wrong-glow: #f3e6df; /* sampled: wrong card glow */
+  --balance-wrong-mark: #c88a72; /* sampled: ₹ watermark (08b) */
+  --balance-right-frame: #558b60; /* sampled: right card frame (08c) */
+  --balance-right-window: #c9cfb2; /* sampled: right card window */
+  --balance-right-glow: #eef1e2; /* sampled: right card glow */
+  --balance-neutral-frame: #d9c9a8; /* guessed: answer card on the table (colour must not hint) */
+  --balance-neutral-window: #ece1c8; /* guessed */
+  --balance-neutral-glow: #f8f2e4; /* guessed */
+  --alert-red-dark: #9e1b2b; /* sampled: alert badge disc (01, 4x) */
+  /* Case Board (21) */
+  --wood-light: #c7884d; /* sampled: board frame, top */
+  --wood-mid: #a76635; /* sampled: board frame, sides */
+  --wood-dark: #7e492a; /* sampled: board frame, bottom */
+  --wood-outline: #3a2418; /* sampled: board frame outline */
+  --wood-inner: #754526; /* sampled: inner frame */
+  --wood-inner-edge: #63391f; /* sampled: inner frame edge */
+  --wood-bevel: #e0aa6c; /* sampled: light bevel round the cork */
+  --cork: #c78d52; /* sampled: cork, top left */
+  --cork-shade: #b87b3f; /* sampled: cork, top right and bottom left */
+  --cork-glow: #d59f74; /* sampled: cork, bottom right */
+  --cork-dot: #ce9c66; /* sampled: dots on the cork */
+  --board-paper: #e0d1af; /* sampled: level cards */
+  --board-paper-shade: #dac8a0; /* sampled: level cards, lower edge */
+  --board-paper-fold: #c2b28f; /* sampled: folded corner (Level 1) */
+  --board-ink: #0a2b45; /* sampled: card outlines, icons and titles */
+  --board-dot-fill: #21202c; /* sampled: reached step dot */
+  --board-dot-empty: #fff0cd; /* sampled: step dot not reached */
+  --board-glass: #d8edf0; /* sampled: magnifying glass (Level 2 icon) */
+  --thread: #b92a33; /* sampled: red thread */
+  --thread-shadow: #6b1a1d; /* guessed: thread shadow */
+  --pin-green: #54c18f; /* sampled: Level 1 pin */
+  --pin-green-dark: #159d65;
+  --pin-blue: #5970b9; /* sampled: Level 2 pin */
+  --pin-blue-dark: #234a96;
+  --pin-red: #dc2f37; /* sampled: Level 3 pin */
+  --pin-red-dark: #9b1a25;
+  --pin-needle: #757d81; /* sampled: pin needle */
+  --desk-near-21: #764f3f; /* sampled: desk, near edge (21) */
 
   /* Typography (9.3) */
   --font-display: 'Special Elite', 'Courier New', monospace;
   --font-body: 'Nunito', system-ui, sans-serif;
   --font-ui: 'Special Elite', 'Courier New', monospace;
   --font-mono: 'Courier Prime', 'Courier New', monospace;
+  --font-statement: 'Ubuntu Mono', 'Courier New', monospace; /* [GUESSED] printed statement (08) */
+  --font-statement-head: 'Roboto Slab', Georgia, serif; /* [GUESSED] bank name on the statement (08) */
+  --font-print: 'Inter', system-ui, sans-serif; /* [GUESSED] printed text on the cheque and the 09 statement */
+  --font-hand: 'Edu VIC WA NT Beginner', 'Comic Sans MS', cursive; /* [GUESSED] handwriting on the cheque (09) */
+  --font-tracker: 'Titillium Web', system-ui, sans-serif; /* [GUESSED] step labels (04): fits all three labels at 15px */
 
   --size-display: 64px;
   --size-heading: 30px;
@@ -44,7 +149,7 @@
   --weight-mono-strong: 700;
 
   /* Measured from 01-start.png at canvas scale */
-  --grid-size: 37px;
+  --grid-size: 42px;
   --outline: 4px;
   --radius-panel: 18px;
   --radius-cta: 24px;

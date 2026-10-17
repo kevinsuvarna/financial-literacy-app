@@ -1,3 +1,4 @@
+import { BackButton } from '../components/BackButton'
 import { useNavigate } from 'react-router'
 import { GAME, type LevelId } from '../content/gameData'
 import { routeAfterLevel } from '../app/navigation'
@@ -10,11 +11,12 @@ export function LevelCompleteScreen({ levelId }: { levelId: LevelId }) {
 
   return (
     <div className="screen screen--centered">
+      <BackButton />
       <div className="hero paper">
         <h1 className="display-title display-title--medium">{level.complete.title}</h1>
         <p className="hero-intro">{level.complete.message}</p>
         <div className="button-row">
-          <button type="button" className="cta" onClick={() => navigate(routeAfterLevel(levelId))}>
+          <button type="button" className="cta" onClick={() => navigate(routeAfterLevel(levelId), levelId < 3 ? { state: { levelIntro: levelId + 1 } } : undefined)}>
             {GAME.ui.continue}
           </button>
           <button type="button" className="cta cta--secondary" onClick={() => navigate(SCREENS.caseBoard.path)}>

@@ -1,0 +1,445 @@
+/*
+ * Mockup-matched task screens: level header (04–17) and the table scene (04).
+ * Canvas pixels; positions measured from the mockups. Mat contents are in flat mat coordinates
+ * (see src/components/scene/matProjection.ts). Tokens only.
+ */
+
+.screen--scene {
+  display: block;
+  padding: 0;
+}
+
+/* Placeholder task screens keep their flow layout under the header. */
+.screen--task {
+  padding-top: 122px;
+}
+
+/* ─── Level header and step tracker ─────────────────────────────────────── */
+
+.level-header {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1512px;
+  height: 118px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.level-header-folder,
+.stepper {
+  pointer-events: auto;
+}
+
+.level-header-folder {
+  position: absolute;
+  left: 36px;
+  top: 30px;
+  width: 62px;
+  height: 52px;
+  padding: 0;
+  border: none;
+  background: none;
+}
+
+.level-header-folder img {
+  display: block;
+  width: 62px;
+  height: 52px;
+}
+
+.level-header-title {
+  position: absolute;
+  left: 114px;
+  top: 44px;
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--weight-display);
+  font-size: 20px;
+  line-height: 24px;
+  color: var(--header-text);
+  white-space: nowrap;
+}
+
+.stepper {
+  position: absolute;
+  left: 0;
+  top: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stepper-step {
+  position: absolute;
+  top: 33px;
+  width: 44px;
+  height: 44px;
+}
+
+.stepper-step:nth-child(1) {
+  left: 1109px;
+}
+.stepper-step:nth-child(2) {
+  left: 1245px;
+}
+.stepper-step:nth-child(3) {
+  left: 1384px;
+}
+
+.stepper-dot {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: var(--step-future);
+  box-shadow: inset 0 0 0 2px var(--header-text);
+  padding: 7px 0 0 2px;
+  color: var(--header-text);
+  font-family: var(--font-display);
+  font-size: 22px;
+  -webkit-text-stroke: 0.8px currentColor;
+}
+
+.stepper-step.is-reached .stepper-dot {
+  background: var(--step-bright);
+  box-shadow: none;
+  color: var(--ink);
+}
+
+/* The line into this step, from the previous one. */
+.stepper-line {
+  position: absolute;
+  top: 19px;
+  right: 42px;
+  height: 9px;
+  border-block: 2px solid var(--ink);
+  background: var(--step-dim);
+}
+
+.stepper-step:nth-child(2) .stepper-line {
+  width: 95px;
+}
+.stepper-step:nth-child(3) .stepper-line {
+  width: 98px;
+}
+
+.stepper-line--medium {
+  background: var(--step-medium);
+}
+
+.stepper-line--bright {
+  background: var(--step-bright);
+}
+
+.stepper-label {
+  position: absolute;
+  top: 54px;
+  left: 50%;
+  transform: translateX(calc(-50% + 2px));
+  color: var(--step-label);
+  font-family: var(--font-tracker);
+  font-size: 15px;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+/* ─── Desk and lamp ─────────────────────────────────────────────────────── */
+
+.desk-scene,
+.desk-scene-top,
+.desk-scene-edge,
+.desk-lamp {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1512px;
+  height: 982px;
+}
+
+.desk-scene-top {
+  clip-path: polygon(0 619px, 138px 363px, 1383px 363px, 1512px 640px, 1512px 982px, 0 982px);
+  background: linear-gradient(180deg, var(--desk-top) 37%, var(--desk-near) 100%);
+}
+
+.desk-scene-edge polyline {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+.desk-lamp {
+  pointer-events: none;
+}
+
+.desk-lamp-base {
+  fill: var(--lamp-base);
+}
+
+.desk-lamp-arm {
+  fill: none;
+  stroke: var(--lamp-body);
+  stroke-width: 15;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.desk-lamp-head {
+  fill: var(--lamp-body);
+  stroke: var(--lamp-body);
+  stroke-width: 10;
+  stroke-linejoin: round;
+}
+
+.desk-lamp-light {
+  fill: var(--lamp-light);
+  stroke: var(--lamp-light);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+.desk-lamp-light--glow {
+  opacity: 0.8;
+}
+
+.desk-lamp-joint {
+  fill: var(--lamp-joint);
+}
+
+/* The scanner is reading cards: the lamp's light pulses. */
+.desk-lamp.is-scanning .desk-lamp-light {
+  animation: lamp-scan 1.4s ease-in-out infinite;
+}
+
+@keyframes lamp-scan {
+  50% {
+    fill: color-mix(in srgb, var(--lamp-light) 55%, var(--text-light));
+  }
+}
+
+/* ─── The mat (flat coordinates, projected by matrix3d) ─────────────────── */
+
+.mat {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+}
+
+.mat-paper {
+  position: absolute;
+  inset: 0;
+  border-radius: 26px;
+  outline: 8px solid var(--mat-outline);
+  box-shadow: 0 12px 10px color-mix(in srgb, var(--ink) 45%, transparent);
+  background:
+    var(--paper-grain),
+    linear-gradient(
+      180deg,
+      var(--mat-paper) 0%,
+      var(--mat-paper) 57%,
+      color-mix(in srgb, var(--mat-paper) 70%, var(--mat-shade-1)) 66%,
+      var(--mat-shade-1) 81%,
+      var(--mat-shade-2) 100%
+    );
+}
+
+.mat-title {
+  position: absolute;
+  left: 65px;
+  top: 75px;
+  width: 1090px;
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--weight-display);
+  font-size: 50px;
+  line-height: 53px;
+  color: var(--mat-ink);
+  -webkit-text-stroke: 1.7px var(--mat-ink);
+}
+
+.table-cards {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.table-card {
+  position: absolute;
+  height: 216px;
+  border-radius: 3px;
+  background: radial-gradient(ellipse 70% 65% at 50% 45%, var(--card-glow) 0%, var(--card-paper) 85%);
+}
+
+.table-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px dotted var(--card-edge);
+  border-radius: 3px;
+  filter: url(#rough-edge);
+}
+
+.table-card--savings-account {
+  left: 48px;
+  top: 238px;
+  width: 236px;
+}
+
+.table-card--current-account {
+  left: 312px;
+  top: 210px;
+  width: 235px;
+  rotate: 0.4deg;
+}
+
+.table-card--fixed-deposit-account {
+  left: 589px;
+  top: 262px;
+  width: 262px;
+  rotate: -1deg;
+}
+
+.table-card--recurring-deposit-account {
+  left: 877px;
+  top: 214px;
+  width: 291px;
+  rotate: -0.2deg;
+}
+
+.table-card-label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 130px;
+  font-family: var(--font-display);
+  font-size: 32px;
+  line-height: 35px;
+  color: var(--mat-ink);
+  -webkit-text-stroke: 0.2px var(--mat-ink);
+  text-align: center;
+  white-space: pre-line;
+}
+
+/* Fine offsets measured against mockup 04. */
+.table-card--current-account .table-card-label {
+  left: -6px;
+  top: 131px;
+}
+
+.table-card--fixed-deposit-account .table-card-label {
+  left: -2px;
+  top: 127px;
+}
+
+/* Mockup 04 sets this label's two lines flush left. */
+.table-card--recurring-deposit-account .table-card-label {
+  left: 17px;
+  top: 127px;
+  text-align: left;
+}
+
+/* Illustrations sit on the mat at the positions they were lifted from (feathered into the card). */
+.table-card-art {
+  position: absolute;
+  mask-image:
+    linear-gradient(90deg, transparent, #000 10px, #000 calc(100% - 10px), transparent),
+    linear-gradient(180deg, transparent, #000 10px, #000 calc(100% - 10px), transparent);
+  mask-composite: intersect;
+  pointer-events: none;
+}
+
+.table-card-art--savings-account {
+  left: 104px;
+  top: 236px;
+}
+
+.table-card-art--current-account {
+  left: 362px;
+  top: 210px;
+}
+
+.table-card-art--fixed-deposit-account {
+  left: 662px;
+  top: 266px;
+}
+
+.table-card-art--recurring-deposit-account {
+  left: 1030px;
+  top: 220px;
+}
+
+.mat-hint {
+  position: absolute;
+  left: 79px;
+  top: 500px;
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  margin: 0;
+  color: var(--hint-text);
+  font-family: var(--font-display);
+  font-size: 20px;
+}
+
+.mat-hint-icon {
+  width: 47px;
+  height: 47px;
+  flex: none;
+}
+
+.mat-hint-icon .icon-ring {
+  fill: var(--hint-disc);
+  stroke: var(--ink);
+  stroke-width: 3.5;
+}
+
+/* ─── Scanner on scene screens ──────────────────────────────────────────── */
+
+/* The camera can't be used: a small note under the mat, with TRY AGAIN. */
+.scanner-note {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  z-index: 10;
+  translate: -50% 0;
+  width: max-content;
+  max-width: 900px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px 10px 18px;
+  border: 3px solid var(--ink);
+  border-radius: 14px;
+  background: var(--paper-grain), var(--paper-cream);
+  font-size: var(--size-small);
+}
+
+.scanner-note strong {
+  font-family: var(--font-display);
+  font-weight: var(--weight-display);
+  white-space: nowrap;
+}
+
+.scanner-note-retry {
+  flex: none;
+  padding: 6px 14px;
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  background: var(--cta-turquoise);
+  font-family: var(--font-display);
+}
+
+
+/* Revisiting a solved task: the bar sits along the bottom, clear of the scene and header. */
+.screen--scene .revisit-bar {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 16px;
+  z-index: 6;
+  background: color-mix(in srgb, var(--bg-navy) 92%, transparent);
+}

@@ -184,7 +184,10 @@ describe('suspicious transaction (Level 2, Task 3)', () => {
   })
 
   it('has highlight feedback for every row', () => {
-    for (const row of GAME.statement.rows) expect(row.highlightFeedback.length).toBeGreaterThan(0)
+    for (const row of GAME.statement.rows) {
+      expect(row.highlightFeedback.length).toBeGreaterThan(0)
+      expect(row.highlightLabel.length).toBeGreaterThan(0)
+    }
   })
 })
 
@@ -320,10 +323,13 @@ describe('task definitions', () => {
     const evidenceTask = GAME.tasks[report.evidenceTaskId]
     expect(evidenceTask.kind).toBe('scan')
     if (evidenceTask.kind === 'scan') expect(report.evidence.map((e) => e.artefactId)).toEqual(evidenceTask.required)
+    // Mockup 15's fields, with the statement's account and date (review note 3).
     expect(report.fields).toEqual([
       { label: 'Customer', value: 'Ananya Sharma' },
-      { label: 'Transaction', value: '₹5,999' },
-      { label: 'Concern', value: 'Suspected fraud' },
+      { label: 'Account Number', value: 'XXXX 3210' },
+      { label: 'Transaction Date', value: '30 Aug 2026' },
+      { label: 'Transaction', value: '₹5,999 — CAMS TEL' },
+      { label: 'Concern', value: 'Suspected fraud: CAMS TEL' },
     ])
   })
 

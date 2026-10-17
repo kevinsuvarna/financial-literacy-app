@@ -1,11 +1,13 @@
 import { defineConfig, devices } from '@playwright/test'
 
 // Visual checks run at the fixed design canvas (spec 9.1, 12.4).
-const DESIGN_VIEWPORT = { width: 1280, height: 831 }
+const DESIGN_VIEWPORT = { width: 1512, height: 982 }
 const BASE_URL = 'https://localhost:5173'
 
 export default defineConfig({
   testDir: './e2e',
+  // Whole-mission journeys play the opening call and several scenes.
+  timeout: 90_000,
   use: {
     baseURL: BASE_URL,
     ignoreHTTPSErrors: true,

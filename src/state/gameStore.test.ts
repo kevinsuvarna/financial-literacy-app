@@ -148,6 +148,15 @@ describe('scan tasks', () => {
     expect(right.feedback?.message).toBe(GAME.tasks.L1T1.correct.message)
   })
 
+  it('remembers wrong cards already scanned, to show them as scanned', () => {
+    scan(store, 'current-account')
+    scan(store, 'current-account')
+    scan(store, 'fixed-deposit-account')
+    expect(state().tried.L1T1).toEqual(['current-account', 'fixed-deposit-account'])
+    state().resetGame()
+    expect(state().tried).toEqual({})
+  })
+
   it('locks scanning while feedback is showing', () => {
     expect(state().scanArtefact('current-account').outcome).toBe('incorrect')
     expect(state().scanArtefact('savings-account').outcome).toBe('ignored')
@@ -185,7 +194,13 @@ describe('KYC: both documents, either order (Level 1, Task 2)', () => {
 
     const two = scan(store, second)
     expect(two).toMatchObject({ outcome: 'correct', completedTask: 'L1T2' })
-    expect(two.feedback?.title).toBe('IDENTITY VERIFIED')
+    // Completes on the second ID's own card, with NEXT CLUE (mockup 05d).
+    expect(two.feedback).toMatchObject({
+      message: GAME.tasks.L1T2.collect!.accepted[second as 'pan-card']!.message,
+      cta: GAME.tasks.L1T2.correct.cta,
+      artefactId: second,
+    })
+    expect(one.feedback).toMatchObject({ cta: 'SCAN NEXT', artefactId: first })
     expect(getCurrentTaskId(state())).toBe('L1T3')
   })
 
@@ -252,11 +267,13 @@ describe('Level 2', () => {
     state().viewTask('L2T2')
     for (const area of GAME.tasks.L2T2.areas.filter((a) => !a.isDiscrepancy)) {
       expect(state().inspectChequeArea(area.id).outcome).toBe('neutral')
-      expect(state().feedback?.message).toBe(area.feedback.message)
+      // The tapped part is recorded, so the screen can lift it out (09c–09f).
+      expect(state().feedback).toMatchObject({ message: area.feedback.message, areaId: area.id })
+      state().dismissFeedback()
     }
     expect(state().completedTasks).not.toContain('L2T2')
     expect(state().inspectChequeArea('amount-words')).toMatchObject({ outcome: 'correct', completedTask: 'L2T2' })
-    expect(state().feedback?.title).toBe(GAME.tasks.L2T2.correct.title)
+    expect(state().feedback).toMatchObject({ title: GAME.tasks.L2T2.correct.title, areaId: 'amount-words' })
   })
 
   it('highlighter: feedback on every row, the CAMS TEL row is the clue', () => {
@@ -264,7 +281,9 @@ describe('Level 2', () => {
     state().viewTask('L2T3')
     for (const row of GAME.statement.rows.filter((r) => !r.suspicious)) {
       expect(state().highlightTransaction(row.id).outcome).toBe('neutral')
-      expect(state().feedback?.message).toBe(row.highlightFeedback)
+      // The row is recorded, so the screen can show it highlighted with the pen on it (10b–10j).
+      expect(state().feedback).toMatchObject({ message: row.highlightFeedback, rowId: row.id })
+      state().dismissFeedback()
     }
     expect(state().completedTasks).not.toContain('L2T3')
     expect(state().highlightTransaction('cams-tel')).toMatchObject({ completedTask: 'L2T3', completedLevel: 2 })
