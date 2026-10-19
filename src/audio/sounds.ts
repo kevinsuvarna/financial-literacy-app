@@ -231,8 +231,15 @@ export function isMuted(): boolean {
   }
 }
 
+/** Lowers the music while Ananya speaks, and brings it back after. */
+export function duckMusic(ducked: boolean): void {
+  music?.fade(music.volume(), ducked ? 0.1 : 0.32, 300)
+}
+
 export function setMuted(muted: boolean): void {
   Howler.mute(muted)
+  // Ananya's voice goes quiet too.
+  if (muted && typeof window !== 'undefined' && 'speechSynthesis' in window) window.speechSynthesis.cancel()
   try {
     localStorage.setItem(MUTE_KEY, muted ? '1' : '0')
   } catch {

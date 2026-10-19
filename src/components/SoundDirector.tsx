@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { GAME } from '../content/gameData'
 import { isMuted, playSound, restoreMute, setMuted, startMusic } from '../audio/sounds'
+import { unlockVoice } from '../audio/voice'
 import { useGameStore } from '../state/gameStore'
 
 /**
@@ -11,7 +12,10 @@ import { useGameStore } from '../state/gameStore'
 export function SoundDirector() {
   useEffect(() => {
     restoreMute()
-    const start = () => startMusic()
+    const start = () => {
+      startMusic()
+      unlockVoice()
+    }
     const click = (e: MouseEvent) => {
       const button = (e.target as Element | null)?.closest('button')
       if (button && !button.disabled) playSound('tap')

@@ -192,3 +192,55 @@
 .back-button {
   z-index: 45;
 }
+
+/* The camera can't be used: on 04 and 05 the note sits beside the desk lamp, pointing at its light. */
+.scanner-note--lamp {
+  left: 292px;
+  top: 104px;
+  bottom: auto;
+  translate: none;
+  width: 430px;
+  max-width: none;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  padding: 14px 16px 14px 18px;
+  line-height: 1.3;
+}
+
+.scanner-note--lamp strong {
+  flex-basis: 100%;
+  font-size: 19px;
+}
+
+.scanner-note--lamp span {
+  flex: 1 1 0;
+  font-size: 14px;
+}
+
+.scanner-note--lamp .scanner-note-retry {
+  align-self: flex-end;
+}
+
+/* A pointer towards the lamp's light. */
+.scanner-note--lamp::before {
+  content: '';
+  position: absolute;
+  left: -15px;
+  top: 34px;
+  width: 24px;
+  height: 24px;
+  border: solid var(--ink);
+  border-width: 0 0 3px 3px;
+  background: var(--paper-cream);
+  rotate: 45deg;
+}
+
+/* While the camera is blocked the lamp's light is off. */
+.desk-lamp.is-blocked .desk-lamp-light {
+  fill: color-mix(in srgb, var(--lamp-light) 35%, var(--lamp-body));
+  animation: none;
+}
+
+.desk-lamp.is-blocked .desk-lamp-light--glow {
+  opacity: 0;
+}

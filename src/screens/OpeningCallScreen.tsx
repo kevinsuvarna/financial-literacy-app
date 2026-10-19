@@ -8,6 +8,7 @@ import { SCREENS } from '../app/screens'
 import { InfoIcon, PhoneIcon } from '../components/art/Icons'
 import { CallPortrait } from '../components/call/CallPortrait'
 import { useTypewriter } from '../components/call/useTypewriter'
+import { useAnanyaVoice } from '../audio/voice'
 import { SpeechBubble } from '../components/call/CallParts'
 import { formatTimer } from '../components/call/callClock'
 
@@ -15,6 +16,8 @@ const call = GAME.openingCall
 
 /** How long a fully typed line stays before the call moves on. */
 const LINE_HOLD_MS = 2200
+/** After a spoken line: a short pause, since she's already been heard. */
+const VOICED_HOLD_MS = 700
 /** How long CONNECTION LOST shows before the case is assigned. */
 const LOST_HOLD_MS = 2800
 
@@ -34,6 +37,8 @@ export function OpeningCallScreen() {
   const lastStep = call.steps.length - 1
   const typing = useTypewriter(step?.text ?? '')
   const typed = step !== null && typing.done
+  // Ananya says each line as it types; the call waits for her to finish.
+  const voice = useAnanyaVoice(step?.text ?? '', { active: phase.kind === 'talking', worried: step?.mood === 'worried' })
 
   const advance = useCallback(() => {
     setPhase((p) => {
@@ -66,15 +71,15 @@ export function OpeningCallScreen() {
 
   // Moves on by itself once a line has been read (spec: auto-advance, tap to skip).
   useEffect(() => {
-    if (phase.kind === 'talking' && typed) {
-      const timer = window.setTimeout(advance, LINE_HOLD_MS)
+    if (phase.kind === 'talking' && typed && voice.done) {
+      const timer = window.setTimeout(advance, voice.voiced ? VOICED_HOLD_MS : LINE_HOLD_MS)
       return () => window.clearTimeout(timer)
     }
     if (phase.kind === 'lost') {
       const timer = window.setTimeout(finishCall, LOST_HOLD_MS)
       return () => window.clearTimeout(timer)
     }
-  }, [phase, typed, advance, finishCall])
+  }, [phase, typed, voice.done, voice.voiced, advance, finishCall])
 
   const onTap = () => {
     if (phase.kind === 'talking') {

@@ -1165,3 +1165,27 @@ Guess 38: digit labels on the desk keyboard's top row (needed to type on an iPad
 2. A bright scan line wipes down the screen (thud), revealing the REPORT SENT confirmation: the reference and checklist from before (fanfare).
 3. VIEW CERTIFICATE then fades in over the full bar.
 
+
+**Owner requests (2026-10-19): Ananya's voice, and the scanner note by the lamp.**
+- **Voice-over (interim):** Ananya speaks every line of both calls using the device's own speech (Web Speech API; offline on iPad, no recordings).
+  - Voice choice: an Indian-English female voice first (Veena, Isha, Heera, Aditi…), then any female English voice. Pitch 1.4 (1.25 and a touch slower when she's worried).
+  - Each line types and is spoken together; the call moves on 0.7 s after she finishes (2.2 s when there is no voice).
+  - A tap skips (and stops) the line. The music dips while she talks, and mute silences her too.
+  - Speech is unlocked on the first tap, as iPad Safari requires.
+  - Checked with a stand-in speech engine: it picks Veena over Rishi and says all three opening lines in order, waiting for each.
+  - A recorded voice-over can replace this later (`src/audio/voice.ts`).
+- **Scanner note:** on 04 and 05, the "scanner blocked / unavailable" note sits beside the desk lamp, pointing at its light, and the lamp's light goes dim while the camera can't be used. Screens without a lamp (08, the evidence monitor) keep it along the bottom.
+- Tests: 113 unit and 13 Playwright pass.
+
+**Owner request (2026-10-19): a young girl in distress.** Ananya's voice is now pitched 1.8 at rate 1.12 (worried lines 1.95 at 1.18; the Web Speech maximum pitch is 2). Each line is broken at its pauses into short fragments, each with a small pitch wobble, so she sounds breathless and shaky. Still the device voice (Indian-English female first); a recorded child actor would sound far more natural and can replace it in `src/audio/voice.ts`.
+
+**Owner request (2026-10-19): ElevenLabs voice "Noor" for Ananya.**
+- **Recorded lines:** made with ElevenLabs `eleven_v4`, with the tags [childlike voice] [nervous] [breathless] [trembling voice]. They live in `src/assets/voice/` as mono mp3s at 128 kbps:
+  - `ananya-call1-1.mp3` (6.2 s)
+  - `ananya-call1-2.mp3` (4.0 s)
+  - `ananya-call1-3.mp3` (3.2 s)
+  - `ananya-call2-1.mp3` (5.8 s)
+- **How they play:** `useAnanyaVoice` matches a line's text to its recording and plays it through Howler. While she speaks the music ducks. The clip respects mute and stops when the line changes. The call moves on 0.7 s after the clip ends.
+- **Missing line:** call 2, line 2 ("I just got a message saying I can unblock it immediately by clicking a link.") failed. ElevenLabs disabled Free Tier access on the account and asks for a paid plan. That line falls back to the device voice until it is regenerated; to add it, drop in `ananya-call2-2.mp3` and add it to `RECORDINGS`.
+- **Measured:** 113 unit and 13 Playwright tests pass; the build bundles the 4 mp3s (381 kB).
+

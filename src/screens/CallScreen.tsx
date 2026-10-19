@@ -9,6 +9,7 @@ import { CallPortrait } from '../components/call/CallPortrait'
 import { CallStatus, SpeechBubble } from '../components/call/CallParts'
 import { startSecondCall } from '../components/call/callClock'
 import { useTypewriter } from '../components/call/useTypewriter'
+import { useAnanyaVoice } from '../audio/voice'
 
 const call = GAME.tasks.L3T1.call
 
@@ -29,6 +30,8 @@ export function CallScreen() {
   // Arriving through the Case Board transition: wait for it to lift before talking.
   const [started, setStarted] = useState(!(location.state as { levelIntro?: number } | null)?.levelIntro)
   const typing = useTypewriter(started ? line.text : '')
+  // Ananya says each line as it types; the call waits for her to finish.
+  const voice = useAnanyaVoice(line.text, { active: started, worried: line.mood === 'worried' })
 
   useEffect(() => {
     if (started) return
@@ -48,10 +51,10 @@ export function CallScreen() {
   }, [step, started])
 
   useEffect(() => {
-    if (!started || !typing.done) return
-    const timer = window.setTimeout(advance, LINE_HOLD_MS)
+    if (!started || !typing.done || !voice.done) return
+    const timer = window.setTimeout(advance, voice.voiced ? 700 : LINE_HOLD_MS)
     return () => window.clearTimeout(timer)
-  }, [typing.done, started, advance])
+  }, [typing.done, voice.done, voice.voiced, started, advance])
 
   const onTap = () => {
     if (!started) return

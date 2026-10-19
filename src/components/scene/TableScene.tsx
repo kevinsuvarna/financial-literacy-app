@@ -38,9 +38,9 @@ export function Desk({ variant = 'table' }: { variant?: keyof typeof DESKS }) {
  * The desk lamp. While `scanning`, its light pulses: the game's in-world sign that the hidden
  * camera is reading cards (spec 10.2: scanning feedback in the game's style, never the feed).
  */
-export function DeskLamp({ scanning = false, placement }: { scanning?: boolean; placement?: string }) {
+export function DeskLamp({ scanning = false, blocked = false, placement }: { scanning?: boolean; blocked?: boolean; placement?: string }) {
   return (
-    <svg className={`desk-lamp${scanning ? ' is-scanning' : ''}`} viewBox="0 0 1512 982" aria-hidden="true">
+    <svg className={`desk-lamp${scanning ? ' is-scanning' : ''}${blocked ? ' is-blocked' : ''}`} viewBox="0 0 1512 982" aria-hidden="true">
       <g transform={placement}>
       <defs>
         <filter id="lamp-glow" x="-30%" y="-30%" width="160%" height="160%">

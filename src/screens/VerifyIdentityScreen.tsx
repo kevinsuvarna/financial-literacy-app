@@ -43,7 +43,7 @@ function IdentityTable() {
     <>
       <Desk />
       {/* Mockup 05's lamp is mockup 04's, smaller and further from the viewer. */}
-      <DeskLamp scanning={scannerStatus === 'active'} placement="translate(32.2 30.8) scale(0.876)" />
+      <DeskLamp scanning={scannerStatus === 'active'} blocked={['denied', 'unavailable', 'error'].includes(scannerStatus)} placement="translate(32.2 30.8) scale(0.876)" />
       <Mat name="verifyIdentity">
         <h1 className="mat-title">{task.prompt}</h1>
         <ul className="id-docs" aria-label={task.instruction}>
@@ -70,7 +70,7 @@ function IdentityTable() {
           {task.instruction}
         </p>
       </Mat>
-      <SceneScanner onStatus={setScannerStatus} />
+      <SceneScanner onStatus={setScannerStatus} nearLamp />
     </>
   )
 }

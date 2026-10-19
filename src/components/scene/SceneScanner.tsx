@@ -14,7 +14,14 @@ const copy = GAME.scanner
  * for on the game's first tap); while it runs, the desk lamp pulses (see DeskLamp). Players can
  * also tap a card on screen. If the camera can't be used, a small note says so and offers TRY AGAIN.
  */
-export function SceneScanner({ onStatus }: { onStatus?: (status: ScannerStatus) => void }) {
+export function SceneScanner({
+  onStatus,
+  nearLamp = false,
+}: {
+  onStatus?: (status: ScannerStatus) => void
+  /** Show the "camera blocked" note beside the desk lamp (04, 05), pointing at its light. */
+  nearLamp?: boolean
+}) {
   const handle = useActionHandler()
   const scanQr = useGameStore((s) => s.scanQr)
   const status = useScannerStatus()
@@ -39,7 +46,7 @@ export function SceneScanner({ onStatus }: { onStatus?: (status: ScannerStatus) 
   return (
     <>
       {cameraFailed && (
-        <div className="scanner-note" data-testid="scanner" data-status={status} role="note">
+        <div className={`scanner-note${nearLamp ? ' scanner-note--lamp' : ''}`} data-testid="scanner" data-status={status} role="note">
           <strong>{status === 'denied' ? copy.deniedTitle : status === 'error' ? copy.errorTitle : copy.fallbackTitle}</strong>
           <span>{status === 'denied' ? copy.deniedMessage : status === 'error' ? copy.errorMessage : copy.fallbackMessage}</span>
           {status !== 'unavailable' && (

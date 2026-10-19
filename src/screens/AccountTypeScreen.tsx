@@ -41,7 +41,7 @@ function AccountTypeTable() {
   return (
     <>
       <Desk />
-      <DeskLamp scanning={scannerStatus === 'active'} />
+      <DeskLamp scanning={scannerStatus === 'active'} blocked={['denied', 'unavailable', 'error'].includes(scannerStatus)} />
       <Mat>
         <h1 className="mat-title">{task.prompt}</h1>
         <ul className="table-cards" aria-label={task.instruction}>
@@ -73,7 +73,7 @@ function AccountTypeTable() {
           {task.instruction}
         </p>
       </Mat>
-      <SceneScanner onStatus={setScannerStatus} />
+      <SceneScanner onStatus={setScannerStatus} nearLamp />
     </>
   )
 }
