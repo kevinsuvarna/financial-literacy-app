@@ -473,7 +473,7 @@ Use fictional banking data throughout. Do not collect real banking credentials o
 QR generation and validation are fully automated. The project owner must never need to match codes to cards by hand.
 
 - Each QR encodes `https://<game-domain>/a/<artefact-id>`. If scanned with a normal phone camera, it opens a friendly page rather than gibberish.
-  - `<game-domain>` comes from the single constant `GAME_DOMAIN` in `src/content/gameData.ts`: `[GUESSED: save-the-savings.example]`. Set the real domain before printing. The scanner only accepts codes for this domain. While it's a placeholder, `npm run print` marks every page and the guide as TEST PRINT.
+  - `<game-domain>` comes from the single constant `GAME_DOMAIN` in `src/content/gameData.ts`: `financial-literacy-app.vercel.app` (owner, 2026-10-20). If it changes, set the new domain and print again. The scanner only accepts codes for this domain. While it's a placeholder, `npm run print` marks every page and the guide as TEST PRINT.
   - The command is `npm run print` (`scripts/print-artefacts.ts`). Codes use error correction level Q and print 3.4 cm wide on 90 × 58 mm cards, 8 per A4 page.
 - Validation (does this artefact answer the current task?) happens in the game logic, using the central content data.
 - One command produces:

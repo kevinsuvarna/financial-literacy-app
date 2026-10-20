@@ -18,7 +18,7 @@
  * Domain encoded in every printed QR code: https://<GAME_DOMAIN>/a/<artefact-id> (spec 10.3).
  * PLACEHOLDER: set the real domain before printing the artefacts.
  */
-export const GAME_DOMAIN = 'save-the-savings.example'
+export const GAME_DOMAIN = 'financial-literacy-app.vercel.app'
 
 // ─── Identifiers ─────────────────────────────────────────────────────────────
 
