@@ -344,7 +344,8 @@ export const CASE_FIGURES: CaseFigures = {
     holder: 'Ananya Sharma',
     type: 'Savings Account (Minor)',
     maskedNumber: 'XXXX XXXX 3210',
-    bankName: 'First National Bank',
+    // 2026-10-24 mockups: "National Bank", as on the cheque.
+    bankName: 'National Bank',
     branch: 'Hitech City Branch',
   },
   statementPeriod: { from: '2026-08-01', to: '2026-08-31' },
@@ -463,7 +464,8 @@ export const CASE_FIGURES: CaseFigures = {
     branch: 'Hitech City Branch',
     branchAddress: 'Plot No. 12, Hitech City, Hyderabad – 500081',
     ifsc: 'NBIN0001234',
-    accountNumber: '1234567890',
+    // Ends 3210, as the statement's XXXX XXXX 3210 (owner, 2026-10-24).
+    accountNumber: '1234563210',
     amountInFigures: 1500,
     amountInWordsValue: 1550, // differs from the figures but ends in the same digit
     micr: ['500012345', '123456', '10'],
@@ -1096,7 +1098,7 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       kind: 'highlight',
       label: 'Suspicious transaction',
       // Mockups 10–10j.
-      prompt: 'Something in the statement doesn’t match\nAnanya’s week. Can you find it?',
+      prompt: 'Something in the record doesn’t match\nAnanya’s week. Can you find it?',
       instruction: 'Highlight the transaction Ananya doesn’t\nremember making. Drag the highlighter over it.',
       hints: [],
       correct: { title: 'CLUE FOUND', message: suspicious.highlightFeedback, cta: 'INVESTIGATE' },
@@ -1530,6 +1532,8 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
           credit: 'Credit',
           debit: 'Debit',
           none: '--',
+          /** The closing balance before it's worked out (08). */
+          unknown: '????',
         },
       },
       /** The closing-balance answer cards (mockups 08b–08e). */

@@ -5,7 +5,8 @@ import { Highlighter } from '../components/Highlighter'
 import { useActionHandler } from '../components/actionHandler'
 import { SceneCta } from '../components/scene/FeedbackParts'
 import { Desk } from '../components/scene/TableScene'
-import { HighlighterStatement } from '../components/statement/HighlighterStatement'
+import { PrintedStatement } from '../components/statement/PrintedStatement'
+import { SHEET_ON } from '../components/statement/statementLayout'
 import { HL_PEN_HOME, penStyle, penTipOnRow } from '../components/statement/highlighterLayout'
 import { TaskScreen } from '../components/TaskScreen'
 import { isTaskCompleted, useGameStore, type Feedback } from '../state/gameStore'
@@ -29,7 +30,7 @@ function HighlightDesk() {
     <>
       <Desk variant="highlighter" />
       <h1 className="hl-title">{task.prompt}</h1>
-      <HighlighterStatement highlight={clue} />
+      <PrintedStatement highlight={clue ? [clue] : []} showClosing style={{ transform: SHEET_ON.highlighter.transform }} />
       <p className="hl-hint">
         <InfoIcon className="mat-hint-icon" />
         <span>{task.instruction}</span>
@@ -61,7 +62,7 @@ function HighlightFeedback({ feedback, onContinue }: { feedback: Feedback; onCon
         <br />
         {row.highlightLabel}
       </h1>
-      <HighlighterStatement highlight={row.id} />
+      <PrintedStatement highlight={[row.id]} showClosing style={{ transform: SHEET_ON.highlighter.transform }} />
       <div className="hl-pen-rest" style={penStyle(penTipOnRow(index))} aria-hidden="true">
         <HighlighterPen />
       </div>

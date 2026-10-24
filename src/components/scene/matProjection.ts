@@ -28,14 +28,3 @@ export const MATS = {
 } as const
 
 export type MatName = keyof typeof MATS
-
-/**
- * The printed bank statement lying on the desk (mockup 08): laid out flat at 1000 × 650 and
- * projected onto its top sheet's corners (830.6, 368.6) (1413.7, 411.3) (1450.3, 760.4) (715.7, 699.8).
- */
-export const STATEMENT_SHEET = {
-  width: 1000,
-  height: 650,
-  transform:
-    'matrix3d(0.561032723, 0.036279776, 0, -0.00001561, -0.402993157, 0.288340328, 0, -0.000316088, 0, 0, 1, 0, 830.6, 368.6, 0, 1)',
-} as const

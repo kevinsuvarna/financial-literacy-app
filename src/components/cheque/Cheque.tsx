@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react'
 import { GAME, formatStatementAmount, type ChequeAreaId } from '../../content/gameData'
 import { CHEQUE_AREAS, boxStyle } from './chequeLayout'
 import { MicrLine } from './MicrLine'
+import { AnanyaSignature } from '../art/AnanyaSignature'
 
 const { cheque } = GAME
 const label = GAME.ui.cheque
@@ -105,7 +106,7 @@ export function Cheque({ onArea, className = '', style }: ChequeProps) {
         <span className="cq-account-number">{cheque.accountNumber}</span>
       </div>
 
-      <p className="cq-hand cq-signature">{cheque.drawer}</p>
+      <AnanyaSignature className="cq-hand cq-signature" label={cheque.drawer} />
       <span className="cq-rule cq-rule--signature" aria-hidden="true" />
       <p className="cq-sign-here">{label.signHere}</p>
 

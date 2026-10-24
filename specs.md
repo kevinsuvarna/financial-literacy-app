@@ -570,7 +570,7 @@ Export each Figma frame with the file name below. The friendly name is what prom
 | 06b | `06b-L1T3-withdrawal-slip-correct.png` | Withdrawal slip scanned (CORRECT, CHECK BALANCE) | 4, Task 3 | table | same route, feedback | Built (Stage 2) |
 | 06c | `06c-L1T3-withdrawal-slip-deposit-wrong.png` | Deposit slip scanned (NOT QUITE, SCAN OTHER SLIP) | 4, Task 3 | table | same route, feedback | Built (Stage 2) |
 | 07 | `07-L1-complete.png` | Level 1 complete | 4 | cinematic | `/level-1/complete` | Built (Stage 2) |
-| 08 | `08-L2T1-closing-balance.png` | Closing balance (statement + answer cards) | 5, Task 1 | table | `/level-2/closing-balance` | Placeholder (Stage 0) |
+| 08 | `08-L2T1-closing-balance.png` | Closing balance (statement + answer cards) | 5, Task 1 | table | `/level-2/closing-balance` | Rebuilt (2026-10-24) on the aged statement; score 16.19 against `L3-T4_bank-statement.png` |
 | 08 (base) | `L3-T4_bank-statement.png` | Closing balance: statement on the desk (misnamed; rename to 08-L2T1-closing-balance.png) | 5, Task 1 | table | same route | Built (Stage 4, part) |
 | 08b | `08b-L2T1-closing-balance-statement-wrong.png` | Closing balance: ₹5,452 scanned (NOT QUITE) | 5, Task 1 | table | same route, feedback | Built (Stage 4, part) |
 | 08c | `08c-L2T1-closing-balance-statement-right.png` | Closing balance: correct card (CORRECT). Shows ₹3,502, which contradicts the statement; see 13.3 | 5, Task 1 | table | same route, feedback | Built (Stage 4, part) |
@@ -583,7 +583,7 @@ Export each Figma frame with the file name below. The friendly name is what prom
 | 09d | `09d-L2T2-cheque-date-tapped.png` | Cheque: date tapped ("looks right", TRY AGAIN) | 5, Task 2 | screen | same route, feedback | Built (2026-10-16), score 11.85 |
 | 09e | `09e-L2T2-cheque-amount-mismatch-found.png` | Cheque: amount row tapped (mismatch found, BANK STATEMENT) | 5, Task 2 | screen | same route, feedback | Built (2026-10-16), score 12.48 |
 | 09f | `09f-L2T2-cheque-signature.png` | Cheque: signature tapped ("looks right", TRY AGAIN) | 5, Task 2 | screen | same route, feedback | Built (2026-10-16), score 11.81 |
-| 10 | `10-L2T3-highlighter.png` | Highlight the suspicious transaction | 5, Task 3 | screen | `/level-2/highlighter` | Built (2026-10-16), score 6.51 (mockup saved from chat) |
+| 10 | `10-L2T3-highlighter.png` | Highlight the suspicious transaction | 5, Task 3 | screen | `/level-2/highlighter` | Rebuilt (2026-10-24) on the aged statement; score 10.79 against the new 10 |
 | 10b | `10b-L2T3-highlighter-cafe-express.png` | Highlighter: Cafe Express (NOT SUSPICIOUS). Outlier header "Step 2: Bank Statment" and tracker Call/Case/Solve | 5, Task 3 | screen | same route, feedback | Built (2026-10-16), score 7.27 |
 | 10c | `10c-L2T3-highlighter-playzone.png` | Highlighter: PlayZone (NOT SUSPICIOUS) | 5, Task 3 | screen | same route, feedback | Built (2026-10-16), score 6.22 |
 | 10d | `10d-L2T3-highlighter-stylehub.png` | Highlighter: StyleHub (NOT SUSPICIOUS). Heading says ₹499, should be ₹1,200 | 5, Task 3 | screen | same route, feedback | Built (2026-10-16), score 6.38 |
@@ -1188,4 +1188,25 @@ Guess 38: digit labels on the desk keyboard's top row (needed to type on an iPad
 - **How they play:** `useAnanyaVoice` matches a line's text to its recording and plays it through Howler. While she speaks the music ducks. The clip respects mute and stops when the line changes. The call moves on 0.7 s after the clip ends.
 - **Missing line:** call 2, line 2 ("I just got a message saying I can unblock it immediately by clicking a link.") failed. ElevenLabs disabled Free Tier access on the account and asks for a paid plan. That line falls back to the device voice until it is regenerated; to add it, drop in `ananya-call2-2.mp3` and add it to `RECORDINGS`.
 - **Measured:** 113 unit and 13 Playwright tests pass; the build bundles the 4 mp3s (381 kB).
+
+**Owner request (2026-10-24): less dramatic.** Ananya should sound casual, with only a little worry towards the end.
+- **Device voice (the fallback):** now pitch 1.3 at rate 1.0 (worried lines 1.4 at 1.05), with no pitch wobble.
+- **Recordings:** not yet changed. Re-recording with [casual] … [a little worried] was refused by ElevenLabs (429 rate limited). The 4 clips are still the earlier, more dramatic takes.
+
+**Owner request (2026-10-24): new bank statement visual.** New mockups replaced `L3-T4_bank-statement.png` (the 08 scene), `09-L2T2-cheque-clue.png` and `10-L2T3-highlighter.png`; the old versions stay in git history.
+- **One statement everywhere:** `PrintedStatement` is now a single aged sheet, flat 1000 × 690 and measured on 09. It has worn grey-beige paper, brown stains, a fold down the middle, rough edges and Inter type. `statementLayout.ts` projects it onto each screen's corners: 08 and 09 from the paper's corners, and 10 halfway between the paper's corners and a fit to the table (10 prints its table a little off the paper). `HighlighterStatement` is gone; the highlighter now uses the same sheet.
+- **Changes taken from the mockups:**
+  - The bank is "National Bank" everywhere, as on the cheque.
+  - 08's closing balance reads "????" until it's solved.
+  - 09 and 10 show every running balance and the closing balance.
+  - 10's heading says "Something in the record doesn't match Ananya's week".
+- **Mockup values not followed (earlier owner decisions stand):**
+  - The mockups print "Mobile Recharge – FastTel", total debits ₹7,850 and a closing balance of ₹3,502 (₹3,502.00 as the last running balance on 10). The game keeps CAMS TEL, ₹10,798 and ₹2,452, which the rows add up to.
+  - In 08 the Type and Amount columns sit one row below their descriptions; the game keeps them aligned.
+- **Guessed:** the paper texture is procedural SVG (noise stains, grain, edge shading). Its look is close to the mockups, but the stains don't match pixel for pixel. Dates are upright as in 09 (08 and 10 print them in italics).
+- **Measured:** scores against the new mockups are 08: 16.19, 09: 13.74, 10: 10.79. Most of the remaining difference is the photographic paper texture and 08's own layout differences. 113 unit and 13 Playwright tests pass.
+
+**Owner request (2026-10-24): Ananya's signature and the cheque's account number.**
+- **Signature:** the cheque's signature is the owner's own SVG (`Vector 39.svg`), drawn in the cheque's ink colour by `AnanyaSignature`. It replaced a first version traced from a 34 × 16 px sample. It sits inside the signature's tap area, so 09f's close-up shows all of it. The cheque is the only place a signature appears.
+- **Account number:** the cheque's A/c No. is now 1234563210, ending 3210 like the statement's XXXX XXXX 3210 (it was 1234567890). The MICR line is unchanged.
 

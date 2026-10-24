@@ -1,6 +1,5 @@
 import { GAME } from '../content/gameData'
 import { InfoIcon } from '../components/art/Icons'
-import { STATEMENT_SHEET } from '../components/scene/matProjection'
 import { SceneScanner } from '../components/scene/SceneScanner'
 import { ScannedMark } from '../components/scene/Scanned'
 import { useScanMarks } from '../components/scene/useScanMarks'
@@ -8,6 +7,7 @@ import { useTapArtefact } from '../components/scene/useTapArtefact'
 import { Desk, Mat } from '../components/scene/TableScene'
 import { BalanceCard } from '../components/statement/BalanceCard'
 import { PrintedStatement } from '../components/statement/PrintedStatement'
+import { SHEET_ON } from '../components/statement/statementLayout'
 import { TaskScreen } from '../components/TaskScreen'
 
 const task = GAME.tasks.L2T1
@@ -56,12 +56,9 @@ function StatementDesk() {
         </p>
       </Mat>
       {/* The statement and the sheets under it, laid out flat and projected onto the desk. */}
-      <div
-        className="statement-top"
-        style={{ width: STATEMENT_SHEET.width, height: STATEMENT_SHEET.height, transform: STATEMENT_SHEET.transform }}
-      >
-        <div className="statement-sheet statement-sheet--under-2" aria-hidden="true" />
-        <div className="statement-sheet statement-sheet--under-1" aria-hidden="true" />
+      <div className="st-stack" style={{ transform: SHEET_ON.closingBalance.transform }}>
+        <div className="st-under st-under--2" aria-hidden="true" />
+        <div className="st-under st-under--1" aria-hidden="true" />
         <PrintedStatement balancesShown={task.statementBalancesShown ?? 0} />
       </div>
       <SceneScanner />

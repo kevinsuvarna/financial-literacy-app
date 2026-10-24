@@ -3,7 +3,7 @@
  * resuming from the Case Board. Answers come from the content module, never typed in here.
  */
 import { expect, test, type Page } from '@playwright/test'
-import { GAME, formatStatementAmount, type ArtefactId } from '../src/content/gameData'
+import { GAME, formatRupees, type ArtefactId } from '../src/content/gameData'
 import { STORAGE_KEY, STORAGE_VERSION } from '../src/state/gameStore'
 import { closeDialog, closeToast, dialog, seedProgress } from './helpers'
 
@@ -61,9 +61,9 @@ test('plays the whole mission with simulated scans', async ({ page }) => {
 
   // Level 2, Task 1: the statement hides the closing balance until it's solved.
   await expect(page).toHaveURL(/\/level-2\/closing-balance$/)
-  // The printed statement shows the opening balance; the closing balance is left blank.
-  await expect(page.locator('.ps-summary')).toContainText(formatStatementAmount(GAME.statement.openingBalance))
-  await expect(page.locator('.ps-closing .ps-figure')).toHaveText('')
+  // The printed statement shows the opening balance; the closing balance reads "????".
+  await expect(page.locator('.st-summary')).toContainText(formatRupees(GAME.statement.openingBalance).replace('₹', '₹ '))
+  await expect(page.locator('.st-closing .st-figure')).toHaveText(GAME.ui.statement.printed.unknown)
   const [balanceAnswer] = tasks.L2T1.required
   const wrongCard = tasks.L2T1.options.find((id) => id !== balanceAnswer)!
   await scan(page, wrongCard)
@@ -75,8 +75,8 @@ test('plays the whole mission with simulated scans', async ({ page }) => {
 
   // Task 2 opens on the clue (09): the cheque rows highlighted on the statement, now with its closing balance.
   await expect(page).toHaveURL(/\/level-2\/cheque-clue$/)
-  await expect(page.locator('.ps-closing .ps-figure')).toHaveText(formatStatementAmount(GAME.statement.closingBalance))
-  await expect(page.locator('tr.is-highlighted')).toHaveCount(2)
+  await expect(page.locator('.st-closing .st-figure')).toHaveText(formatRupees(GAME.statement.closingBalance).replace('₹', '₹ '))
+  await expect(page.locator('.st-row.is-highlighted')).toHaveCount(2)
   await page.getByRole('button', { name: tasks.L2T2.clue.cta }).click()
 
   // The cheque is tapped, not scanned. A part that's fine is lifted out with "This looks right." (09d).
@@ -178,7 +178,7 @@ test('plays the whole mission with simulated scans', async ({ page }) => {
 /** Picks the highlighter up by its tip and puts the tip down on a statement row. */
 async function dragHighlighter(page: Page, rowId: string) {
   const tip = (await page.getByTestId('highlighter-tip').boundingBox())!
-  const row = (await page.locator(`.screen--highlighter [data-row-id="${rowId}"] .hs-col-desc`).boundingBox())!
+  const row = (await page.locator(`.screen--highlighter [data-row-id="${rowId}"] .st-col-desc`).boundingBox())!
   await page.mouse.move(tip.x + tip.width / 2, tip.y + tip.height / 2)
   await page.mouse.down()
   await page.mouse.move(row.x + row.width / 2, row.y + row.height / 2, { steps: 10 })

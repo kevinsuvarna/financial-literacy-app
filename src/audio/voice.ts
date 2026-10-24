@@ -63,12 +63,12 @@ export function stopVoice(): void {
 const estimateMs = (text: string) => 1500 + text.length * 80
 
 /**
- * A young girl in distress: a high voice, quick and breathless, with each line broken at its
- * pauses into short fragments whose pitch wobbles a little, so it sounds shaky rather than flat.
+ * Casual, like a girl chatting on the phone: a little higher than an adult voice, at an easy pace,
+ * with each line broken at its pauses. Owner (2026-10-24): not dramatic.
  */
-const DISTRESS = { pitch: 1.8, rate: 1.12, wobble: [0, 0.12, -0.06, 0.15, 0.04] }
-/** Worried lines go higher and faster still. */
-const PANIC = { pitch: 1.95, rate: 1.18, wobble: [0, 0.05, -0.08, 0.05, -0.03] }
+const DISTRESS = { pitch: 1.3, rate: 1.0, wobble: [0] }
+/** Worried lines: only a touch higher and quicker. */
+const PANIC = { pitch: 1.4, rate: 1.05, wobble: [0] }
 
 /** Splits a line at its pauses (commas, full stops, ellipses, dashes), keeping the punctuation. */
 function fragments(text: string): string[] {
