@@ -8,6 +8,7 @@ import { ActionHandlerContext, type ActionHandler } from './actionHandler'
 import { FeedbackLayer } from './FeedbackLayer'
 import { FeedbackScene } from './scene/FeedbackScene'
 import { ProgressTracker } from './ProgressTracker'
+import { useIdle } from './useIdle'
 
 interface TaskScreenProps {
   taskId: TaskId
@@ -33,6 +34,9 @@ interface TaskScreenProps {
 }
 
 /** Layout for every task screen: progress tracker, question, content, feedback. */
+/** How long a player can sit without touching anything before the usable things are nudged. */
+const IDLE_NUDGE_MS = 10_000
+
 export function TaskScreen({ taskId, children, aside, hideHeader = false, variant = 'placeholder', feedbackView, backTo, keepScene = false }: TaskScreenProps) {
   const task = GAME.tasks[taskId]
   const navigate = useNavigate()
@@ -67,9 +71,12 @@ export function TaskScreen({ taskId, children, aside, hideHeader = false, varian
     </footer>
   )
 
+  // Mockups 04a–06c: a scan's feedback is a full card that replaces the table until its button is pressed.
+  const card = variant === 'scene' && feedback && (feedbackView || feedback.tone !== 'neutral') ? feedback : null
+  // A player who hasn't touched anything for a while gets a gentle nudge (styles: polish.css).
+  const idle = useIdle(IDLE_NUDGE_MS, variant === 'scene' && !card && !completed)
+
   if (variant === 'scene') {
-    // Mockups 04a–06c: a scan's feedback is a full card that replaces the table until its button is pressed.
-    const card = feedback && (feedbackView || feedback.tone !== 'neutral') ? feedback : null
     const closeCard = () => {
       const solvedAgain = card?.tone === 'correct' && completed
       dismissFeedback()
@@ -79,7 +86,7 @@ export function TaskScreen({ taskId, children, aside, hideHeader = false, varian
     }
     return (
       <ActionHandlerContext value={handle}>
-        <div className="screen screen--scene" data-task={taskId}>
+        <div className="screen screen--scene" data-task={taskId} data-idle={idle || undefined}>
           {/* Kept mounted under the card, so the scanner stays attached. */}
           <div className="scene-content" hidden={card !== null && !keepScene}>
             {children}

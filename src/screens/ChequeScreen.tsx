@@ -1,3 +1,4 @@
+import { motion } from 'motion/react'
 import { GAME } from '../content/gameData'
 import { InfoIcon } from '../components/art/Icons'
 import { useActionHandler } from '../components/actionHandler'
@@ -26,10 +27,16 @@ function ChequeTable() {
           {task.instruction}
         </p>
       </Panel>
-      <Cheque className="cheque--tilted" style={{ transform: TILT }} onArea={(id) => handle(inspect(id))} />
+      <Cheque className="cheque--tilted" style={{ transform: TILT }} loupe onArea={(id) => handle(inspect(id))} />
     </>
   )
 }
+
+/** Where the red pen rings the mismatch on 09e (canvas px): "Fifty" in the words, then the figures. */
+const MISMATCH_RINGS = [
+  { x: 712, y: 384, w: 128, h: 78 },
+  { x: 1196, y: 382, w: 214, h: 84 },
+]
 
 /**
  * 09c–09f: the cheque lies flat, the tapped part lifts out enlarged (red if it's fine, green for the
@@ -55,6 +62,18 @@ function ChequeFeedback({ feedback, onContinue }: { feedback: Feedback; onContin
           />
         </div>
       )}
+      {/* The mismatch, found: a red pen rings the words' "Fifty" and the figures, one after the other. */}
+      {zoom && right &&
+        MISMATCH_RINGS.map((ring, i) => (
+          <svg key={i} className="cheque-ring" style={boxStyle(ring)} viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <motion.path
+              d="M10 56 C6 24 36 6 60 8 C86 10 98 32 94 56 C90 84 58 96 36 92 C14 88 4 70 12 42 C16 28 28 16 44 12"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ delay: 0.5 + i * 0.55, duration: 0.5, ease: 'easeInOut' }}
+            />
+          </svg>
+        ))}
       <SceneCta
         label={feedback.cta ?? GAME.ui.tryAgain}
         back={!right}

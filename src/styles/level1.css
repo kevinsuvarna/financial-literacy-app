@@ -424,19 +424,30 @@
   top: 438px;
 }
 
-/* Identity documents (05b–05e): the document, its label underneath. */
+/* Identity documents (05b–05e): Ananya's own library card, PAN and Aadhaar (owner art, 2026-11-10), label underneath. */
+.feedback-scene--library-card .fb-art,
+.feedback-scene--pan-card .fb-art,
+.feedback-scene--aadhaar-card .fb-art {
+  height: auto;
+  rotate: -2deg;
+  filter: drop-shadow(3px 6px 6px rgba(20, 14, 8, 0.4));
+}
 .feedback-scene--library-card .fb-art {
-  left: 238px;
-  top: 448px;
+  left: 226px;
+  top: 436px;
+  width: 340px;
 }
 .feedback-scene--pan-card .fb-art {
-  left: 236px;
-  top: 436px;
+  left: 240px;
+  top: 440px;
+  width: 300px;
 }
 .feedback-scene--aadhaar-card .fb-art {
-  left: 286px;
-  top: 368px;
+  left: 312px;
+  top: 352px;
+  width: 147px;
 }
+/* The passport keeps its original art (owner, 2026-11-10). */
 .feedback-scene--expired-passport .fb-art {
   left: 256px;
   top: 396px;
@@ -454,32 +465,34 @@
 }
 
 .feedback-scene--library-card .fb-art-label {
-  left: 406px;
-  top: 655px;
+  left: 396px;
+  top: 648px;
 }
 .feedback-scene--pan-card .fb-art-label {
-  left: 340px;
-  top: 642px;
+  left: 390px;
+  top: 648px;
 }
 .feedback-scene--aadhaar-card .fb-art-label {
-  left: 368px;
-  top: 735px;
+  left: 386px;
+  top: 712px;
 }
 .feedback-scene--expired-passport .fb-art-label {
   left: 385px;
   top: 709px;
 }
 
-/* Slips (06b, 06c), clipped to their fitted outline plus rim and shadow. */
+/* Slips (2026-10-24 06b, 06c), cut out along their edges; the shadow is drawn here. */
+.feedback-scene--withdrawal-slip .fb-art,
+.feedback-scene--deposit-slip .fb-art {
+  filter: drop-shadow(4px 6px 5px rgba(20, 14, 8, 0.4));
+}
 .feedback-scene--withdrawal-slip .fb-art {
-  left: 852px;
-  top: 405px;
-  clip-path: polygon(41px 5px, 547px 39px, 525px 398px, 13px 362px);
+  left: 836px;
+  top: 412px;
 }
 .feedback-scene--deposit-slip .fb-art {
-  left: 905px;
-  top: 392px;
-  clip-path: polygon(30px 6px, 505px 36px, 479px 366px, 9px 330px);
+  left: 758px;
+  top: 454px;
 }
 
 /* ─── 05: identity documents on the mat (flat mat coordinates) ──────────── */
@@ -573,25 +586,10 @@
 }
 
 .slips-folder {
+  /* The folder and both slips, cut out of the 2026-10-24 mockup 06. */
   position: absolute;
-  left: 196px;
-  top: 416px;
-  clip-path: polygon(
-    142px 10px,
-    352px 10px,
-    370px 39px,
-    936px 39px,
-    954px 54px,
-    996px 212px,
-    1066px 434px,
-    1072px 454px,
-    1059px 474px,
-    19px 474px,
-    9px 460px,
-    72px 224px,
-    109px 134px,
-    135px 44px
-  );
+  left: 250px;
+  top: 385px;
 }
 
 .slips-hint {
@@ -670,7 +668,7 @@
   margin-bottom: 57px;
 }
 .feedback-scene--deposit-slip .fb-body {
-  top: 358px;
+  top: 298px; /* 2026-10-24 06c */
 }
 .feedback-scene--deposit-slip .fb-body p + p {
   padding-left: 9px;
@@ -804,8 +802,8 @@ button.id-doc-art:active {
 
 .slip-tap {
   position: absolute;
-  top: 520px;
-  height: 148px;
+  top: 492px;
+  height: 140px;
   padding: 0;
   border: none;
   border-radius: 6px;
@@ -818,13 +816,13 @@ button.id-doc-art:active {
 }
 
 .slip-tap--deposit-slip {
-  left: 324px;
-  width: 412px;
+  left: 348px;
+  width: 488px;
 }
 
 .slip-tap--withdrawal-slip {
-  left: 745px;
-  width: 406px;
+  left: 840px;
+  width: 352px;
 }
 
 /* The feedback card fills the canvas (under the level header). */
@@ -877,11 +875,11 @@ button.slip-tap:disabled {
 
 /* On the slips, only the part of each slip showing above the folder's pocket. */
 .slip-tap--deposit-slip .scanned-wash {
-  clip-path: polygon(21px 2px, 406px 2px, 406px 148px, 21px 117px);
+  clip-path: polygon(2px 8px, 487px 4px, 487px 140px, 2px 113px);
 }
 
 .slip-tap--withdrawal-slip .scanned-wash {
-  clip-path: polygon(3px 2px, 400px 2px, 400px 108px, 3px 148px);
+  clip-path: polygon(0 2px, 352px 2px, 352px 105px, 0 140px);
 }
 
 /* The closing-balance answer cards are small: a smaller tag. */
@@ -928,4 +926,20 @@ button.slip-tap:disabled {
   border-color: var(--ink);
   background: var(--step-future);
   color: var(--text-on-dark);
+}
+
+/* Ink flicked off the stamp as it lands (FeedbackParts Stamp). */
+.stamp-speck {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 50%;
+  margin: -3px 0 0 -3px;
+  pointer-events: none;
+}
+.stamp--bad .stamp-speck {
+  background: var(--stamp-red);
+}
+.stamp--good .stamp-speck {
+  background: var(--stamp-green);
 }

@@ -1,4 +1,6 @@
-import { motion } from 'motion/react'
+import { motion, useReducedMotion } from 'motion/react'
+import { useEffect, useRef } from 'react'
+import { voiceLevel } from '../../audio/voice'
 import type { CallStep } from '../../content/gameData'
 import { AlertBadge } from '../art/Icons'
 import smiling from '../../assets/art/ananya-smiling.png'
@@ -23,8 +25,26 @@ interface CallPortraitProps {
 
 /** The caller's round portrait with its rings (mockups 02–02e). */
 export function CallPortrait({ x, y, mood, alt, ringing = false, trouble = false }: CallPortraitProps) {
+  const ref = useRef<HTMLDivElement>(null)
+  const reduce = useReducedMotion()
+  // While Ananya speaks, her portrait moves with her voice: --voice (0–1) drives the ring's glow
+  // and a slight bob (styles: opening.css).
+  useEffect(() => {
+    if (reduce) return
+    let frame = 0
+    let level = 0
+    const tick = () => {
+      // Eased, so it breathes rather than flickers.
+      level += (voiceLevel() - level) * 0.35
+      ref.current?.style.setProperty('--voice', level.toFixed(3))
+      frame = requestAnimationFrame(tick)
+    }
+    frame = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frame)
+  }, [reduce])
   return (
     <motion.div
+      ref={ref}
       className={`call-portrait${trouble ? ' call-portrait--trouble' : ''}`}
       initial={false}
       animate={{ left: x, top: y }}

@@ -1,5 +1,8 @@
 import { BackButton } from '../components/BackButton'
 import { motion } from 'motion/react'
+import { useCallback, useEffect, useState } from 'react'
+import { CaseFileOpening } from '../components/CaseFileOpening'
+import { preloadCaseFile } from '../components/caseFileArt'
 import { useNavigate } from 'react-router'
 import { GAME } from '../content/gameData'
 import { resumeRoute } from '../app/navigation'
@@ -15,11 +18,19 @@ export function CaseAssignedScreen() {
   const navigate = useNavigate()
   const completeIntro = useGameStore((s) => s.completeIntro)
 
+  const [opening, setOpening] = useState(false)
+  useEffect(() => preloadCaseFile(), [])
+
+  const startCase = useCallback(() => {
+    completeIntro()
+    navigate(resumeRoute(useGameStore.getState()))
+  }, [completeIntro, navigate])
+
   const openCaseFile = () => {
     // Usually already asked on START TRAINING; this covers anyone who arrived here directly.
     cameraScanner.requestAccess()
-    completeIntro()
-    navigate(resumeRoute(useGameStore.getState()))
+    // The case file opens to her profile and the case brief; START INVESTIGATION begins Level 1.
+    setOpening(true)
   }
 
   return (
@@ -46,6 +57,7 @@ export function CaseAssignedScreen() {
       </motion.h1>
       <motion.img
         className="case-file"
+        style={{ visibility: opening ? 'hidden' : undefined }}
         src={caseFile}
         alt={caseAssigned.caseFileAlt}
         initial={{ x: 80, opacity: 0, rotate: 6 }}
@@ -62,6 +74,7 @@ export function CaseAssignedScreen() {
       >
         <span className="cta-label">{caseAssigned.cta}<ArrowRight className="glow-cta-arrow cta-label-after" /></span>
       </motion.button>
+      {opening && <CaseFileOpening onDone={startCase} />}
     </div>
   )
 }

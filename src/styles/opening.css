@@ -674,3 +674,91 @@
   top: calc(50% - 6px);
   translate: 0 -50%;
 }
+
+/* ─── OPEN CASE FILE (CaseFileOpening): the file lifts and opens like a book (owner art) ── */
+.cfo {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  perspective: 2200px;
+}
+
+.cfo-page,
+.cfo-cover {
+  position: absolute;
+  transform-origin: 0 50%;
+}
+
+.cfo-page {
+  object-fit: cover;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.5));
+}
+
+.cfo-cover {
+  transform-style: preserve-3d;
+}
+
+.cfo-face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 8px;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.5);
+}
+
+/* Her profile is printed on the inside of the cover, so it reads the right way round once open. */
+.cfo-face--inside {
+  transform: rotateY(180deg);
+  border-radius: 4px;
+}
+
+.cfo-stage {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+/* The hint over the brief's envelope: a warm glow round it, pulsing. */
+.cfo-envelope-glow {
+  position: absolute;
+  border-radius: 10px;
+  box-shadow:
+    0 0 0 4px rgba(255, 214, 102, 0.95),
+    0 0 34px 10px rgba(255, 214, 102, 0.55);
+  pointer-events: none;
+}
+
+/* The brief's envelope opening (CaseFileOpening): pocket, inside, cards and flap, all over the page art. */
+.cfo-envelope {
+  position: absolute;
+}
+.cfo-envelope-inside,
+.cfo-envelope-pocket,
+.cfo-envelope-flap,
+.cfo-envelope-flap-back {
+  position: absolute;
+  inset: 0;
+}
+.cfo-envelope-inside {
+  background: linear-gradient(180deg, #8d7550, #b49a6c);
+}
+.cfo-envelope-card {
+  position: absolute;
+  top: 30px;
+  height: auto;
+  border-radius: 6px;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));
+}
+.cfo-envelope-pocket,
+.cfo-envelope-flap {
+  background-repeat: no-repeat;
+}
+.cfo-envelope-flap {
+  transform-origin: 50% 0;
+  filter: drop-shadow(0 -2px 3px rgba(0, 0, 0, 0.25));
+}
+.cfo-envelope-flap-back {
+  background: linear-gradient(180deg, #d9c59c, #c4ab7c);
+}

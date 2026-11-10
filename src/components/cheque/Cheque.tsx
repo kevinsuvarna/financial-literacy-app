@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import { useState, type CSSProperties, type PointerEvent } from 'react'
 import { GAME, formatStatementAmount, type ChequeAreaId } from '../../content/gameData'
 import { CHEQUE_AREAS, boxStyle } from './chequeLayout'
 import { MicrLine } from './MicrLine'
@@ -32,9 +32,58 @@ const AREA_LABELS = Object.fromEntries(
   GAME.tasks.L2T2.areas.map((a) => [a.id, a.id === 'amount-words' ? `${a.label} / ${GAME.tasks.L2T2.areas.find((b) => b.id === 'amount-figures')?.label}` : a.label]),
 ) as Record<ChequeAreaId, string>
 
+/** The magnifying glass: its radius and zoom. */
+const LOUPE = { radius: 95, zoom: 2.1 }
+
+/** A point on the cheque in its own (untilted) pixels, from a pointer event anywhere on it. */
+function localPoint(e: PointerEvent<HTMLDivElement>): { x: number; y: number } {
+  let x = e.nativeEvent.offsetX
+  let y = e.nativeEvent.offsetY
+  let el = e.target as HTMLElement | null
+  while (el && el !== e.currentTarget) {
+    x += el.offsetLeft
+    y += el.offsetTop
+    el = el.offsetParent as HTMLElement | null
+  }
+  return { x, y }
+}
+
+/**
+ * A magnifying glass that follows the finger (or mouse) over the cheque, showing it enlarged. On a
+ * touch screen it shows while the finger is down; with a mouse, while hovering.
+ */
+function useLoupe(enabled: boolean) {
+  const [at, setAt] = useState<{ x: number; y: number } | null>(null)
+  const [pressed, setPressed] = useState(false)
+  if (!enabled) return { at: null, handlers: {} }
+  const show = (e: PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === 'mouse' || pressed) setAt(localPoint(e))
+  }
+  return {
+    at,
+    handlers: {
+      onPointerMove: show,
+      onPointerDown: (e: PointerEvent<HTMLDivElement>) => {
+        setPressed(true)
+        setAt(localPoint(e))
+      },
+      onPointerUp: (e: PointerEvent<HTMLDivElement>) => {
+        setPressed(false)
+        if (e.pointerType !== 'mouse') setAt(null)
+      },
+      onPointerLeave: () => {
+        setPressed(false)
+        setAt(null)
+      },
+    },
+  }
+}
+
 interface ChequeProps {
   /** Tap handler for the areas; without it the cheque is a picture. */
   onArea?: (id: ChequeAreaId) => void
+  /** Show the magnifying glass over the cheque (09b). */
+  loupe?: boolean
   className?: string
   style?: CSSProperties
 }
@@ -43,7 +92,8 @@ interface ChequeProps {
  * Ananya's returned cheque. Every value comes from the case data; the amount in words is written
  * out from `amountInWordsValue`, so the mismatch with the figures is the data's, not the art's.
  */
-export function Cheque({ onArea, className = '', style }: ChequeProps) {
+export function Cheque({ onArea, loupe = false, className = '', style }: ChequeProps) {
+  const glass = useLoupe(loupe)
   const areaButton = (id: ChequeAreaId) =>
     onArea ? (
       <button
@@ -58,7 +108,7 @@ export function Cheque({ onArea, className = '', style }: ChequeProps) {
     ) : null
 
   return (
-    <div className={`cheque ${className}`} style={style} data-testid="cheque">
+    <div className={`cheque ${className}`} style={style} data-testid={loupe || onArea ? 'cheque' : undefined} {...glass.handlers}>
       <div className="cq-strip" aria-hidden="true" />
       <div className="cq-micr-band" aria-hidden="true" />
 
@@ -113,6 +163,23 @@ export function Cheque({ onArea, className = '', style }: ChequeProps) {
       <MicrLine className="cq-micr" chequeNumber={cheque.number} />
 
       {onArea && GAME.tasks.L2T2.areas.map((a) => (a.id === 'amount-figures' ? null : areaButton(a.id)))}
+
+      {glass.at && (
+        <div
+          className="cq-loupe"
+          style={{ left: glass.at.x - LOUPE.radius, top: glass.at.y - LOUPE.radius, width: LOUPE.radius * 2, height: LOUPE.radius * 2 }}
+          aria-hidden="true"
+        >
+          <Cheque
+            style={{
+              left: 0,
+              top: 0,
+              transformOrigin: '0 0',
+              transform: `translate(${LOUPE.radius - glass.at.x * LOUPE.zoom}px, ${LOUPE.radius - glass.at.y * LOUPE.zoom}px) scale(${LOUPE.zoom})`,
+            }}
+          />
+        </div>
+      )}
     </div>
   )
 }

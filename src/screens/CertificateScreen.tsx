@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router'
 import { GAME } from '../content/gameData'
 import { SCREENS } from '../app/screens'
 import { playSound } from '../audio/sounds'
+import { Confetti } from '../components/Confetti'
 import { SceneCta } from '../components/scene/FeedbackParts'
 import { Desk } from '../components/scene/TableScene'
 import { useGameStore } from '../state/gameStore'
@@ -125,6 +126,8 @@ export function CertificateScreen() {
           </p>
         </div>
       </motion.section>
+      {/* Confetti as the certificate lands. */}
+      <Confetti delay={0.45} />
       {/* Not in 16: spec 7 needs a way back to the Case Board and to replay. */}
       <motion.div className="cert-actions" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.6 }}>
         <SceneCta label={certificate.caseBoardCta} arrow={false} className="cert-cta" onClick={() => navigate(SCREENS.caseBoard.path)} />

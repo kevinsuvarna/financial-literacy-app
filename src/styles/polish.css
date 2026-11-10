@@ -244,3 +244,68 @@
 .desk-lamp.is-blocked .desk-lamp-light--glow {
   opacity: 0;
 }
+
+/* ─── Idle nudge (TaskScreen, useIdle): after 10 s untouched, what can be used gently pulses ── */
+.screen--scene[data-idle] :is([data-artefact]:not(:disabled), .highlighter, .pk-row--1 .pk-key:not(:disabled), .ev-slot:not(:disabled)) {
+  animation: idle-nudge 2.6s ease-in-out infinite;
+}
+.screen--scene[data-idle] :is([data-artefact], .pk-key):nth-child(2n) {
+  animation-delay: 0.35s;
+}
+.screen--scene[data-idle] :is([data-artefact], .pk-key):nth-child(3n) {
+  animation-delay: 0.7s;
+}
+/* The cheque's tap areas are invisible: they glow instead. */
+.screen--scene[data-idle] .cq-area {
+  animation: idle-glow 2.6s ease-in-out infinite;
+}
+
+@keyframes idle-nudge {
+  0%,
+  55%,
+  100% {
+    scale: 1;
+  }
+  65% {
+    scale: 1.05;
+    filter: drop-shadow(0 0 12px rgba(255, 226, 140, 0.85));
+  }
+  75% {
+    scale: 0.99;
+  }
+  85% {
+    scale: 1.025;
+    filter: drop-shadow(0 0 6px rgba(255, 226, 140, 0.5));
+  }
+}
+
+@keyframes idle-glow {
+  0%,
+  55%,
+  100% {
+    box-shadow: none;
+  }
+  70% {
+    box-shadow: 0 0 0 3px rgba(255, 214, 102, 0.75), 0 0 18px rgba(255, 214, 102, 0.6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screen--scene[data-idle] :is([data-artefact], .highlighter, .pk-key, .ev-slot, .cq-area) {
+    animation: none;
+  }
+}
+
+/* Confetti over the certificate (Confetti). */
+.confetti {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  overflow: hidden;
+  pointer-events: none;
+}
+.confetti-piece {
+  position: absolute;
+  top: 0;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12);
+}

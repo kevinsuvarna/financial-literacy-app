@@ -1012,7 +1012,7 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
           layout: { stampWidth: 299, ctaWidth: 449 },
           message: 'A deposit slip is used to\nput money IN a bank account.',
           paragraphs: [
-            'If Ananya wanted to put money into her\naccount using a cheque/cash, she would use\na deposit slip and submit the cheque/cash with it.',
+            'If Ananya put money into her\naccount using a cheque/cash, she\nwould use a deposit slip to submit it.',
             fill('But Ananya wants to take {withdrawalAttempt} OUT.\nScan the other slip.'),
           ],
           cta: 'SCAN OTHER SLIP',
@@ -1116,7 +1116,7 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       call: {
         caller: 'Ananya',
         steps: [
-          { mood: 'worried', signal: 'ok', status: 'Connected', text: "Hello! It's me, Ananya!\nMy debit card has been blocked" },
+          { mood: 'worried', signal: 'ok', status: 'Connected', text: "Hello! It's me, Ananya, again!\nMy debit card has been blocked" },
           {
             mood: 'worried',
             signal: 'ok',
@@ -1438,6 +1438,11 @@ export function buildGameContent(figures: CaseFigures = CASE_FIGURES) {
       nextStep: "Identify Ananya's account type.",
       cta: 'OPEN CASE FILE',
       caseFileAlt: "Ananya's case file, marked confidential",
+      // The open case file (owner art, 2026-11-10): her profile on the left, the case brief on the right.
+      profileAlt:
+        'Account holder profile: Ananya S, 13, class 8, likes books and art. Account with National Bank, opened 15 April 2025. Goal: keep her money safe and save for things she wants.',
+      briefAlt:
+        'Case brief. The incident: Ananya’s balance was lower than she expected and she doesn’t know why. Your assignment: investigate the account, find what happened to her money, and learn how to keep it safe. Open and scan the account type.',
     },
 
     caseBoard: {

@@ -1210,3 +1210,80 @@ Guess 38: digit labels on the desk keyboard's top row (needed to type on an iPad
 - **Signature:** the cheque's signature is the owner's own SVG (`Vector 39.svg`), drawn in the cheque's ink colour by `AnanyaSignature`. It replaced a first version traced from a 34 × 16 px sample. It sits inside the signature's tap area, so 09f's close-up shows all of it. The cheque is the only place a signature appears.
 - **Account number:** the cheque's A/c No. is now 1234563210, ending 3210 like the statement's XXXX XXXX 3210 (it was 1234567890). The MICR line is unchanged.
 
+**Owner request (2026-10-24): new deposit and withdrawal slips (06, 06b, 06c).** New mockups replaced all three; the old versions stay in git history.
+- **Slips:**
+  - The deposit slip is blue, in two parts: a customer copy with a QR code, and the bank's part.
+  - The withdrawal slip is pink, with a QR code top right.
+  - Both say National Bank.
+- **Interim art, cut from the new mockups:**
+  - `bank-docs-folder.png`: the folder with both slips, now at (250, 385). The new folder is larger and its tab sits further right.
+  - `slip-deposit.png` and `slip-withdrawal.png`, each cut along its edges, with the shadow drawn in CSS.
+  - The tap areas and the "scanned" greying follow the new slips.
+- **Copy (06c):** "If Ananya put money into her account using a cheque/cash, she would use a deposit slip to submit it." The mockup ends "…to submit," so "it." was added to finish the sentence.
+- **QR codes on the slip art:** decorative, and they don't decode. For the printed slips, put the game's codes (`L1-T3_deposit-slip`, `L1-T3_withdrawal-slip`) in those QR boxes. The deposit slip's box is about 10% of the slip's width, so print the slip at least 30 cm wide or enlarge the box to keep the code ≥ 3 cm (spec 10.3).
+- **Measured:** scores against the new mockups are 06: 5.78, 06b: 8.01, 06c: 8.07. 113 unit and 13 Playwright tests pass.
+
+**Owner request (2026-11-09): Ananya's voice: simple, less drama, a little concern; recorded with Azure.** ElevenLabs refused again ("Free Tier access has been disabled"), so the owner chose Azure AI Speech.
+- **Recording:** `npm run voice` (`scripts/voice-azure.ts`) records all 5 call lines into `src/assets/voice/<file>.mp3`; `npm run voice -- 3` records only line 3.
+  - Voice: Indian-English `en-IN-AnanyaNeural`, falling back to Aashi, then Neerja, if a region lacks it. `AZURE_VOICE` overrides the choice.
+  - Delivery: pitch +6%, rate −6%; the concerned words get a further +3% pitch and −8% rate.
+  - The key and region come from `.env`, which git ignores; `.env.example` shows the format.
+- **Which file is which line:** `src/audio/voiceLines.ts` maps each file to its call line, reading the text from the game data so the two can't drift apart.
+- **Loading:** the game loads whatever mp3s exist (`import.meta.glob`). A line without a file uses the device voice, so `ananya-call2-2.mp3` now just works once it's recorded.
+- **Until it's run:** the 4 earlier ElevenLabs "Noor" takes are still in place.
+
+**Owner recordings (2026-11-10): Ananya's calmer voice.** The owner made both calls in ElevenLabs (voice Noor) as two files, `Ananya-call1.mp3` and `Ananya-call2.mp3`, about 10 s each.
+- **Split:** each call is cut into one file per line, at the middle of the pauses between lines. The cuts are on MP3 frame boundaries, with no re-encoding, and every cut starts and ends in quiet.
+  - Call 1: 0–4.70 s, 4.70–8.07 s and 8.32–10.31 s become `ananya-call1-1`, `ananya-call1-2` and `ananya-call1-3`.
+  - Call 2: 0–4.08 s and 4.23–10.0 s become `ananya-call2-1` and `ananya-call2-2`.
+- **All 5 lines are now recorded,** including "I just got a message… by clicking a link", so no line uses the device voice. The old dramatic takes are removed; they stay in git history.
+- **Loading:** the game takes `.m4a` or `.mp3` from `src/assets/voice/`.
+- **Azure:** `npm run voice` is still available, but running it would overwrite these files.
+- **Measured:** both calls play through, with each line's clip loading in turn. 116 unit and 13 Playwright tests pass.
+
+**Owner request (2026-11-10): bigger passkey keys, easy to tap, with a little perspective.** The desk keyboard on the passkey screen (13) is now 680 × 184 at (158, 752); it was 552 × 85, so it's larger than the mockup's.
+- **Perspective:** it lies on the desk, tilted back by `perspective(900px) rotateX(28deg)` about its near edge.
+- **Number row:** 11 keys of 52 × 60 px (about 56 × 46 on screen once tilted) with 26 px numbers: 1–0 and ⌫. The two blank keys beside ⌫ are gone. A key dips when pressed.
+- **The rest:** the row below and the space bar are decorative only.
+- **Placement:** it stays clear of the newspaper.
+
+**Owner art (2026-11-10): Ananya's own identity documents on the KYC feedback cards (05b–05e).** From the owner's `Frame 12.pdf`, each document is cut out and replaces the placeholder art on the card shown after scanning (`src/assets/interim/id-*.png`, 2× resolution):
+- **Library card:** Name Ananya S, Class VIII, Div A, Student ID NS-082, with a photo.
+- **PAN card:** Ananya S, 26/07/2013, with her signature.
+- **Passport:** keeps its original art. The owner chose this (2026-11-10), as the passport stays the same.
+- **Aadhaar:** Ananya S, DOB 26/07/2013, female, Cyberabad, Telangana. The PDF draws it on its side, so it's turned upright.
+
+Each sits tilted 2° with a drop shadow, its label underneath. The desk mat on 05 keeps its generic document pictures.
+- **QR codes on the art:** those on the library card, PAN and Aadhaar decode to the game's real codes (`…/a/library-card`, `…/a/pan-card`, `…/a/aadhaar-card`).
+
+**Owner request (2026-11-10): more interactive, with animations.** Six were added. Each keeps the existing flow, skips its motion when the device asks for Reduce Motion, and lasts at most about 2 s.
+1. **Stamp slam** (`Stamp`, every feedback card): the stamp drops in large and faint, lands in 0.2 s with the stamp thud, jolts the card and flicks 8 ink specks off its edge.
+2. **Idle nudge** (`useIdle`, `TaskScreen`): after 10 s without a tap or key press on a task screen, what can be used pulses gently with a warm glow, staggered so no one item is singled out: cards, documents, slips, the pen, number keys and evidence slots. The cheque's tap areas glow instead. Any tap resets it.
+3. **Opening the case file** (`CaseFileOpening`, 03; owner art 2026-11-10: `Frame 9`, `Frame 10` and `Frame 11`): OPEN CASE FILE lifts the file off the desk and its cover swings open like a book.
+   - **Inside:** the Account Holder Profile is on the inside of the cover, on the left; the Case Brief is on the right.
+   - **Moving on (no extra button, owner 2026-11-10):**
+     - Made faster (owner, 2026-11-10): the file is open by 1.0 s.
+     - At 1.9 s the brief's envelope ("OPEN & SCAN THE ACCOUNT TYPE") glows and pulses with a chime.
+     - At 2.8 s the envelope opens: its flap folds up (0.35 s) and the inside shows. The pocket and flap are cut from the page art.
+     - The four account-type cards slide out and fan above it.
+     - At 4.2 s the view dives into the cards, and Level 1 begins at 4.8 s (it was 7.8 s).
+
+     A tap skips ahead once the file is open.
+   - **Art:** `casefile-cover.jpg`, `casefile-profile.png` and `casefile-brief.png`, preloaded on 03.
+   - **Typo in the art:** the brief's art reads "noticed that t he balance"; fix it in the source file.
+4. **Cheque magnifying glass** (`Cheque loupe`, 09b): a brass-rimmed lens at 2.1× follows the mouse, or the finger while pressed. When the mismatch is found (09e), a red pen rings "Fifty", then "1,500.00".
+5. **Passkey accepted** (16e): the code boxes glow green. A padlock was tried and removed (owner, 2026-11-10).
+6. **Voice-reactive portrait** (`CallPortrait`, `voiceLevel`): Ananya's recording is measured through a Web Audio analyser. Her ring glows and her portrait bobs slightly as she speaks; the device voice gets a gentle made-up rhythm.
+- **Measured:** 116 unit and 13 Playwright tests pass. During the opening call the voice level ranged 0–0.74 and fell to 0 in her pauses.
+7. **Confetti** (`Confetti`, 16; owner, 2026-11-10): 110 pieces in the game's colours rain over the canvas once, as the certificate lands. They start at staggered heights and take 2.4–4 s to fall.
+
+**Owner recording (2026-11-10): new second call.** `Ananya-call-2.mp3` (10.8 s) replaces the second call. It's cut on MP3 frame boundaries at the pause after "…has been blocked":
+- `ananya-call2-1`: 0–4.34 s.
+- `ananya-call2-2`: 4.46–10.5 s.
+
+Both clips start and end in silence.
+
+**Owner request (2026-11-10): the second call rings, and "again".**
+- **Ringing:** Ananya's second call (11) now starts with the incoming-call animation of 02: "INCOMING CALL..", the portrait centred with pulsing rings, and the ring tone. After 2.6 s it connects by itself (a tap answers sooner), with no ACCEPT button, and the portrait slides left.
+- **"Again":** its first line now reads "Hello! It's me, Ananya, again! My debit card has been blocked", matching the new recording.
+

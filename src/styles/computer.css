@@ -373,11 +373,15 @@
 }
 
 .pk-keyboard {
+  /* Bigger than the mockup's keyboard so the number keys are easy to tap (owner, 2026-11-10). */
   position: absolute;
-  left: 246px;
-  top: 789px;
-  width: 552px;
-  height: 85px;
+  left: 158px;
+  top: 752px;
+  width: 680px;
+  height: 184px;
+  /* Lying on the desk: tilted away from the viewer, the near edge stays put. */
+  transform: perspective(900px) rotateX(28deg);
+  transform-origin: 50% 100%;
 }
 
 .pk-keyboard-body {
@@ -385,7 +389,7 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 4px 6px color-mix(in srgb, var(--ink) 45%, transparent));
+  filter: drop-shadow(0 5px 8px color-mix(in srgb, var(--ink) 45%, transparent));
 }
 
 .pk-keyboard-body path {
@@ -397,55 +401,68 @@
 .pk-row {
   position: absolute;
   display: flex;
-  gap: 4px;
+  gap: 5px;
 }
 
+/* The number row: 11 keys of 52 × 60 (about 55 × 45 on screen, once tilted), the typing keys. */
 .pk-row--1 {
-  left: 32px;
-  top: 14px;
+  left: 29px;
+  top: 16px;
 }
 
 .pk-row--2 {
-  left: 39px;
-  top: 35px;
+  left: 72px;
+  top: 88px;
 }
 
 .pk-key {
-  width: 34px;
-  height: 15px;
+  width: 52px;
+  height: 60px;
   padding: 0;
   border: none;
-  border-radius: 3px;
+  border-radius: 7px;
   background: var(--kb-key);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--kb-key) 55%, var(--ink));
   color: var(--ink);
   font-family: var(--font-print);
-  font-size: 11px;
+  font-size: 26px;
   font-weight: 700;
-  line-height: 15px;
+  line-height: 60px;
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 .pk-row--2 .pk-key {
-  width: 41px;
+  width: 55px;
+  height: 30px;
+  border-radius: 6px;
+  box-shadow: none;
+  opacity: 0.85;
 }
 
 .pk-key:disabled {
   cursor: default;
 }
 
-.pk-key:not(:disabled):hover,
-.pk-key:active {
+.pk-key:not(:disabled):hover {
+  background: color-mix(in srgb, var(--kb-key) 70%, var(--text-light));
+}
+
+.pk-row--1 .pk-key:active {
+  translate: 0 2px;
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--kb-key) 55%, var(--ink));
   background: color-mix(in srgb, var(--kb-key) 70%, var(--text-light));
 }
 
 .pk-space {
   position: absolute;
-  left: 87px;
-  top: 56px;
-  width: 307px;
-  height: 11px;
-  border-radius: 3px;
+  left: 150px;
+  top: 132px;
+  width: 380px;
+  height: 26px;
+  border-radius: 6px;
   background: var(--kb-key);
+  opacity: 0.85;
 }
 
 .pk-unlocked {
@@ -1277,4 +1294,15 @@
   top: 584px;
   color: var(--pc-label);
   font-size: 16px;
+}
+
+/* Once accepted, the passkey boxes glow green (16e). */
+.pk-unlocked .pc-passkey-box {
+  animation: pk-boxes-open 0.4s ease-out 0.8s forwards;
+}
+@keyframes pk-boxes-open {
+  to {
+    border-color: #3fb37f;
+    box-shadow: 0 0 18px rgba(63, 179, 127, 0.55);
+  }
 }

@@ -18,8 +18,9 @@ const DESK_PAPER =
 const LENGTH = task.clues.length
 
 /** The keyboard's keys (13): the top row carries the digits, its last key deletes. */
-const TOP_ROW = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '', '', '⌫']
-const SECOND_ROW = 10
+/** The number row, big enough to tap on an iPad (owner, 2026-11-10); the row below is just a picture. */
+const TOP_ROW = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '⌫']
+const SECOND_ROW = 9
 
 /** The passkey boxes on the monitor: typed digits, or a dash while empty. */
 function PasskeyBoxes({ digits, wrong }: { digits: string; wrong: boolean }) {
@@ -43,8 +44,8 @@ function PasskeyBoxes({ digits, wrong }: { digits: string; wrong: boolean }) {
 function Keyboard({ onKey }: { onKey?: (key: string) => void }) {
   return (
     <div className="pk-keyboard" role="group" aria-label={task.instruction}>
-      <svg className="pk-keyboard-body" viewBox="0 0 552 85" aria-hidden="true">
-        <path d="M33 1 H519 Q527 1 530 8 L550 74 Q552 84 541 84 H11 Q0 84 2 74 L22 8 Q25 1 33 1 Z" />
+      <svg className="pk-keyboard-body" viewBox="0 0 700 184" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M38 2 H662 Q673 2 677 13 L697 166 Q699 182 683 182 H17 Q1 182 3 166 L23 13 Q27 2 38 2 Z" />
       </svg>
       <div className="pk-row pk-row--1">
         {TOP_ROW.map((key, i) => (

@@ -563,3 +563,49 @@
   font-size: 38px;
   rotate: -3deg;
 }
+
+/* The magnifying glass over the cheque (09b): a lens with a brass rim, following the finger. */
+.cq-loupe {
+  position: absolute;
+  z-index: 5;
+  overflow: hidden;
+  border-radius: 50%;
+  border: 6px solid #b8893c;
+  background: var(--cheque-paper);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.5),
+    inset 0 -14px 24px rgba(0, 0, 0, 0.12),
+    0 10px 22px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+.cq-loupe .cheque {
+  box-shadow: none;
+}
+.cq-loupe::after {
+  /* A glint on the glass. */
+  content: '';
+  position: absolute;
+  left: 18%;
+  top: 12%;
+  width: 34%;
+  height: 20%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  filter: blur(6px);
+}
+
+/* The red pen ring round the mismatch, once it's found (09e). */
+.cheque-ring {
+  position: absolute;
+  z-index: 6;
+  overflow: visible;
+  pointer-events: none;
+}
+.cheque-ring path {
+  fill: none;
+  stroke: #d63a2f;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-width: 5px;
+  opacity: 0.9;
+}

@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "typecheck": "tsc -b",
-    "print": "node scripts/print-artefacts.ts"
+    "print": "node scripts/print-artefacts.ts",
+    "voice": "node --env-file-if-exists=.env scripts/voice-azure.ts"
   },
   "dependencies": {
     "howler": "^2.2.4",

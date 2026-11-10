@@ -1,28 +1,64 @@
-import { Howl } from 'howler'
+import { Howl, Howler } from 'howler'
 import { useEffect, useState } from 'react'
 import { duckMusic, isMuted } from './sounds'
-import call1Line1 from '../assets/voice/ananya-call1-1.mp3'
-import call1Line2 from '../assets/voice/ananya-call1-2.mp3'
-import call1Line3 from '../assets/voice/ananya-call1-3.mp3'
-import call2Line1 from '../assets/voice/ananya-call2-1.mp3'
+import { VOICE_LINES, lineKey } from './voiceLines'
 
 /**
- * Ananya's voice. Her lines are recorded (ElevenLabs, voice "Noor"); a line with no recording yet
- * falls back to the device's own speech (Web Speech API), pitched high, quick and shaky (see
- * DISTRESS), so she's never silent.
+ * Ananya's voice. Her lines are the owner's ElevenLabs recordings (2026-11-10, voice "Noor"),
+ * cut into one file per line; a line with no recording falls back to the device's own speech
+ * (Web Speech API, see DISTRESS), so she's never silent.
  */
 
-/** The recorded lines, keyed by the line's text with its line breaks as spaces. */
-const RECORDINGS: Record<string, string> = {
-  'Helloo? My name is Ananya... Something is wrong with my bank account.': call1Line1,
-  'I think someone is trying to steal my pocket money....': call1Line2,
-  '... I was checking my account and then-': call1Line3,
-  "Hello! It's me, Ananya! My debit card has been blocked": call2Line1,
-}
+/** Every recording in src/assets/voice/ (m4a or mp3), by file name. A missing file just isn't there. */
+const FILES = import.meta.glob<string>('../assets/voice/*.{m4a,mp3}', { eager: true, import: 'default' })
+const fileUrl = (name: string) => FILES[`../assets/voice/${name}.m4a`] ?? FILES[`../assets/voice/${name}.mp3`]
 
-const recordingFor = (text: string): string | undefined => RECORDINGS[text.replace(/\s*\n\s*/g, ' ').trim()]
+/** The recorded lines, keyed by the line's text with its line breaks as spaces. */
+const RECORDINGS: Record<string, string> = Object.fromEntries(
+  VOICE_LINES.flatMap((line) => {
+    const url = fileUrl(line.file)
+    return url ? [[lineKey(line.text), url]] : []
+  }),
+)
+
+const recordingFor = (text: string): string | undefined => RECORDINGS[lineKey(text)]
 
 let playing: Howl | null = null
+
+/** Listens to Ananya's recorded voice, so her portrait can move with it. */
+let analyser: AnalyserNode | null = null
+const samples = new Uint8Array(256)
+
+/** Routes a playing clip through the analyser (Web Audio only; it's a no-op otherwise). */
+function listenTo(clip: Howl, id: number) {
+  const ctx = Howler.ctx
+  const master = Howler.masterGain
+  // Howler keeps each sound's gain node on the sound; it isn't in its public types.
+  const node = (clip as unknown as { _soundById?: (id: number) => { _node?: AudioNode } | null })._soundById?.(id)?._node
+  if (!ctx || !master || !node || !Howler.usingWebAudio) return
+  if (!analyser) {
+    analyser = ctx.createAnalyser()
+    analyser.fftSize = 256
+    analyser.connect(master)
+  }
+  node.disconnect()
+  node.connect(analyser)
+}
+
+/**
+ * How loud Ananya is right now, 0 to about 1: from her recording, or a gentle made-up rhythm while
+ * the device's voice speaks (its sound can't be measured).
+ */
+export function voiceLevel(): number {
+  if (playing?.playing() && analyser) {
+    analyser.getByteTimeDomainData(samples)
+    let sum = 0
+    for (const v of samples) sum += ((v - 128) / 128) ** 2
+    return Math.min(1, Math.sqrt(sum / samples.length) * 4)
+  }
+  if (synth?.speaking) return 0.35 + 0.25 * Math.sin(performance.now() / 70)
+  return 0
+}
 
 const synth = typeof window !== 'undefined' && 'speechSynthesis' in window ? window.speechSynthesis : null
 
@@ -100,10 +136,10 @@ export function useAnanyaVoice(
       }
       synth?.cancel()
       playing?.stop()
-      const clip = new Howl({ src: [recording], format: ['mp3'], volume: 1, onend: finish, onloaderror: finish, onplayerror: finish })
+      const clip = new Howl({ src: [recording], format: [recording.split('?')[0].split('.').pop() ?? 'mp3'], volume: 1, onend: finish, onloaderror: finish, onplayerror: finish })
       playing = clip
       duckMusic(true)
-      clip.play()
+      listenTo(clip, clip.play())
       // A safety net in case the clip never reports its end.
       const safety = window.setTimeout(finish, 12000)
       return () => {

@@ -26,6 +26,10 @@ async function startCase(page: Page) {
   await expect(page.getByText(GAME.openingCall.disconnected)).toBeVisible()
   await call.click({ position: { x: 1300, y: 150 } })
   await page.getByRole('button', { name: GAME.caseAssigned.cta }).click()
+  // The case file opens to her profile and the case brief, then moves on by itself; a tap skips it.
+  await expect(page.getByRole('img', { name: GAME.caseAssigned.briefAlt })).toBeVisible()
+  await page.waitForTimeout(1500)
+  await page.getByRole('dialog', { name: GAME.caseAssigned.cta }).click()
 }
 
 test('plays the whole mission with simulated scans', async ({ page }) => {
@@ -106,11 +110,11 @@ test('plays the whole mission with simulated scans', async ({ page }) => {
   await closeDialog(page, GAME.ui.highlighter.suspicious)
 
   // Level 2 done: straight on through the Case Board transition to Ananya's second call (11, 11b),
-  // which plays by itself and hands over to the choice (11c).
+  // which rings, connects and plays by itself, then hands over to the choice (11c).
   await expect(page).toHaveURL(/\/level-3\/call-ananya$/)
   await expect(page.locator('.level-intro')).toContainText(`${GAME.ui.levelHeading} 3 ${GAME.caseBoard.unlocked}`)
-  await expect(page.locator('.speech-bubble-text')).toHaveText(tasks.L3T1.call.steps[0].text.replace('\n', ' '), { timeout: 10_000 })
-  await expect(page).toHaveURL(/\/level-3\/phishing$/, { timeout: 15_000 })
+  await expect(page.locator('.speech-bubble-text')).toHaveText(tasks.L3T1.call.steps[0].text.replace('\n', ' '), { timeout: 14_000 })
+  await expect(page).toHaveURL(/\/level-3\/phishing$/, { timeout: 20_000 })
 
   // Level 3, Task 1: the YES path through the fake page.
   await page.getByRole('button', { name: tasks.L3T1.choices.find((c) => c.id === 'yes')!.label, exact: true }).click()
