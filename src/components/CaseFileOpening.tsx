@@ -23,7 +23,7 @@ const FROM_DESK = { x: 990 + 178 - (CLOSED.left + PAGE.width / 2), y: 524 + 210 
  * How the opening plays out (s): lift, cover swings open, time to read, the envelope's hint, then
  * the view dives into the envelope and Level 1 begins.
  */
-const T = { lift: 0.4, open: 0.45, cover: 0.55, hint: 1.9, flap: 2.8, cards: 3.15, dive: 4.2, done: 4.8 }
+const T = { lift: 0.4, open: 0.45, cover: 0.55, hint: 1.9, flap: 2.8, cards: 3.15, dive: 3.95, done: 4.35 }
 /** The envelope on the case brief ("OPEN & SCAN THE ACCOUNT TYPE"), and its flap's tip: fractions of the page. */
 const ENVELOPE = { x0: 0.091, y0: 0.606, x1: 0.914, y1: 0.933, tipX: 0.499, tipY: 0.769 }
 const ENVELOPE_BOX = {
@@ -53,15 +53,15 @@ const CARDS = [
   { src: cardRecurring, x: 160, rotate: 12 },
 ] as const
 const CARD_WIDTH = 104
-/** Where the view dives: the cards, just above the open envelope. */
+/** Where the view leans in as the file fades: the cards, just above the open envelope. */
 const ENVELOPE_CENTRE = { x: ENVELOPE_BOX.left + ENVELOPE_BOX.width / 2, y: ENVELOPE_BOX.top - 40 }
 
 /**
  * OPEN CASE FILE (03, owner art 2026-11-10): Ananya's case file lifts off the desk and its cover
  * swings open like a book: her account holder profile inside the cover, the case brief on the
  * right. After time to read, the brief's envelope glows, hinting the player to open the real one;
- * then it opens, its flap lifting and the four account-type cards sliding out, and the view dives
- * into them as Level 1 begins. A tap skips ahead.
+ * then it opens, its flap lifting and the four account-type cards sliding out. The file fades and
+ * Level 1 begins, its table dealing the same cards into place (AccountTypeScreen). A tap skips ahead.
  */
 export function CaseFileOpening({ onDone }: { onDone: () => void }) {
   const reduce = useReducedMotion()
@@ -93,8 +93,10 @@ export function CaseFileOpening({ onDone }: { onDone: () => void }) {
       className="cfo"
       onClick={skip}
       initial={{ backgroundColor: 'rgba(6, 18, 34, 0)' }}
-      animate={{ backgroundColor: 'rgba(6, 18, 34, 0.82)' }}
-      transition={{ duration: T.lift }}
+      // Dims the desk while the file is open, then goes fully dark as it fades, so the table that
+      // follows appears cleanly.
+      animate={{ backgroundColor: ['rgba(6, 18, 34, 0)', 'rgba(6, 18, 34, 0.82)', 'rgba(6, 18, 34, 0.82)', 'rgba(14, 35, 61, 1)'] }}
+      transition={{ duration: T.done, times: [0, T.lift / T.done, T.dive / T.done, 1] }}
       role="dialog"
       aria-label={caseAssigned.cta}
     >
@@ -103,7 +105,7 @@ export function CaseFileOpening({ onDone }: { onDone: () => void }) {
         className="cfo-stage"
         style={{ originX: `${ENVELOPE_CENTRE.x}px`, originY: `${ENVELOPE_CENTRE.y}px` }}
         initial={{ scale: 1, opacity: 1 }}
-        animate={reduce ? {} : { scale: 2.6, opacity: 0 }}
+        animate={reduce ? {} : { scale: 1.12, opacity: 0 }}
         transition={{ delay: T.dive, duration: T.done - T.dive, ease: [0.55, 0, 0.8, 0.4] }}
       >
         {/* The case brief, on the right; the closed file starts over it. */}

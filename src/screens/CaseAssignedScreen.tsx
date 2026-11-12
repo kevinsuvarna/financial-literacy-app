@@ -23,7 +23,8 @@ export function CaseAssignedScreen() {
 
   const startCase = useCallback(() => {
     completeIntro()
-    navigate(resumeRoute(useGameStore.getState()))
+    // The account-type table deals the cards that just came out of the envelope.
+    navigate(resumeRoute(useGameStore.getState()), { state: { dealCards: true } })
   }, [completeIntro, navigate])
 
   const openCaseFile = () => {

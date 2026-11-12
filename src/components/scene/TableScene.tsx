@@ -60,10 +60,10 @@ export function DeskLamp({ scanning = false, blocked = false, placement }: { sca
 }
 
 /** The paper mat on the desk. Children are positioned in flat mat coordinates (see MATS). */
-export function Mat({ name = 'accountType', children }: { name?: MatName; children: ReactNode }) {
+export function Mat({ name = 'accountType', className = '', children }: { name?: MatName; className?: string; children: ReactNode }) {
   const mat = MATS[name]
   return (
-    <div className={`mat mat--${name}`} style={{ width: mat.width, height: mat.height, transform: mat.transform }}>
+    <div className={`mat mat--${name} ${className}`} style={{ width: mat.width, height: mat.height, transform: mat.transform }}>
       <div className="mat-paper" />
       {children}
     </div>

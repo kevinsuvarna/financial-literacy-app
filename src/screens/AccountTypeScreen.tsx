@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useLocation } from 'react-router'
 import { GAME, type ArtefactId } from '../content/gameData'
 import { InfoIcon } from '../components/art/Icons'
 import { SceneScanner } from '../components/scene/SceneScanner'
@@ -37,12 +38,14 @@ function AccountTypeTable() {
   const [scannerStatus, setScannerStatus] = useState<ScannerStatus>('off')
   const tap = useTapArtefact()
   const markOf = useScanMarks('L1T1')
+  // Arriving from the case file: the cards from its envelope are dealt onto the table.
+  const dealing = !!(useLocation().state as { dealCards?: boolean } | null)?.dealCards
 
   return (
     <>
       <Desk />
       <DeskLamp scanning={scannerStatus === 'active'} blocked={['denied', 'unavailable', 'error'].includes(scannerStatus)} />
-      <Mat>
+      <Mat className={dealing ? 'is-dealing' : undefined}>
         <h1 className="mat-title">{task.prompt}</h1>
         <ul className="table-cards" aria-label={task.instruction}>
           {task.options.map((id) => {

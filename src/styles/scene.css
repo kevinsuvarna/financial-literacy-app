@@ -443,3 +443,50 @@
   z-index: 6;
   background: color-mix(in srgb, var(--bg-navy) 92%, transparent);
 }
+
+/*
+ * Arriving from the case file (CaseFileOpening): the four account cards are dealt onto the table,
+ * one after another, from a stack above the mat. Card and illustration move together; the moves
+ * are in the mat's own (flat) pixels, so they land in perspective.
+ */
+.mat.is-dealing :is(.table-card, .table-card-art) {
+  animation: deal-card 0.7s cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+.mat.is-dealing :is(.table-card--savings-account, .table-card-art--savings-account) {
+  --deal-from: 454px -726px;
+}
+.mat.is-dealing :is(.table-card--current-account, .table-card-art--current-account) {
+  --deal-from: 190px -698px;
+  animation-delay: 0.1s;
+}
+.mat.is-dealing :is(.table-card--fixed-deposit-account, .table-card-art--fixed-deposit-account) {
+  --deal-from: -100px -750px;
+  animation-delay: 0.2s;
+}
+.mat.is-dealing :is(.table-card--recurring-deposit-account, .table-card-art--recurring-deposit-account) {
+  --deal-from: -402px -702px;
+  animation-delay: 0.3s;
+}
+@keyframes deal-card {
+  from {
+    translate: var(--deal-from);
+    scale: 0.6;
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  85% {
+    scale: 1.03;
+  }
+  to {
+    translate: 0 0;
+    scale: 1;
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mat.is-dealing :is(.table-card, .table-card-art) {
+    animation: none;
+  }
+}

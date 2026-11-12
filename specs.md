@@ -1266,7 +1266,8 @@ Each sits tilted 2° with a drop shadow, its label underneath. The desk mat on 0
      - At 1.9 s the brief's envelope ("OPEN & SCAN THE ACCOUNT TYPE") glows and pulses with a chime.
      - At 2.8 s the envelope opens: its flap folds up (0.35 s) and the inside shows. The pocket and flap are cut from the page art.
      - The four account-type cards slide out and fan above it.
-     - At 4.2 s the view dives into the cards, and Level 1 begins at 4.8 s (it was 7.8 s).
+     - At 3.95 s the file fades to dark, and Level 1 begins at 4.35 s.
+     - **Dealing (owner, 2026-11-12):** the account-type table (04) opens with the same four cards dealt onto it, one every 0.1 s. They fly from a stack above the mat and land in their places in perspective (`.mat.is-dealing`, `deal-card`). This only happens when arriving from the case file (`state.dealCards`); there's none with Reduce Motion.
 
      A tap skips ahead once the file is open.
    - **Art:** `casefile-cover.jpg`, `casefile-profile.png` and `casefile-brief.png`, preloaded on 03.
